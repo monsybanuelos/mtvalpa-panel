@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -178,5 +179,52 @@ function exportExcel(){const ws=XLSX.utils.json_to_sheet(clientes.map(c=>({Nombr
 function openWhats(tel){if(!tel)return;window.open('https://wa.me/52'+tel.replace(/\D/g,''),'_blank');}
 init();
 </script>
+
+<!-- MODAL AGREGAR CLIENTE MANUAL -->
+<div id="addClienteModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:100;align-items:center;justify-content:center">
+  <div style="background:#1a1a1a;border:1px solid #333;border-radius:16px;padding:24px;width:90%;max-width:400px">
+    <h3 style="margin:0 0 16px;font-size:18px;font-weight:900">+ Nuevo Cliente</h3>
+    <label style="font-size:12px;color:#888">NOMBRE COMPLETO *</label>
+    <input id="newCliNombre" type="text" placeholder="Ej: Juan Pérez" style="width:100%;padding:12px;margin:6px 0 12px;background:#222;border:1px solid #333;border-radius:10px;color:#fff;font-size:14px">
+    <label style="font-size:12px;color:#888">NÚMERO WHATSAPP *</label>
+    <input id="newCliTel" type="tel" placeholder="Ej: 492 123 4567" style="width:100%;padding:12px;margin:6px 0 12px;background:#222;border:1px solid #333;border-radius:10px;color:#fff;font-size:14px">
+    <label style="font-size:12px;color:#888">NOTAS (opcional)</label>
+    <textarea id="newCliNotas" placeholder="Ej: Cliente frecuente, paga en Valpa, etc" style="width:100%;padding:12px;margin:6px 0 16px;background:#222;border:1px solid #333;border-radius:10px;color:#fff;font-size:14px;min-height:70px;resize:none"></textarea>
+    <div style="display:flex;gap:10px">
+      <button onclick="closeAddCliente()" style="flex:1;background:#222;border:1px solid #333;color:#fff;padding:12px;border-radius:10px;font-weight:700;cursor:pointer">CANCELAR</button>
+      <button onclick="saveManualCliente()" id="btnSaveCli" style="flex:1;background:var(--neon);color:#000;padding:12px;border-radius:10px;font-weight:900;cursor:pointer;border:none">GUARDAR EN NUBE</button>
+    </div>
+    <p id="addCliMsg" style="font-size:12px;margin-top:10px;color:#888"></p>
+  </div>
+</div>
+<script>
+function openAddCliente(){ document.getElementById('addClienteModal').style.display='flex'; document.getElementById('newCliNombre').focus(); }
+function closeAddCliente(){ document.getElementById('addClienteModal').style.display='none'; document.getElementById('newCliNombre').value=''; document.getElementById('newCliTel').value=''; document.getElementById('newCliNotas').value=''; document.getElementById('addCliMsg').textContent=''; }
+async function saveManualCliente(){
+  const nombre=document.getElementById('newCliNombre').value.trim();
+  const telRaw=document.getElementById('newCliTel').value.trim();
+  const notas=document.getElementById('newCliNotas').value.trim();
+  const msg=document.getElementById('addCliMsg');
+  if(!nombre){ msg.textContent='⚠️ Pon el nombre'; return; }
+  let tel=telRaw.replace(/\D/g,''); if(tel.length>10) tel=tel.slice(-10);
+  if(tel.length<10){ msg.textContent='⚠️ Teléfono debe tener 10 dígitos'; return; }
+  document.getElementById('btnSaveCli').textContent='GUARDANDO...';
+  document.getElementById('btnSaveCli').disabled=true;
+  try{
+    const cliente={ id: crypto.randomUUID(), nombre, telefono: tel, email:'', notas, origen_fav:'Valparaíso', total_viajes:0, ultimo_viaje:'', fecha_alta:new Date().toISOString().slice(0,10), frecuente:false };
+    const {error} = await supabaseClient.from('clientes').upsert(cliente,{onConflict:'telefono'});
+    if(error){ msg.textContent='❌ Error: '+error.message; msg.style.color='#ff4444'; }
+    else{
+      // add to local array instantly
+      if(typeof clientes!=='undefined'){ clientes.unshift(cliente); }
+      msg.textContent='✅ Cliente guardado en nube'; msg.style.color='#b4ff00';
+      setTimeout(()=>{ closeAddCliente(); if(typeof render==='function') render(); },800);
+    }
+  }catch(e){ msg.textContent='❌ '+e.message; }
+  document.getElementById('btnSaveCli').textContent='GUARDAR EN NUBE';
+  document.getElementById('btnSaveCli').disabled=false;
+}
+</script>
+
 </body>
 </html>
