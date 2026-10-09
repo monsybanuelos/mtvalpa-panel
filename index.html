@@ -133,9 +133,22 @@ async function updateEstado(id,nuevo){
   render();
 }
 
+
 function handleExcel(e){
   const file=e.target.files[0]; if(!file) return;
-  console.log('Importando',file.name);
+  const isJson = file.name.toLowerCase().endsWith('.json');
+  if(isJson){
+    const reader=new FileReader();
+    reader.onload=function(evt){
+      try{
+        const j=JSON.parse(evt.target.result);
+        const mapped=j.map(r=>({nombre:String(r.nombre||'').trim(),telefono:String(r.telefono||'').replace(/\D/g,'').slice(-10),email:r.email||'',notas:r.notas||''})).filter(x=>x.nombre&&x.telefono.length>=10);
+        if(mapped.length==0){alert('JSON sin clientes');return;}
+        importPreview=mapped;showImport=true;render();
+      }catch(err){alert('Error JSON: '+err.message);}
+    };
+    reader.readAsText(file);return;
+  }
   const reader=new FileReader();
   reader.onload=function(evt){
     try{
@@ -143,29 +156,22 @@ function handleExcel(e){
       const wb=XLSX.read(data,{type:'array'});
       const ws=wb.Sheets[wb.SheetNames[0]];
       const json=XLSX.utils.sheet_to_json(ws,{defval:''});
-      console.log('Filas excel',json.length, json[0]);
       const mapped=json.map(row=>{
-        const keys=Object.keys(row);
-        const get=(...names)=>{
-          for(let k of keys){
-            const kl=k.toLowerCase().replace(/[^a-z]/g,'');
-            for(let n of names){
-              const nl=n.toLowerCase().replace(/[^a-z]/g,'');
-              if(kl.includes(nl) || k.toLowerCase().includes(n.toLowerCase())) return row[k];
-            }
-          }
-          return '';
-        };
-        const tel=String(get('phone','telefono','tel','celular','whatsapp','movil')||'').replace(/\D/g,'').slice(-10);
-        const name=String(get('nombre','name','cliente','fullname')||'').trim();
-        return {nombre:name.replace(/\d+/g,'').trim(),telefono:tel,email:String(get('email','correo')||''),notas:String(get('nota','address','origen')||'')};
-      }).filter(r=>r.nombre&&r.nombre.length>1 && r.telefono && r.telefono.length>=10);
-      if(mapped.length===0){ alert('No detecté clientes. Revisa que tu Excel tenga columnas Nombre y Telefono. Primer fila: '+JSON.stringify(json[0])); return; }
-      importPreview=mapped; showImport=true; render();
-    }catch(err){ alert('Error leyendo Excel: '+err.message); console.error(err); }
+        const get=(...names)=>{for(let k in row){for(let n of names){if(k.toLowerCase().includes(n.toLowerCase())) return row[k];}} return '';};
+        let tel=String(get('phone','telefono','tel','celular','whatsapp')||'').replace(/\D/g,'');
+        if(tel.length>10) tel=tel.slice(-10);
+        let name=String(get('nombre','name','cliente','firstname')||'').trim();
+        const last=String(get('lastname','apellido')||'').trim();
+        if(last) name=(name+' '+last).trim();
+        return {nombre:name.replace(/\d+/g,'').trim(),telefono:tel,email:String(get('email')||''),notas:String(get('nota','note')||'')};
+      }).filter(r=>r.nombre&&r.nombre.length>1&&r.telefono.length>=10);
+      if(mapped.length==0){alert('No detecté clientes. Primer fila: '+JSON.stringify(json[0]));return;}
+      importPreview=mapped;showImport=true;render();
+    }catch(err){alert('Error Excel: '+err.message);}
   };
   reader.readAsArrayBuffer(file);
 }
+
 
 async function confirmImportCloud(){let added=0;for(const r of importPreview){if(!r.telefono) continue; const exist=clientes.find(c=>c.telefono===r.telefono); if(!exist){const nc={id:'c'+Date.now()+Math.random(),nombre:r.nombre,telefono:r.telefono,email:r.email,notas:r.notas,origenFav:'Valparaíso',totalViajes:0,ultimoViaje:'',fechaAlta:new Date().toISOString().slice(0,10),frecuente:false}; clientes.push(nc); added++; if(isSupabaseConfigured){await supabaseClient.from('clientes').insert({id:nc.id,nombre:nc.nombre,telefono:nc.telefono,email:nc.email,notas:nc.notas,origen_fav:nc.origenFav,total_viajes:0,fecha_alta:nc.fechaAlta,frecuente:false});}}} saveLocal(); showImport=false; alert('Se agregaron '+added+' clientes'); render();}
 function exportExcel(){const ws=XLSX.utils.json_to_sheet(clientes.map(c=>({Nombre:c.nombre,Telefono:c.telefono,Email:c.email,OrigenFav:c.origenFav,TotalViajes:c.totalViajes,UltimoViaje:c.ultimoViaje,Frecuente:c.frecuente?'SI':'NO',Notas:c.notas})));const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Clientes');XLSX.writeFile(wb,'clientes_mt_valpa.xlsx');}
