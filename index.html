@@ -225,5 +225,80 @@ async function saveManualCliente(){
 }
 </script>
 
+
+<script>
+// FIX BUSCADOR FLUIDO + MODAL CLIENTE
+let clienteSearchTerm = '';
+function filterClientesLive(val){
+  clienteSearchTerm = val.toLowerCase();
+  const list = document.getElementById('clientesList');
+  if(!list) return;
+  const cards = list.querySelectorAll('[data-cliente-card]');
+  let visible=0;
+  cards.forEach(card=>{
+    const txt = card.getAttribute('data-search') || '';
+    const show = !clienteSearchTerm || txt.includes(clienteSearchTerm);
+    card.style.display = show ? '' : 'none';
+    if(show) visible++;
+  });
+  const counter = document.getElementById('clientesCount');
+  if(counter) counter.textContent = visible + ' clientes';
+}
+
+// Asegurar modal y boton siempre visibles
+function ensureAddButton(){
+  const toolbar = document.querySelector('#clientesToolbar');
+  if(toolbar && !document.getElementById('btnAddClienteReal')){
+    const btn = document.createElement('button');
+    btn.id='btnAddClienteReal';
+    btn.textContent='+ CLIENTE';
+    btn.style.cssText='background:#b4ff00;color:#000;padding:10px 18px;border-radius:20px;font-size:13px;font-weight:900;cursor:pointer;border:none';
+    btn.onclick=openAddCliente;
+    toolbar.prepend(btn);
+  }
+}
+
+const originalRender = window.render;
+window.render = function(){
+  const searchInput = document.getElementById('searchClienteInput');
+  const prevTerm = searchInput ? searchInput.value : clienteSearchTerm;
+  const wasFocused = document.activeElement && document.activeElement.id==='searchClienteInput';
+  const selStart = searchInput ? searchInput.selectionStart : null;
+  const selEnd = searchInput ? searchInput.selectionEnd : null;
+  
+  if(typeof originalRender==='function') originalRender();
+  
+  // re-aplicar filtro y foco
+  const newSearch = document.getElementById('searchClienteInput');
+  if(newSearch){
+    newSearch.value = prevTerm;
+    newSearch.oninput = (e)=>filterClientesLive(e.target.value);
+    if(wasFocused){
+      newSearch.focus();
+      if(selStart!==null) newSearch.setSelectionRange(selStart, selEnd);
+    }
+  }
+  filterClientesLive(prevTerm);
+  ensureAddButton();
+};
+
+// Inicial
+setTimeout(()=>{ ensureAddButton(); const si=document.getElementById('searchClienteInput'); if(si) si.oninput=(e)=>filterClientesLive(e.target.value); }, 500);
+</script>
+
+<script>
+// Añadir data-search a tarjetas de clientes para busqueda fluida
+function tagClientesForSearch(){
+  const list=document.getElementById('clientesList');
+  if(!list) return;
+  list.querySelectorAll('[data-cliente-card]').forEach(card=>{
+    if(!card.getAttribute('data-search')){
+      card.setAttribute('data-search', card.textContent.toLowerCase());
+    }
+  });
+}
+setInterval(tagClientesForSearch, 1000);
+</script>
+
 </body>
 </html>
