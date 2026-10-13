@@ -13,7 +13,9 @@ Un `.3mf` con **3 objetos** para Elegoo Slicer:
 1. Imprime `blanco_fondo` (blanco).
 2. Imprime juntos `blanco_frente` + `naranja_texto` (blanco + naranja).
 3. Coloca el chip NFC en el hueco cuadrado del fondo.
-4. Pega el frente sobre el fondo (alineando el agujero de la anilla).
+4. Encaja el **cuadrado del frente** en el hueco de la base y pega (alinea también el agujero de la anilla).
+
+El frente lleva un resalte cuadrado (~23.3 × 23.3 × 0.7 mm) que empotra en el hueco NFC, con holgura para el chip.
 
 ## Tamaño
 
