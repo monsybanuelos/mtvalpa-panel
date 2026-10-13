@@ -30,19 +30,21 @@ ALT_ASSET = Path(
     "01a1337c-64d8-70d8-b938-30282e0e9f5d.jpg"
 )
 
-DIAMETER_MM = 45.0
+# Overall keychain at 80% of the original 45 mm design; NFC pocket stays absolute.
+DIAMETER_MM = 36.0  # 45 * 0.8
 # Back half (holds the chip)
-FONDO_H = 2.2  # slightly thicker so floor under larger pocket stays ~0.8 mm
-NFC_SQUARE = 24.0  # inner pocket side length (mm); room for ~22 mm tags
-NFC_DEPTH = 1.4  # pocket depth (mm); floor under chip = FONDO_H - NFC_DEPTH
+FONDO_H = 2.2  # slightly thicker so floor under pocket stays ~0.8 mm
+NFC_SQUARE = 24.0  # unchanged — chip fit
+NFC_DEPTH = 1.4  # unchanged — chip fit
 # Front half
 FRENTE_H = 1.5
 RELIEF_H = 1.0
 TEXT_SINK = 0.2
-HOLE_D = 4.0
-HOLE_OFFSET = 18.5
+HOLE_D = 4.0  # keep standard keyring hole
+# Place hole near the rim with a little wall left outside
+HOLE_OFFSET = DIAMETER_MM / 2.0 - HOLE_D / 2.0 - 1.2  # ~14.8 mm
 # Lay parts side-by-side on the build plate
-PART_GAP_X = 52.0
+PART_GAP_X = 42.0
 UPSCALE = 3
 SRC_OUTER_R = 171.5
 

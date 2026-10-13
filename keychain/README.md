@@ -15,7 +15,15 @@ Un `.3mf` con **3 objetos** para Elegoo Slicer:
 3. Coloca el chip NFC en el hueco cuadrado del fondo.
 4. Pega el frente sobre el fondo (alineando el agujero de la anilla).
 
-## Hueco NFC
+## Tamaño
+
+| Medida | Valor |
+|--------|-------|
+| Diámetro llavero | **~36 mm** (80 % del original de 45 mm) |
+| Grosor fondo / frente | 2.2 mm / 1.5 mm (+1 mm relieve) |
+| Agujero anilla | Ø 4 mm |
+
+## Hueco NFC (sin reducir)
 
 | Medida | Valor |
 |--------|-------|
