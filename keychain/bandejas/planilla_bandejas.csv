@@ -1,0 +1,5 @@
+bandeja,pieza,cantidad,color,archivo_3mf,notas
+1,Base con hueco NFC,36,1 color (blanco),bandeja1_bases_36uds.3mf,Hueco 24x24x1.4 mm
+2,Tapa superior,36,Blanco,bandeja2_tapas_letras_36uds.3mf,Objetos tapa_01..tapa_36
+2,Letras / texto,36,Naranja,bandeja2_tapas_letras_36uds.3mf,Objetos texto_01..texto_36 (alineados a cada tapa)
+,TOTAL llaveros completos,36,,,Una base + una tapa con letras
