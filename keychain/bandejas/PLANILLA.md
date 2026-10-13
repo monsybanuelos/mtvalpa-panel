@@ -1,36 +1,25 @@
 # Planilla de bandejas — Llavero Raitzac (Centauri 2)
 
 **Bandeja impresora:** 256 × 256 mm  
-**Llavero:** Ø ~36 mm · paso 39.7 mm · margen 6 mm  
-**Capacidad:** 6 × 6 = **36 unidades** por bandeja
+**Llavero:** Ø ~36 mm · paso 39.7 mm  
 
 ## Bandeja 1 — solo bases (1 color)
 
 | Campo | Valor |
 |-------|-------|
 | Archivo | [`bandeja1_bases_36uds.3mf`](./bandeja1_bases_36uds.3mf) |
-| Piezas | 36 × `base_01` … `base_36` |
-| Color | Blanco (u otro, un solo filamento) |
-| Contenido | Disco con hueco NFC 24×24×1.4 mm |
+| Piezas | **36** × `base_01` … `base_36` |
+| Color | 1 filamento (blanco) |
 
-## Bandeja 2 — solo tapas + letras (2 colores)
+## Bandeja 2 — tapas + letras (2 colores)
 
 | Campo | Valor |
 |-------|-------|
-| Archivo | [`bandeja2_tapas_letras_36uds.3mf`](./bandeja2_tapas_letras_36uds.3mf) |
-| Piezas blancas | 36 × `tapa_01` … `tapa_36` |
-| Piezas naranjas | 36 × `texto_01` … `texto_36` |
-| Asignación | Todas las `tapa_*` → filamento blanco; todas las `texto_*` → naranja |
+| Archivo | [`bandeja2_tapas_letras_34uds.3mf`](./bandeja2_tapas_letras_34uds.3mf) |
+| Tapas blancas | **34** × `tapa_01` … `tapa_34` |
+| Textos naranjas | **34** × `texto_01` … `texto_34` |
+| Espacio libre | Posiciones **35 y 36** reservadas para la **torre de purga** |
 
-## Orden de impresión
+## Ciclo completo
 
-1. Imprimir **Bandeja 1** (bases).
-2. Nuevo proyecto → 2 filamentos → Volúmenes de limpieza → Aceptar → abrir **Bandeja 2**.
-3. Montaje: chip en base → pegar tapa.
-
-## Layout (números en la placa)
-
-```
- 6 columnas × 6 filas, centrado en la bandeja
- Paso entre centros: 39.7 mm
-```
+- **34 llaveros** por ciclo (34 tapas + 34 de las 36 bases; sobran 2 bases).
