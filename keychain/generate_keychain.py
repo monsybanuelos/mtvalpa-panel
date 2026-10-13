@@ -40,10 +40,6 @@ NFC_DEPTH = 1.4  # unchanged — chip fit
 FRENTE_H = 1.5
 RELIEF_H = 1.0
 TEXT_SINK = 0.2
-# Male square on the front that nests into the NFC pocket on the back
-BOSS_CLEARANCE = 0.35  # mm per side so it slides in without binding
-BOSS_SIDE = NFC_SQUARE - 2.0 * BOSS_CLEARANCE  # ~23.3 mm
-BOSS_H = 0.7  # leaves room for the chip in the 1.4 mm pocket
 HOLE_D = 4.0  # keep standard keyring hole
 # Place hole near the rim with a little wall left outside
 HOLE_OFFSET = DIAMETER_MM / 2.0 - HOLE_D / 2.0 - 1.2  # ~14.8 mm
@@ -262,30 +258,19 @@ def build_blanco_fondo() -> trimesh.Trimesh:
     return finalize(cut)
 
 
-def nesting_boss() -> trimesh.Trimesh:
-    """Square peg that seats into the NFC pocket for alignment."""
-    boss = trimesh.creation.box(extents=[BOSS_SIDE, BOSS_SIDE, BOSS_H])
-    boss.apply_translation([0, 0, BOSS_H / 2.0])
-    return boss
-
-
 def build_blanco_frente(ring_polys: list[Polygon]) -> trimesh.Trimesh:
-    # Boss on the bed (z=0..BOSS_H) nests into fondo pocket when assembled.
-    boss = nesting_boss()
     plate = disc(FRENTE_H)
-    plate.apply_translation([0, 0, BOSS_H])
-    ring = extrude_polys(ring_polys, height=RELIEF_H, z0=BOSS_H + FRENTE_H)
-    combined = trimesh.boolean.union([boss, plate, ring], engine="manifold")
-    total_h = BOSS_H + FRENTE_H + RELIEF_H
+    ring = extrude_polys(ring_polys, height=RELIEF_H, z0=FRENTE_H)
+    combined = trimesh.boolean.union([plate, ring], engine="manifold")
     combined = trimesh.boolean.difference(
-        [combined, keyring_hole(total_h)], engine="manifold"
+        [combined, keyring_hole(FRENTE_H + RELIEF_H)], engine="manifold"
     )
     return finalize(combined)
 
 
 def build_naranja(text_polys: list[Polygon]) -> trimesh.Trimesh:
     height = RELIEF_H + TEXT_SINK
-    z0 = BOSS_H + FRENTE_H - TEXT_SINK
+    z0 = FRENTE_H - TEXT_SINK
     text = extrude_polys(text_polys, height=height, z0=z0)
     return finalize(text)
 
@@ -380,27 +365,8 @@ def save_preview(
             ]
             draw.polygon(tri, fill=color)
 
-    # Nesting boss outline (mates into NFC pocket)
-    half_boss = BOSS_SIDE / 2 * scale
-    draw.rectangle(
-        [cx_r - half_boss, cy_r - half_boss, cx_r + half_boss, cy_r + half_boss],
-        outline=(120, 120, 120),
-        width=2,
-    )
-    paint_xy(
-        frente_local,
-        (210, 210, 210),
-        z_min=BOSS_H + FRENTE_H + 0.2,
-        cx=cx_r,
-        cy=cy_r,
-    )
-    paint_xy(
-        naranja_local,
-        (230, 110, 30),
-        z_min=BOSS_H + FRENTE_H,
-        cx=cx_r,
-        cy=cy_r,
-    )
+    paint_xy(frente_local, (210, 210, 210), z_min=FRENTE_H + 0.2, cx=cx_r, cy=cy_r)
+    paint_xy(naranja_local, (230, 110, 30), z_min=FRENTE_H, cx=cx_r, cy=cy_r)
     draw.ellipse(
         [
             cx_r - hr,
@@ -413,8 +379,8 @@ def save_preview(
     draw.text((cx_r - 90, 20), "blanco_frente + naranja_texto", fill=(80, 80, 80))
     draw.text(
         (40, size_h - 36),
-        f"Hueco {NFC_SQUARE:.0f}x{NFC_SQUARE:.0f}x{NFC_DEPTH:.1f}  |  "
-        f"resalte {BOSS_SIDE:.1f}x{BOSS_SIDE:.1f}x{BOSS_H:.1f} empotra en base",
+        f"Hueco NFC {NFC_SQUARE:.0f}x{NFC_SQUARE:.0f}x{NFC_DEPTH:.1f} mm  |  "
+        f"chip → pegar frente sobre fondo",
         fill=(90, 90, 90),
     )
     img.save(path)
