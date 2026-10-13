@@ -36,8 +36,10 @@ Sirve para tags ~22 mm. Si aún queda justo, sube `NFC_SQUARE` / `NFC_DEPTH` en 
 
 ## Archivos
 
-- [`raitzac_llavero.3mf`](./raitzac_llavero.3mf) — **usar este**
+- [`raitzac_llavero_completo.3mf`](./raitzac_llavero_completo.3mf) — **3MF completo** (3 objetos: fondo + frente + texto)
+- [`raitzac_llavero.3mf`](./raitzac_llavero.3mf) — mismo archivo (nombre corto)
 - STLs sueltos: `raitzac_blanco_fondo.stl`, `raitzac_blanco_frente.stl`, `raitzac_naranja_texto.stl`
+- Piezas sueltas (Elegoo): carpeta [`single_parts/`](./single_parts/)
 
 Las dos mitades salen **una al lado de la otra** en la cama (listas para imprimir).
 

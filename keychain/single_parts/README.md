@@ -27,6 +27,7 @@ El fondo NFC va aparte (un color):
 ## Archivos
 | Archivo | Uso |
 |---------|-----|
+| `raitzac_llavero_completo.3mf` | **Completo** (fondo + frente + texto) |
 | `frente_dos_colores.3mf` | Frente + texto alineados (2 objetos) |
 | `blanco_fondo.3mf` | Mitad NFC, 1 color |
 | `llavero_un_color.3mf` | Todo junto 1 color |
