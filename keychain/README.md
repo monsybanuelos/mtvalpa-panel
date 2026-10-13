@@ -1,11 +1,25 @@
-# Llavero Raitzac (3MF)
+# Llavero Raitzac multicolor (3MF)
 
-Modelo de llavero listo para imprimir a partir del logo, sin **MB**, sin **EST 2025** y sin las líneas laterales.
+Dos objetos en un solo `.3mf` para asignar filamento en **Elegoo Slicer** (u Orca/Bambu):
+
+| Objeto en el slicer | Color sugerido | Contenido |
+|---------------------|----------------|-----------|
+| `blanco_base` | Blanco | Disco + anillo + agujero anilla |
+| `naranja_texto` | Naranja | Solo el script **Rait Valpa - Zac** |
+
+Sin **MB**, sin **EST 2025**, sin líneas laterales.
 
 ## Archivo principal
 
-- [`raitzac_llavero.3mf`](./raitzac_llavero.3mf) — para slicers (Bambu, PrusaSlicer, Cura, etc.)
-- [`raitzac_llavero.stl`](./raitzac_llavero.stl) — respaldo STL
+- [`raitzac_llavero.3mf`](./raitzac_llavero.3mf) — **usar este** (2 objetos)
+- [`raitzac_blanco_base.stl`](./raitzac_blanco_base.stl) / [`raitzac_naranja_texto.stl`](./raitzac_naranja_texto.stl) — por si importas piezas sueltas
+
+## En Elegoo Slicer
+
+1. Abre `raitzac_llavero.3mf`
+2. En la lista de objetos deberías ver `blanco_base` y `naranja_texto`
+3. Asigna extrusor/filamento blanco al primero y naranja al segundo
+4. Imprime juntos (misma posición; el texto encaja sobre la base)
 
 ## Medidas
 
@@ -13,14 +27,8 @@ Modelo de llavero listo para imprimir a partir del logo, sin **MB**, sin **EST 2
 |-----------|-------|
 | Diámetro | ~45 mm |
 | Base | 2 mm |
-| Relieve (borde + texto) | +1 mm |
+| Relieve | +1 mm |
 | Agujero anilla | Ø 4 mm |
-
-## Contenido del relieve
-
-- Anillo exterior
-- Texto script **Rait Valpa - Zac**
-- Agujero arriba para la anilla
 
 ## Regenerar
 
@@ -31,7 +39,7 @@ python keychain/generate_keychain.py
 
 ## Impresión sugerida
 
-- Orientación: base plana en la cama
+- Base plana en la cama
 - Capa 0.16–0.20 mm
-- Relleno 15–20 %
 - Sin soportes
+- Flush / purga según tu setup multicolor
