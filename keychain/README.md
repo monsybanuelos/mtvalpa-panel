@@ -46,7 +46,7 @@ Sirve para tags ~22 mm. Si aún queda justo, sube `NFC_SQUARE` / `NFC_DEPTH` en 
 | Bandeja | Archivo | Contenido |
 |---------|---------|-----------|
 | 1 | [`bandejas/bandeja1_bases_36uds.3mf`](./bandejas/bandeja1_bases_36uds.3mf) | 36 bases con hueco NFC · **1 color** |
-| 2 | [`bandejas/bandeja2_tapas_letras_36uds.3mf`](./bandejas/bandeja2_tapas_letras_36uds.3mf) | 36 tapas + letras naranja · **2 colores** |
+| 2 | [`bandejas/bandeja2_tapas_letras_34uds.3mf`](./bandejas/bandeja2_tapas_letras_34uds.3mf) | **34** tapas + letras naranja · **2 colores** (sin 35–36: torre de purga) |
 
 Planilla: [`bandejas/PLANILLA.md`](./bandejas/PLANILLA.md) · [`bandejas/planilla_bandejas.csv`](./bandejas/planilla_bandejas.csv)
 
