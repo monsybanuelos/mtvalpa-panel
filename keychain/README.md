@@ -20,11 +20,11 @@ Un `.3mf` con **3 objetos** para Elegoo Slicer:
 | Medida | Valor |
 |--------|-------|
 | Forma | Cuadrado |
-| Lado interior | **22 × 22 mm** |
-| Profundidad | **1.2 mm** |
+| Lado interior | **24 × 24 mm** |
+| Profundidad | **1.4 mm** |
 | Piso bajo el chip | 0.8 mm |
 
-Sirve para tags ~20 mm (o stickers más pequeños). Si tu chip es más grande/grueso, cambia `NFC_SQUARE` / `NFC_DEPTH` en `generate_keychain.py` y regenera.
+Sirve para tags ~22 mm. Si aún queda justo, sube `NFC_SQUARE` / `NFC_DEPTH` en `generate_keychain.py` y regenera.
 
 ## Archivos
 

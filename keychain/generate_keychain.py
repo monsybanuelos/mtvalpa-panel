@@ -32,9 +32,9 @@ ALT_ASSET = Path(
 
 DIAMETER_MM = 45.0
 # Back half (holds the chip)
-FONDO_H = 2.0
-NFC_SQUARE = 22.0  # inner pocket side length (mm) — fits ~20 mm tags
-NFC_DEPTH = 1.2  # pocket depth (mm); floor under chip = FONDO_H - NFC_DEPTH
+FONDO_H = 2.2  # slightly thicker so floor under larger pocket stays ~0.8 mm
+NFC_SQUARE = 24.0  # inner pocket side length (mm); room for ~22 mm tags
+NFC_DEPTH = 1.4  # pocket depth (mm); floor under chip = FONDO_H - NFC_DEPTH
 # Front half
 FRENTE_H = 1.5
 RELIEF_H = 1.0
