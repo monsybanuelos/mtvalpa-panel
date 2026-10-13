@@ -41,7 +41,16 @@ Sirve para tags ~22 mm. Si aún queda justo, sube `NFC_SQUARE` / `NFC_DEPTH` en 
 - STLs sueltos: `raitzac_blanco_fondo.stl`, `raitzac_blanco_frente.stl`, `raitzac_naranja_texto.stl`
 - Piezas sueltas (Elegoo): carpeta [`single_parts/`](./single_parts/)
 
-Las dos mitades salen **una al lado de la otra** en la cama (listas para imprimir).
+## Bandejas Centauri 2 (36 uds)
+
+| Bandeja | Archivo | Contenido |
+|---------|---------|-----------|
+| 1 | [`bandejas/bandeja1_bases_36uds.3mf`](./bandejas/bandeja1_bases_36uds.3mf) | 36 bases con hueco NFC · **1 color** |
+| 2 | [`bandejas/bandeja2_tapas_letras_36uds.3mf`](./bandejas/bandeja2_tapas_letras_36uds.3mf) | 36 tapas + letras naranja · **2 colores** |
+
+Planilla: [`bandejas/PLANILLA.md`](./bandejas/PLANILLA.md) · [`bandejas/planilla_bandejas.csv`](./bandejas/planilla_bandejas.csv)
+
+Las dos mitades sueltas salen **una al lado de la otra** en la cama (archivo completo unitario).
 
 ## En Elegoo Slicer
 
