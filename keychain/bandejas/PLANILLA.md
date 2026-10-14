@@ -1,25 +1,26 @@
 # Planilla de bandejas — Llavero Raitzac (Centauri 2)
 
-**Bandeja impresora:** 256 × 256 mm  
-**Llavero:** Ø ~36 mm · paso 39.7 mm  
+**Bandeja:** 256 × 256 mm  
+**Cantidad:** **18 uds** por bandeja (mitad, para evitar fallos de impresión)  
+**Purga:** esquina **superior derecha** libre (~70 × 70 mm)
 
-## Bandeja 1 — solo bases (1 color)
+## Bandeja 1 — bases (1 color)
 
 | Campo | Valor |
 |-------|-------|
-| Archivo | [`bandeja1_bases_36uds.3mf`](./bandeja1_bases_36uds.3mf) |
-| Piezas | **36** × `base_01` … `base_36` |
-| Color | 1 filamento (blanco) |
+| Archivo | [`bandeja1_bases_18uds.3mf`](./bandeja1_bases_18uds.3mf) |
+| Piezas | **18** × `base_01` … `base_18` |
+| Color | 1 filamento |
 
 ## Bandeja 2 — tapas + letras (2 colores)
 
 | Campo | Valor |
 |-------|-------|
-| Archivo | [`bandeja2_tapas_letras_34uds.3mf`](./bandeja2_tapas_letras_34uds.3mf) |
-| Tapas blancas | **34** × `tapa_01` … `tapa_34` |
-| Textos naranjas | **34** × `texto_01` … `texto_34` |
-| Espacio libre | Posiciones **35 y 36** reservadas para la **torre de purga** |
+| Archivo | [`bandeja2_tapas_letras_18uds.3mf`](./bandeja2_tapas_letras_18uds.3mf) |
+| Tapas | **18** × `tapa_*` → blanco |
+| Letras | **18** × `texto_*` → naranja |
+| Torre de purga | Esquina superior derecha (sin piezas) |
 
-## Ciclo completo
+## Ciclo
 
-- **34 llaveros** por ciclo (34 tapas + 34 de las 36 bases; sobran 2 bases).
+**18 llaveros** por ciclo (1 bandeja de bases + 1 de tapas).
