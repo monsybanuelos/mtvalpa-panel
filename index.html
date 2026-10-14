@@ -679,7 +679,7 @@ a("button",{type:"submit",className:"w-full h-12 rounded-full bg-[#2563EB] text-
   var KEY_CUE="mt_valpa_cli_cuentas_v1";
   var KEY_SES="mt_valpa_cli_sesion_v1";
   function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
-  function hoyIso(){var d=new Date(),m=d.getMonth()+1,day=d.getDate();return d.getFullYear()+"-"+(m<10?"0":"")+m+"-"+(day<10?"0":"")+day}
+  function hoyIso(){try{return new Intl.DateTimeFormat("en-CA",{timeZone:"America/Mexico_City",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date())}catch(e){var d=new Date(),m=d.getMonth()+1,day=d.getDate();return d.getFullYear()+"-"+(m<10?"0":"")+m+"-"+(day<10?"0":"")+day}}
   function tripIso(tr){var s=String(tr&&(tr.fecha||tr.fechaStr||tr.fecha_salida)||"").trim();if(/^\d{4}-\d{2}-\d{2}/.test(s))return s.slice(0,10);return s}
   function telDig(s){return String(s||"").replace(/\D/g,"").slice(0,10)}
   function norm(s){s=String(s==null?"":s);try{s=s.normalize("NFKC")}catch(e){}return s.replace(/[\s\u00A0\u200B\uFEFF]+/g,"").toLowerCase()}
@@ -704,10 +704,19 @@ a("button",{type:"submit",className:"w-full h-12 rounded-full bg-[#2563EB] text-
     if(vista===null){wrap.remove();return}
     function toast(t){msg=t;var el=wrap.querySelector("[data-cli-msg]");if(el)el.textContent=t||""}
 
+    function normTrip(tr){
+      if(!tr)return tr;
+      tr.titulo=tr.titulo||tr.ruta||"";
+      tr.horaSalida=tr.horaSalida||tr.hora||tr.hora_salida||"";
+      tr.horaLlegada=tr.horaLlegada||tr.hora_llegada||"";
+      tr.fecha=tr.fecha||tr.fechaStr||tr.fecha_salida||"";
+      if(tr.total==null&&tr.lugares!=null)tr.total=tr.lugares;
+      return tr;
+    }
     function loadTrips(){
       var from=hoyIso();
       return fetch(CLI_URL+"/rest/v1/trips?select=*&order=fecha.asc&limit=400",{headers:headers()}).then(function(r){return r.ok?r.json():[]}).then(function(arr){
-        trips=(arr||[]).filter(function(tr){if(!tr||tr.eliminado)return!1;var iso=tripIso(tr);if(!iso)return!0;return iso>=from});
+        trips=(arr||[]).map(normTrip).filter(function(tr){if(!tr||tr.eliminado)return!1;var iso=tripIso(tr);if(!iso)return!0;return iso>=from});
         return trips;
       }).catch(function(){trips=[];return[]});
     }
@@ -727,7 +736,7 @@ a("button",{type:"submit",className:"w-full h-12 rounded-full bg-[#2563EB] text-
         var inq=ids.map(function(x){return '"'+String(x).replace(/"/g,"")+'"'}).join(",");
         return fetch(CLI_URL+"/rest/v1/trips?id=in.("+inq+")&select=*",{headers:headers()}).then(function(r){return r.ok?r.json():[]}).then(function(ts){
           wrap._tripsMine={};
-          (ts||[]).forEach(function(t){if(t&&t.id!=null)wrap._tripsMine[String(t.id)]=t});
+          (ts||[]).forEach(function(t){if(t&&t.id!=null)wrap._tripsMine[String(t.id)]=normTrip(t)});
           return mine;
         });
       }).catch(function(){mine=mine||[];return mine});
@@ -747,7 +756,7 @@ a("button",{type:"submit",className:"w-full h-12 rounded-full bg-[#2563EB] text-
     function isoDeDate(d){var m=d.getMonth()+1,day=d.getDate();return d.getFullYear()+"-"+(m<10?"0":"")+m+"-"+(day<10?"0":"")+day}
     function dateDeIso(iso){var p=String(iso||hoyIso()).split("-");return new Date(parseInt(p[0],10),(parseInt(p[1],10)||1)-1,parseInt(p[2],10)||1)}
     function startDom(iso){var d=dateDeIso(iso);d=new Date(d.getFullYear(),d.getMonth(),d.getDate()-d.getDay());return d}
-    function fmt12(hstr){var m=String(hstr||"").match(/(\d{1,2}):(\d{2})/);if(!m)return String(hstr||"");var h=parseInt(m[1],10)%24,min=m[2],ap=h>=12?"pm":"am",h12=h%12;if(!h12)h12=12;return h12+":"+min+" "+ap}
+    function fmt12(hstr){var s=String(hstr||"").trim(),m=s.match(/(\d{1,2}):(\d{2})\s*(a\.?m\.?|p\.?m\.?)?/i);if(!m)return s;var h=parseInt(m[1],10),min=m[2],ap=(m[3]||"").replace(/\./g,"").toLowerCase();if(ap==="pm"&&h<12)h+=12;if(ap==="am"&&h===12)h=0;if(!ap)h=h%24;var ap2=h>=12?"pm":"am",h12=h%12;if(!h12)h12=12;return h12+":"+min+" "+ap2}
     function fmt12c(hstr){return fmt12(hstr).replace(" ","")}
     var CLI_MESES=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
     var CLI_DIAS=["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
@@ -755,7 +764,9 @@ a("button",{type:"submit",className:"w-full h-12 rounded-full bg-[#2563EB] text-
     function fechaLargaCli(iso){var d=dateDeIso(iso),n=CLI_DIAS[d.getDay()]||"";n=n.charAt(0).toUpperCase()+n.slice(1);return n+", "+(CLI_MESES[d.getMonth()]||"").slice(0,3)+" "+d.getDate()+", "+d.getFullYear()}
     function rutaCorta(t){t=String(t||"");if(/valpa/i.test(t)&&/zac/i.test(t)){if(/valpa\s*a\s*zac/i.test(t))return "valpa-zac";return "Zac-valpa"}return t}
     function tipoRuta(t){t=String(t||"");if(/zac\s*a\s*valpa/i.test(t))return"Zac a Valpa";if(/valpa\s*a\s*zac/i.test(t))return"Valpa a Zac";return t||"Ruta"}
-    function tripPasado(tr){var iso=tripIso(tr),hoy=hoyIso();if(iso&&iso<hoy)return!0;if(iso===hoy){var m=String(tr.horaSalida||"").match(/(\d{1,2}):(\d{2})/);if(m){var now=new Date();if((parseInt(m[1],10)*60+parseInt(m[2],10))<(now.getHours()*60+now.getMinutes()))return!0}}return!1}
+    function minutosHoraCli(h){if(!h)return-1;var s=String(h).trim(),am=/a\.?m\.?/i.test(s),pm=/p\.?m\.?/i.test(s),m=s.match(/(\d{1,2}):(\d{2})/);if(!m)return-1;var hh=parseInt(m[1],10),mm=parseInt(m[2],10);if(isNaN(hh)||isNaN(mm))return-1;if(pm&&hh<12)hh+=12;if(am&&hh===12)hh=0;if(!am&&!pm)hh=hh%24;return hh*60+mm}
+    function ahoraMinCli(){try{var p=new Intl.DateTimeFormat("en-GB",{timeZone:"America/Mexico_City",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date()),h=0,mi=0,i;for(i=0;i<p.length;i++){if(p[i].type==="hour")h=parseInt(p[i].value,10);if(p[i].type==="minute")mi=parseInt(p[i].value,10)}return h*60+mi}catch(e){var n=new Date();return n.getHours()*60+n.getMinutes()}}
+    function tripPasado(tr){var iso=tripIso(tr),hoy=hoyIso();if(iso&&iso<hoy)return!0;if(iso===hoy){var mins=minutosHoraCli(tr&&(tr.horaSalida||tr.hora)||"");if(mins>=0&&mins<ahoraMinCli())return!0}return!1}
     function precioTrip(tr){var n=parseFloat(tr&&(tr.precio||tr.price));return isFinite(n)&&n>0?n:170}
     function destLabel(code){var u=String(code||"").toUpperCase();if(u==="VZV")return"Zacatecas";if(u==="VFV")return"Fresnillo";if(u==="ZFZ")return"ZFZ";return code||""}
     function precioDest(code){var u=String(code||"").toUpperCase();if(u==="VZV")return 170;if(u==="VFV")return 120;if(u==="ZFZ")return 60;return 0}
@@ -798,6 +809,7 @@ a("button",{type:"submit",className:"w-full h-12 rounded-full bg-[#2563EB] text-
       return lines.join("\n");
     }
     function validarFormReserva(){
+      if(tripSel&&tripPasado(tripSel)){toast("Esta salida ya paso. No se puede reservar.");return false}
       var ruta=String((wrap.querySelector('[data-c="ruta"]')||{}).value||"").toUpperCase();
       var punto=String((wrap.querySelector('[data-c="punto"]')||{}).value||"").trim();
       var plazas=parseInt((wrap.querySelector('[data-c="plazas"]')||{}).value,10);if(isNaN(plazas)||plazas<1)plazas=1;
@@ -814,6 +826,7 @@ a("button",{type:"submit",className:"w-full h-12 rounded-full bg-[#2563EB] text-
     function abrirWaReserva(tr){
       if(!WA_RESERVA_ON){toast("Reserva via WhatsApp deshabilitada por ahora");return}
       if(!tr)return;
+      if(tripPasado(tr)){toast("Esta salida ya paso. No se puede reservar.");return}
       if(!validarFormReserva())return;
       window.open("https://wa.me/524922233227?text="+encodeURIComponent(waReservaTexto(tr)),"_blank");
     }
@@ -882,7 +895,7 @@ a("button",{type:"submit",className:"w-full h-12 rounded-full bg-[#2563EB] text-
         wrap.querySelector('[data-tab="login"]').onclick=function(){authTab="login";msg="";paint()};
         wrap.querySelector('[data-tab="alta"]').onclick=function(){wrap._reg={paso:"tel",tel:"",nombre:"",orig:"",id:"",existe:!1};authTab="alta";msg="";paint()};
         var g=function(k){var el=wrap.querySelector('[data-c="'+k+'"]');return el?el.value:""};
-        function entrarCuenta(u){sesGuarda(u);user=u;if(pendTrip){tripSel=pendTrip;pendTrip=null;vista="form";msg="";loadTrips().then(paint);return}vista="lista";msg="";loadTrips().then(loadMine).then(paint)}
+        function entrarCuenta(u){sesGuarda(u);user=u;if(pendTrip){tripSel=pendTrip;pendTrip=null;if(tripPasado(tripSel)){tripSel=null;vista="lista";msg="Esta salida ya paso. No se puede reservar.";loadTrips().then(paint);return}vista="form";msg="";loadTrips().then(paint);return}vista="lista";msg="";loadTrips().then(loadMine).then(paint)}
         if(wrap.querySelector('[data-act="login"]'))wrap.querySelector('[data-act="login"]').onclick=function(){
           var tel=telDig(g("tel")),pass=g("pass");
           if(esStaffUser(tel)||esStaffUser(g("tel"))){toast("Esa cuenta es de personal. Entra por Personal interno.");return}
@@ -995,19 +1008,21 @@ a("button",{type:"submit",className:"w-full h-12 rounded-full bg-[#2563EB] text-
             html+='<div style="display:flex;align-items:flex-start;gap:8px">';
             html+='<div style="flex:1;min-width:0">';
             html+='<div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">';
-            html+='<div style="font-size:13px;color:#6B7280">'+esc(fmt12(tr.horaSalida))+(tr.horaLlegada?(" - "+esc(fmt12(tr.horaLlegada))):"")+"</div>";
+            html+='<div style="font-size:13px;color:#6B7280">'+esc(fmt12(tr.horaSalida||tr.hora||""))+(tr.horaLlegada?(" - "+esc(fmt12(tr.horaLlegada))):"")+"</div>";
             html+='<div style="font-size:13px;font-weight:700;color:#16A34A;white-space:nowrap">'+(lib===1?"1 plaza libre":(lib+" plazas libres"))+"</div></div>";
             html+='<div style="display:flex;gap:10px;margin-top:8px;align-items:flex-start">';
             html+='<div style="width:42px;height:42px;border-radius:10px;background:#FFF7ED;border:1px solid #FED7AA;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#C2410C;text-align:center;line-height:1.05">MT<br>VALPA</div>';
             html+='<div style="flex:1;min-width:0">';
-            html+='<div style="font-size:16px;font-weight:800;color:#111827">'+esc(fmt12c(tr.horaSalida)+" "+rutaCorta(tr.titulo))+"</div>";
+            html+='<div style="font-size:16px;font-weight:800;color:#111827;line-height:1.2">'+esc(tipoRuta(tr.titulo||tr.ruta))+"</div>";
+            html+='<div style="margin-top:2px;font-size:13px;font-weight:700;color:#334155">'+esc(fmt12(tr.horaSalida||tr.hora||""))+(tr.horaLlegada?(" - "+esc(fmt12(tr.horaLlegada))):"")+"</div>";
             html+='<button type="button" data-det="'+esc(tr.id)+'" style="margin-top:4px;border:0;background:transparent;color:#64748B;font-size:13px;padding:0">Mostrar detalles ›</button>';
             if(open)html+='<div style="margin-top:6px;font-size:12px;color:#475569;line-height:1.45">Llegada '+esc(fmt12(tr.horaLlegada||""))+(tr.unidad||tr.vehiculo?(" · "+esc(tr.unidad||tr.vehiculo)):"")+' · '+esc(lib+" / "+(tr.total||6)+" plazas")+"</div>";
             html+='<div style="margin-top:6px;font-size:14px;color:#374151">'+esc(precioTrip(tr))+" MXN</div>";
             html+="</div></div></div>";
             html+='<div style="padding-top:18px">';
-            if(!past&&lib>0)html+='<button type="button" data-trip="'+esc(tr.id)+'" style="height:40px;padding:0 16px;border:1px solid #2563EB;border-radius:8px;background:#fff;color:#2563EB;font-weight:800;font-size:13px;letter-spacing:.04em">RESERVAR</button>';
-            else if(lib<=0)html+='<div style="font-size:12px;color:#94A3B8;font-weight:700">Completo</div>';
+            if(past)html+='<div style="font-size:12px;color:#94A3B8;font-weight:800">Salida pasada</div>';
+            else if(lib>0)html+='<button type="button" data-trip="'+esc(tr.id)+'" style="height:40px;padding:0 16px;border:1px solid #2563EB;border-radius:8px;background:#fff;color:#2563EB;font-weight:800;font-size:13px;letter-spacing:.04em">RESERVAR</button>';
+            else html+='<div style="font-size:12px;color:#94A3B8;font-weight:700">Completo</div>';
             html+="</div></div></div>";
           });
         }
@@ -1039,9 +1054,12 @@ a("button",{type:"submit",className:"w-full h-12 rounded-full bg-[#2563EB] text-
         }
         html+='<label style="display:block;font-size:11px;font-weight:800;color:#64748B;margin:12px 0 6px">COMENTARIO</label><textarea data-c="notas" rows="3" style="width:100%;border:1px solid #E5E7EB;border-radius:12px;padding:10px;font-weight:600"></textarea>';
         html+=htmlCostoBox();
-        if(WA_RESERVA_ON)html+='<button type="button" data-act="wares" style="margin-top:14px;width:100%;height:48px;border:0;border-radius:14px;background:#16A34A;color:#fff;font-weight:800;font-size:15px">Reserva via WhatsApp</button>';
-        if(user)html+='<button type="button" data-act="okres" style="margin-top:8px;width:100%;height:48px;border:0;border-radius:14px;background:#2563EB;color:#fff;font-weight:800"'+(busy?" disabled":"")+'>Confirmar reserva</button>';
-        if(!user)html+='<button type="button" data-act="need" style="margin-top:8px;width:100%;height:40px;border:1px solid #CBD5E1;border-radius:12px;background:#fff;font-weight:800;color:#0F172A">Crear cuenta</button>';
+        if(tripPasado(tripSel))html+='<div style="margin-top:12px;padding:12px;background:#FEF2F2;border:1px solid #FECACA;border-radius:12px;color:#B91C1C;font-weight:800;font-size:14px">Esta salida ya paso. No se puede reservar.</div>';
+        else{
+          if(WA_RESERVA_ON)html+='<button type="button" data-act="wares" style="margin-top:14px;width:100%;height:48px;border:0;border-radius:14px;background:#16A34A;color:#fff;font-weight:800;font-size:15px">Reserva via WhatsApp</button>';
+          if(user)html+='<button type="button" data-act="okres" style="margin-top:8px;width:100%;height:48px;border:0;border-radius:14px;background:#2563EB;color:#fff;font-weight:800"'+(busy?" disabled":"")+'>Confirmar reserva</button>';
+          if(!user)html+='<button type="button" data-act="need" style="margin-top:8px;width:100%;height:40px;border:1px solid #CBD5E1;border-radius:12px;background:#fff;font-weight:800;color:#0F172A">Crear cuenta</button>';
+        }
         html+='<button type="button" data-go="lista" style="margin-top:8px;width:100%;height:40px;border:0;border-radius:12px;background:#E5E7EB;font-weight:800">Cancelar</button></div>';
       }else if(vista==="mis"){
         if(!mine.length)html+='<div style="padding:28px 8px;text-align:center;color:#94A3B8;font-weight:700">Aun no tienes viajes reservados</div>';
@@ -1078,7 +1096,7 @@ a("button",{type:"submit",className:"w-full h-12 rounded-full bg-[#2563EB] text-
       wrap.querySelectorAll("[data-det]").forEach(function(el){el.onclick=function(){var id=el.getAttribute("data-det");wrap._detId=String(wrap._detId||"")===id?"":id;paint()}});
       wrap.querySelectorAll("[data-go]").forEach(function(el){el.onclick=function(){vista=el.getAttribute("data-go");tripSel=null;msg="";if(vista==="mis"){if(!user){authTab="login";vista="auth";msg="Entra para ver tus viajes";paint();return}loadMine().then(paint);}else paint()}});
       var need=wrap.querySelector('[data-act="need"]');if(need)need.onclick=function(){if(tripSel)pendTrip=tripSel;wrap._reg={paso:"tel",tel:"",nombre:"",orig:"",id:"",existe:!1};authTab="alta";vista="auth";msg="";paint()};
-      wrap.querySelectorAll("[data-trip]").forEach(function(el){el.onclick=function(){var id=el.getAttribute("data-trip");tripSel=null;trips.forEach(function(x){if(String(x.id)===id)tripSel=x});if(!tripSel)return;vista="form";msg="";paint()}});
+      wrap.querySelectorAll("[data-trip]").forEach(function(el){el.onclick=function(){var id=el.getAttribute("data-trip");tripSel=null;trips.forEach(function(x){if(String(x.id)===id)tripSel=x});if(!tripSel)return;if(tripPasado(tripSel)){toast("Esta salida ya paso. No se puede reservar.");return}vista="form";msg="";paint()}});
       wrap.querySelectorAll('[data-act="wares"]').forEach(function(el){el.onclick=function(){abrirWaReserva(tripSel)}});
       var rutaEl=wrap.querySelector('[data-c="ruta"]'),plazEl=wrap.querySelector('[data-c="plazas"]');
       if(rutaEl)rutaEl.onchange=actualizarCosto;
@@ -1087,6 +1105,7 @@ a("button",{type:"submit",className:"w-full h-12 rounded-full bg-[#2563EB] text-
       var ok=wrap.querySelector('[data-act="okres"]');
       if(ok)ok.onclick=function(){
         if(busy||!tripSel)return;
+        if(tripPasado(tripSel)){toast("Esta salida ya paso. No se puede reservar.");return}
         if(!user){pendTrip=tripSel;wrap._reg={paso:"tel",tel:"",nombre:"",orig:"",id:"",existe:!1};authTab="alta";vista="auth";msg="Registrate o entra para confirmar";paint();return}
         if(!validarFormReserva())return;
         var ruta=String((wrap.querySelector('[data-c="ruta"]')||{}).value||"").toUpperCase();
