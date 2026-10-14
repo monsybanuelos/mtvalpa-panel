@@ -1063,6 +1063,8 @@ a("button",{type:"submit",className:"w-full h-12 rounded-full bg-[#2563EB] text-
           if(WA_RESERVA_ON)html+='<button type="button" data-act="wares" style="margin-top:14px;width:100%;height:48px;border:0;border-radius:14px;background:#16A34A;color:#fff;font-weight:800;font-size:15px">Reserva via WhatsApp</button>';
           if(user)html+='<button type="button" data-act="okres" style="margin-top:8px;width:100%;height:48px;border:0;border-radius:14px;background:#2563EB;color:#fff;font-weight:800"'+(busy?" disabled":"")+'>Confirmar reserva</button>';
           if(!user)html+='<button type="button" data-act="need" style="margin-top:8px;width:100%;height:40px;border:1px solid #CBD5E1;border-radius:12px;background:#fff;font-weight:800;color:#0F172A">Crear cuenta</button>';
+          html+='<button type="button" data-act="mpago" disabled title="Mercado Pago disponible pronto" style="margin-top:8px;width:100%;height:48px;border:0;border-radius:14px;background:#009EE3;color:#fff;font-weight:800;opacity:.45;cursor:not-allowed">Pagar ahora</button>';
+          html+='<div style="margin-top:6px;text-align:center;font-size:11px;font-weight:700;color:#94A3B8">Mercado Pago · deshabilitado por ahora</div>';
         }
         html+='<button type="button" data-go="lista" style="margin-top:8px;width:100%;height:40px;border:0;border-radius:12px;background:#E5E7EB;font-weight:800">Cancelar</button></div>';
       }else if(vista==="mis"){
