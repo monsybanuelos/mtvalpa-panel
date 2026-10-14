@@ -867,7 +867,8 @@ a("button",{type:"submit",className:"w-full h-12 rounded-full bg-[#2563EB] text-
             html+='<button type="button" data-act="oknom" style="margin-top:16px;width:100%;height:48px;border:0;border-radius:14px;background:#2563EB;color:#fff;font-weight:800">Continuar</button>';
           }else{
             html+='<p style="font-size:14px;color:#475569;margin:0 0 12px">Crea tu contrasena para '+esc(rg.nombre)+'.</p>';
-            html+='<label style="display:block;font-size:11px;font-weight:800;color:#64748B;margin:8px 0 6px">CONTRASENA</label>'+inp("pass","Minimo 4 caracteres","password","");
+            html+='<label style="display:block;font-size:11px;font-weight:800;color:#64748B;margin:8px 0 6px">CONTRASENA *</label>'+inp("pass","Minimo 4 caracteres","password","");
+            html+='<label style="display:block;font-size:11px;font-weight:800;color:#64748B;margin:12px 0 6px">CONFIRMAR CONTRASENA *</label>'+inp("pass2","Repite la contrasena","password","");
             html+='<button type="button" data-act="alta" style="margin-top:16px;width:100%;height:48px;border:0;border-radius:14px;background:#2563EB;color:#fff;font-weight:800">Guardar y entrar</button>';
           }
         }else{
@@ -923,11 +924,13 @@ a("button",{type:"submit",className:"w-full h-12 rounded-full bg-[#2563EB] text-
           wrap._reg.nombre=nom;wrap._reg.paso="pass";msg="";paint();
         };
         if(wrap.querySelector('[data-act="alta"]'))wrap.querySelector('[data-act="alta"]').onclick=function(){
-          var rg=wrap._reg||{},tel=rg.tel,nom=String(rg.nombre||"").trim(),pass=g("pass");
+          var rg=wrap._reg||{},tel=rg.tel,nom=String(rg.nombre||"").trim(),pass=g("pass"),pass2=g("pass2");
           if(esStaffUser(nom)||esStaffUser(tel)){toast("No se puede registrar un usuario de personal.");return}
           if(telDig(tel).length!==10){toast("Telefono de 10 digitos");return}
           if(nom.length<3){toast("Falta el nombre");return}
           if(String(pass).length<4){toast("Contrasena de al menos 4 caracteres");return}
+          if(!pass2){toast("Confirma tu contrasena");return}
+          if(pass!==pass2){toast("Las contrasenas no coinciden");return}
           toast("Guardando...");
           hashPass(pass).then(function(h){
             var all=cueLee(),prev=all[tel]||null;
