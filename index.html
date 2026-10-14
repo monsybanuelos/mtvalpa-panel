@@ -984,7 +984,36 @@ a("button",{type:"submit",className:"w-full h-12 rounded-full bg-[#2563EB] text-
         wrap.querySelector('[data-act="alta"]').onclick=function(){wrap._reg={paso:"tel",tel:"",nombre:"",orig:"",id:"",existe:!1};vista="auth";authTab="alta";msg="";paint()};
         wrap.querySelector('[data-act="login"]').onclick=function(){vista="auth";authTab="login";msg="";paint()};
         wrap.querySelector('[data-act="aero"]').onclick=function(){window.open("https://wa.me/524922233227?text="+encodeURIComponent("Hola, me comunico para pedir más información sobre viaje al aeropuerto"),"_blank","noopener,noreferrer")};
-        wrap.querySelector('[data-act="personal"]').onclick=function(){wrap.remove()};
+        wrap.querySelector('[data-act="personal"]').onclick=function(){vista="staff";msg="";paint()};
+        return;
+      }
+      if(vista==="staff"){
+        html+='<div style="min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px">';
+        html+='<div style="width:100%;max-width:380px">';
+        html+='<img src="'+CLI_LOGO+'" alt="" style="width:96px;height:96px;object-fit:contain;display:block;margin:0 auto 12px;border-radius:9999px;background:transparent">';
+        html+='<div style="text-align:center;font-size:11px;font-weight:800;letter-spacing:.14em;color:#64748B">PERSONAL INTERNO</div>';
+        html+='<div style="text-align:center;font-size:22px;font-weight:800;margin:6px 0 16px">Iniciar sesion</div>';
+        html+='<div style="color:#B91C1C;font-size:13px;font-weight:700;min-height:18px" data-cli-msg="">'+esc(msg)+"</div>";
+        html+='<label style="display:block;font-size:11px;font-weight:800;color:#64748B;margin:8px 0 6px">USUARIO</label>'+inp("staffu","admin / empleado / chofer","text","");
+        html+='<label style="display:block;font-size:11px;font-weight:800;color:#64748B;margin:12px 0 6px">CONTRASENA</label>'+inp("staffp","Tu contrasena","password","");
+        html+='<button type="button" data-act="staffok" style="margin-top:16px;width:100%;height:48px;border:0;border-radius:14px;background:#EA580C;color:#fff;font-weight:800;font-size:15px">Entrar</button>';
+        html+='<button type="button" data-act="back" style="margin-top:10px;width:100%;height:44px;border:0;border-radius:14px;background:#E5E7EB;color:#0F172A;font-weight:800">Volver</button>';
+        html+='<p style="margin-top:12px;font-size:11px;color:#94A3B8;text-align:center;line-height:1.45">Solo personal, chofer y admin. Los clientes entran por Registro / Entrar.</p>';
+        html+="</div></div>";
+        wrap.innerHTML=html;
+        wrap.querySelector('[data-act="back"]').onclick=function(){vista="gate";msg="";paint()};
+        wrap.querySelector('[data-act="staffok"]').onclick=function(){
+          function nrm(s){return String(s||"").replace(/[\s\u00A0\u200B\uFEFF]+/g,"").toLowerCase()}
+          var u=nrm((wrap.querySelector('[data-c="staffu"]')||{}).value||"");
+          var p=nrm((wrap.querySelector('[data-c="staffp"]')||{}).value||"");
+          var rol="";
+          if(u==="admin"&&p==="1234")rol="admin";
+          else if(u==="empleado"&&p==="0000")rol="empleado";
+          else if(u==="chofer"&&p==="0000")rol="chofer";
+          if(!rol){toast("Usuario o contrasena incorrectos");return}
+          try{localStorage.setItem("mt_valpa_sesion",JSON.stringify({rol:rol,exp:Date.now()+7*24*60*60*1000}))}catch(e){}
+          location.reload();
+        };
         return;
       }
       if(vista==="auth"){
