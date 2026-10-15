@@ -834,6 +834,69 @@ a("button",{type:"submit",className:"w-full h-12 rounded-full bg-[#2563EB] text-
     function toast(t){msg=t;var el=wrap.querySelector("[data-cli-msg]");if(el)el.textContent=t||""}
     function mtEsPwa(){return !!(window.matchMedia&&window.matchMedia("(display-mode: standalone)").matches)||!!window.navigator.standalone}
     function mtInstalarApp(){if(mtEsPwa()){toast("Ya está en tu pantalla de inicio");return}var ev=window.mtPwaDeferred;if(ev&&typeof ev.prompt==="function"){ev.prompt();if(ev.userChoice)ev.userChoice.then(function(){window.mtPwaDeferred=null});return}if(/iphone|ipad|ipod/i.test(navigator.userAgent||"")){toast("iPhone: toca Compartir y luego Agregar a pantalla de inicio");return}toast("En el menú del navegador elige Instalar app o Agregar a pantalla de inicio")}
+    function mtBienvenidaKey(){var u=sesLee(),tel=u&&String(u.tel||u.telefono||"").replace(/\D/g,"");return tel&&tel.length>=10?"mt_valpa_bienvenida_ocultar_v1_"+tel:"mt_valpa_bienvenida_ocultar_v1"}
+    function mtBienvenidaOculta(){try{if(localStorage.getItem("mt_valpa_bienvenida_ocultar_v1")==="1")return!0;return localStorage.getItem(mtBienvenidaKey())==="1"}catch(e){return!1}}
+    function mtBienvenidaGuardar(){try{localStorage.setItem("mt_valpa_bienvenida_ocultar_v1","1");localStorage.setItem(mtBienvenidaKey(),"1")}catch(e){}}
+    function mtCerrarBienvenida(irAlta){var chk=wrap.querySelector("[data-bienvenida-chk]");if(chk&&chk.getAttribute("aria-pressed")==="true")mtBienvenidaGuardar();var el=wrap.querySelector("[data-bienvenida]");if(el)el.remove();if(irAlta){wrap._reg={paso:"tel",tel:"",nombre:"",orig:"",id:"",existe:!1};vista="auth";authTab="alta";msg="";paint()}}
+    function mtSparklesHtml(){
+      var colors=["#EA580C","#FBBF24","#22D3EE","#34D399","#F472B6","#60A5FA","#FACC15","#A78BFA","#FB7185","#2DD4BF"],i,ang,dist,dx,dy,c,sz,delay,dur,s;
+      s='<style>@keyframes mtDestelloB{0%{transform:translate(-50%,-50%) scale(.12) rotate(0);opacity:0}12%{opacity:1}70%{opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1) rotate(170deg);opacity:0}}@keyframes mtDestelloT{0%,100%{opacity:.15;transform:translate(-50%,-50%) scale(.45) rotate(0)}40%{opacity:1;transform:translate(-50%,-50%) scale(1.25) rotate(22deg)}70%{opacity:.55}}@keyframes mtDestelloR{0%{transform:translate(-50%,-50%) scale(.4);opacity:.7}100%{transform:translate(-50%,-50%) scale(2.6);opacity:0}}</style>';
+      s+='<div aria-hidden="true" style="position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:2">';
+      s+='<span style="position:absolute;left:50%;top:18%;width:160px;height:160px;border-radius:999px;border:3px solid rgba(234,88,12,.8);box-shadow:0 0 28px rgba(234,88,12,.5);animation:mtDestelloR 1.2s ease-out both"></span>';
+      s+='<span style="position:absolute;left:50%;top:18%;width:160px;height:160px;border-radius:999px;border:3px solid rgba(34,211,238,.6);box-shadow:0 0 24px rgba(34,211,238,.4);animation:mtDestelloR 1.45s .12s ease-out both"></span>';
+      s+='<span style="position:absolute;left:50%;top:18%;width:160px;height:160px;border-radius:999px;border:3px solid rgba(250,204,21,.55);animation:mtDestelloR 1.7s .22s ease-out both"></span>';
+      for(i=0;i<36;i++){
+        ang=i/36*Math.PI*2+(i%5)*.15;
+        dist=210+(i%9)*38;
+        dx=Math.round(Math.cos(ang)*dist);
+        dy=Math.round(Math.sin(ang)*dist*.72);
+        c=colors[i%colors.length];
+        sz=8+(i%5)*4;
+        delay=(i%10)*.07;
+        dur=1.6+(i%6)*.22;
+        s+='<span style="--dx:'+dx+'px;--dy:'+dy+'px;position:absolute;left:50%;top:38%;width:'+sz+'px;height:'+sz+'px;background:'+c+';box-shadow:0 0 10px '+c+',0 0 18px '+c+';'+(i%3===0?'clip-path:polygon(50% 0,62% 36%,100% 50%,62% 64%,50% 100%,38% 64%,0 50%,38% 36%);':'border-radius:999px;')+'animation:mtDestelloB '+dur+'s '+delay+'s ease-out both"></span>';
+      }
+      var spots=[[12,8],[88,10],[8,48],[92,46],[16,88],[84,86],[50,6],[6,22],[94,24],[50,94]];
+      for(i=0;i<spots.length;i++){
+        c=colors[i%colors.length];
+        s+='<span style="position:absolute;left:'+spots[i][0]+'%;top:'+spots[i][1]+'%;width:'+(10+i%4*3)+'px;height:'+(10+i%4*3)+'px;background:'+c+';box-shadow:0 0 14px '+c+',0 0 22px '+c+';clip-path:polygon(50% 0,61% 35%,100% 50%,61% 65%,50% 100%,39% 65%,0 50%,39% 35%);animation:mtDestelloT 1.6s '+(i*.12)+'s ease-in-out infinite"></span>';
+      }
+      s+='</div>';
+      return s;
+    }
+    function mtBienvenidaHtml(){
+      return '<div data-bienvenida style="position:fixed;inset:0;z-index:2147483646;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(15,23,42,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)">'
+        +mtSparklesHtml()
+        +'<div data-bienvenida-card role="dialog" aria-labelledby="mt-bienvenida-tit" aria-modal="true" style="position:relative;z-index:1;width:100%;max-width:380px;background:#fff;border-radius:24px;box-shadow:0 24px 64px rgba(15,23,42,.28);padding:22px 20px 18px;max-height:min(92vh,640px);overflow-y:auto">'
+        +'<button type="button" data-bienvenida-x aria-label="Cerrar" onclick="var w=document.getElementById(\'mt-cli-ui\');if(w&&w.mtCerrarBienvenida)w.mtCerrarBienvenida(0)" style="position:absolute;top:10px;right:10px;width:48px;height:48px;border:0;border-radius:999px;background:#F1F5F9;color:#0F172A;font-size:28px;line-height:48px;font-weight:700;cursor:pointer">×</button>'
+        +'<img src="'+CLI_LOGO+'" alt="MB Rait Valpa Zac" style="width:88px;height:88px;object-fit:contain;display:block;margin:8px auto 12px;border-radius:9999px;background:#fff;box-shadow:0 0 0 3px #fff,0 10px 28px rgba(15,23,42,.12)">'
+        +'<div style="font-size:11px;font-weight:800;letter-spacing:.14em;color:#EA580C;text-align:center">NUEVO SITIO</div>'
+        +'<h2 id="mt-bienvenida-tit" style="margin:6px 0 6px;font-size:24px;line-height:1.2;font-weight:800;text-align:center;color:#0F172A">Bienvenido a nuestro nuevo sitio</h2>'
+        +'<p style="margin:0 0 14px;font-size:14px;color:#64748B;text-align:center;line-height:1.45">Mejoras. Ahora puedes:</p>'
+        +'<div style="display:flex;flex-direction:column;gap:10px;text-align:left">'
+        +'<div style="display:flex;gap:12px;align-items:flex-start;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:16px;padding:12px 12px">'
+        +'<div style="width:40px;height:40px;border-radius:12px;background:#ECFDF5;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-5.4 7-11a7 7 0 10-14 0c0 5.6 7 11 7 11z" stroke="#047857" stroke-width="2"/><circle cx="12" cy="10" r="2.2" fill="#047857"/></svg></div>'
+        +'<div><div style="font-size:14px;font-weight:800;color:#0F172A">GPS en vivo</div><div style="font-size:13px;color:#64748B;line-height:1.4">Ver en tiempo real dónde viene tu transporte.</div></div></div>'
+        +'<div style="display:flex;gap:12px;align-items:flex-start;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:16px;padding:12px 12px">'
+        +'<div style="width:40px;height:40px;border-radius:12px;background:#EFF6FF;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="12" rx="2" stroke="#2563EB" stroke-width="2"/><path d="M3 10h18" stroke="#2563EB" stroke-width="2"/><path d="M7 15h4" stroke="#2563EB" stroke-width="2" stroke-linecap="round"/></svg></div>'
+        +'<div><div style="font-size:14px;font-weight:800;color:#0F172A">Pago en la app</div><div style="font-size:13px;color:#64748B;line-height:1.4">Pagar directo en la app, sin salir a otro lado.</div></div></div>'
+        +'<div style="display:flex;gap:12px;align-items:flex-start;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:16px;padding:12px 12px">'
+        +'<div style="width:40px;height:40px;border-radius:12px;background:#FFF7ED;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M7 3h10a2 2 0 012 2v16l-7-3-7 3V5a2 2 0 012-2z" stroke="#EA580C" stroke-width="2"/><path d="M9 10h6M9 13h4" stroke="#EA580C" stroke-width="2" stroke-linecap="round"/></svg></div>'
+        +'<div><div style="font-size:14px;font-weight:800;color:#0F172A">Registro fácil</div><div style="font-size:13px;color:#64748B;line-height:1.4">Regístrate ahora con tu número celular.</div></div></div>'
+        +'</div>'
+        +'<button type="button" data-bienvenida-alta onclick="var w=document.getElementById(\'mt-cli-ui\');if(w&&w.mtCerrarBienvenida)w.mtCerrarBienvenida(1)" style="margin-top:16px;width:100%;height:50px;border:0;border-radius:14px;background:#EA580C;color:#fff;font-weight:800;font-size:15px;cursor:pointer">Regístrate ahora</button>'
+        +'<button type="button" data-bienvenida-ok onclick="var w=document.getElementById(\'mt-cli-ui\');if(w&&w.mtCerrarBienvenida)w.mtCerrarBienvenida(0)" style="margin-top:8px;width:100%;height:48px;border:0;border-radius:14px;background:#F1F5F9;color:#0F172A;font-weight:800;font-size:15px;cursor:pointer">Cerrar</button>'
+        +'<button type="button" data-bienvenida-chk aria-pressed="false" onclick="var w=document.getElementById(\'mt-cli-ui\');if(w&&w.mtMarcarBienvenida)w.mtMarcarBienvenida(this)" style="margin-top:12px;width:100%;min-height:52px;display:flex;align-items:center;gap:12px;padding:8px 12px;border:1px solid #E2E8F0;border-radius:14px;background:#F8FAFC;cursor:pointer">'
+        +'<span data-bienvenida-box style="width:24px;height:24px;border-radius:8px;border:2px solid #CBD5E1;background:#fff;color:#fff;font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0"></span>'
+        +'<span style="font-size:14px;font-weight:700;color:#334155">No volver a mostrar</span></button>'
+        +'</div></div>';
+    }
+    wrap.mtCerrarBienvenida=function(irAlta){mtCerrarBienvenida(!!irAlta)};
+    wrap.mtMarcarBienvenida=function(chk){if(!chk)return;var on=chk.getAttribute("aria-pressed")!=="true";chk.setAttribute("aria-pressed",on?"true":"false");var sq=chk.querySelector("[data-bienvenida-box]");if(sq){sq.style.background=on?"#EA580C":"#fff";sq.style.borderColor=on?"#EA580C":"#CBD5E1";sq.style.color="#fff";sq.textContent=on?"✓":""}};
+    function mtBienvenidaBind(){
+      var box=wrap.querySelector("[data-bienvenida]");if(!box)return;
+      box.addEventListener("click",function(e){if(e&&e.target===box)mtCerrarBienvenida(!1)});
+    }
 
     function normTrip(tr){
       if(!tr)return tr;
@@ -1002,6 +1065,7 @@ a("button",{type:"submit",className:"w-full h-12 rounded-full bg-[#2563EB] text-
         wrap.querySelector('[data-act="aero"]').onclick=function(){window.open("https://wa.me/524922233227?text="+encodeURIComponent("Hola, me comunico para pedir más información sobre viaje al aeropuerto"),"_blank","noopener,noreferrer")};
         var pwaBtn=wrap.querySelector('[data-act="pwa"]');if(pwaBtn)pwaBtn.onclick=function(){mtInstalarApp()};
         wrap.querySelector('[data-act="personal"]').onclick=function(){vista="staff";msg="";paint()};
+        if(!mtBienvenidaOculta()){wrap.insertAdjacentHTML("beforeend",mtBienvenidaHtml());mtBienvenidaBind()}
         return;
       }
       if(vista==="staff"){
