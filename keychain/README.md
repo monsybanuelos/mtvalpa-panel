@@ -41,14 +41,14 @@ Sirve para tags ~22 mm. Si aún queda justo, sube `NFC_SQUARE` / `NFC_DEPTH` en 
 - STLs sueltos: `raitzac_blanco_fondo.stl`, `raitzac_blanco_frente.stl`, `raitzac_naranja_texto.stl`
 - Piezas sueltas (Elegoo): carpeta [`single_parts/`](./single_parts/)
 
-## Bandejas Centauri 2 (18 uds — mitad)
+## Bandejas Centauri 2 (12 uds — solo filas 1 y 2)
 
-Distribuidas en la placa; **esquina superior derecha libre** para la torre de purga.
+Sin fila superior; **esquina superior derecha libre** para la torre de purga.
 
 | Bandeja | Archivo | Contenido |
 |---------|---------|-----------|
-| 1 | [`bandejas/bandeja1_bases_18uds.3mf`](./bandejas/bandeja1_bases_18uds.3mf) | **18** bases con hueco NFC · **1 color** |
-| 2 | [`bandejas/bandeja2_tapas_letras_18uds.3mf`](./bandejas/bandeja2_tapas_letras_18uds.3mf) | **18** tapas + letras naranja · **2 colores** |
+| 1 | [`bandejas/bandeja1_bases_12uds.3mf`](./bandejas/bandeja1_bases_12uds.3mf) | **12** bases con hueco NFC · **1 color** |
+| 2 | [`bandejas/bandeja2_tapas_letras_12uds.3mf`](./bandejas/bandeja2_tapas_letras_12uds.3mf) | **12** tapas + letras naranja · **2 colores** |
 
 Planilla: [`bandejas/PLANILLA.md`](./bandejas/PLANILLA.md) · [`bandejas/planilla_bandejas.csv`](./bandejas/planilla_bandejas.csv)
 
