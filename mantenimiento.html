@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Mantenimiento · MB Rait Valpa Zac</title>
+  <meta name="theme-color" content="#0f172a">
+  <style>
+    :root { --bg:#f1f5f9; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0; --ok:#16a34a; --blue:#2563eb; --card:#fff; }
+    * { box-sizing: border-box; }
+    html, body { margin:0; min-height:100%; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:var(--bg); color:var(--ink); }
+    .app { max-width:480px; margin:0 auto; min-height:100dvh; background:var(--bg); padding:12px 14px 28px; }
+    .app.wide { max-width:960px; }
+    select { width:100%; height:44px; border:1px solid var(--line); border-radius:12px; padding:0 10px; font-size:14px; font-weight:700; background:#fff; }
+    .fils { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px; }
+    .xlsx { height:42px; padding:0 14px; border:0; border-radius:12px; background:#2563eb; color:#fff; font-weight:800; font-size:13px; }
+    .tblwrap { overflow-x:auto; background:#fff; border:1px solid var(--line); border-radius:14px; -webkit-overflow-scrolling:touch; }
+    table { width:100%; border-collapse:collapse; min-width:640px; font-size:12px; }
+    th { text-align:left; padding:10px 8px; background:#f1f5f9; color:#64748b; font-size:10px; letter-spacing:.06em; font-weight:800; white-space:nowrap; }
+    td { padding:9px 8px; border-top:1px solid #f1f5f9; vertical-align:top; }
+    .tot { font-weight:800; background:#0f172a; color:#fff; }
+    .top { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+    .back { height:40px; padding:0 14px; border:0; border-radius:999px; background:#0f172a; color:#fff; font-weight:800; font-size:14px; }
+    h1 { margin:0; font-size:20px; letter-spacing:-.03em; }
+    .sub { margin:2px 0 0; font-size:12px; color:var(--muted); font-weight:700; }
+    .hero { display:grid; gap:10px; margin-top:18px; }
+    .big { width:100%; min-height:88px; border:0; border-radius:18px; font-weight:800; font-size:17px; display:flex; align-items:center; justify-content:center; gap:10px; color:#fff; }
+    .big.add { background:#16a34a; }
+    .big.list { background:#0f172a; }
+    .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:12px; margin-bottom:10px; }
+    .lab { display:block; font-size:11px; font-weight:800; letter-spacing:.08em; color:var(--muted); margin:10px 0 6px; }
+    input, textarea { width:100%; border:1px solid var(--line); border-radius:12px; padding:0 12px; font-size:15px; font-weight:600; background:#fff; }
+    input { height:46px; }
+    textarea { padding:10px 12px; min-height:90px; resize:vertical; }
+    .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+    .grid4 { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+    .pick { border:2px solid var(--line); background:#fff; border-radius:14px; padding:10px 6px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; min-height:86px; }
+    .pick.on { border-color:#16a34a; background:#f0fdf4; }
+    .pick svg { width:32px; height:32px; }
+    .pick b { font-size:11px; text-align:center; line-height:1.2; }
+    .go { margin-top:16px; width:100%; height:50px; border:0; border-radius:14px; background:#16a34a; color:#fff; font-weight:800; font-size:15px; }
+    .msg { min-height:18px; font-size:13px; font-weight:700; color:#b91c1c; margin-top:8px; }
+    .row { display:flex; justify-content:space-between; gap:8px; font-size:13px; }
+    .tag { font-size:11px; font-weight:800; background:#ecfdf5; color:#047857; border-radius:999px; padding:3px 8px; }
+    .muted { font-size:12px; color:var(--muted); word-break:break-all; }
+    .empty { text-align:center; color:var(--muted); padding:28px 8px; }
+    .vcards { display:flex; flex-direction:column; gap:8px; margin:12px 0; }
+    .vcard { display:flex; align-items:center; gap:12px; background:#fff; border:1px solid var(--line); border-radius:16px; padding:12px 14px; }
+    .vico { width:52px; height:52px; border-radius:14px; background:#f1f5f9; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .vico svg { width:34px; height:34px; }
+    .veco { font-size:34px; font-weight:900; letter-spacing:-.05em; line-height:1; min-width:52px; }
+    .vmeta { flex:1; min-width:0; }
+    .vdesc { font-size:15px; font-weight:700; line-height:1.1; }
+    .vplab { font-size:10px; font-weight:800; letter-spacing:.08em; color:var(--muted); text-transform:uppercase; margin-top:4px; }
+    .vprox { font-size:14px; font-weight:800; color:#047857; }
+    .vprox.off { color:#94a3b8; }
+    .hero2 { display:grid; gap:8px; margin-top:4px; }
+    .big.add { min-height:56px; }
+    .vinfo { flex-shrink:0; width:76px; min-height:58px; border:0; border-radius:12px; background:#2563eb; color:#fff; font-weight:800; font-size:11px; line-height:1.2; padding:6px 8px; }
+    .bajalink { display:block; width:100%; margin:4px 0 10px; border:0; background:transparent; color:#64748b; font-weight:800; font-size:13px; text-decoration:underline; padding:8px 4px; text-align:center; }
+    .pop { position:fixed; inset:0; z-index:80; background:rgba(15,23,42,.55); display:flex; align-items:flex-end; justify-content:center; }
+    .popc { width:100%; max-width:480px; max-height:90dvh; overflow:auto; background:#fff; border-radius:20px 20px 0 0; padding:14px 16px 28px; }
+    .infotit { font-size:18px; font-weight:900; margin:10px 0 8px; }
+    .infoblock { margin-bottom:16px; }
+    .inforow { display:flex; justify-content:space-between; gap:10px; padding:8px 0; border-bottom:1px solid #f1f5f9; font-size:13px; }
+    .inforow b { color:#64748b; font-size:11px; letter-spacing:.06em; text-transform:uppercase; }
+    .inforow span { font-weight:800; text-align:right; word-break:break-word; }
+  </style>
+</head>
+<body>
+  <div class="app" id="app"></div>
+  <script>
+(function(){
+  var SUPA="https://cwdlpnbrrvflkyvtsukx.supabase.co";
+  var KEY="sb_publishable_yvznbyWS6lPk-gKAwKC7pA_wffg4IOY";
+  var TEL="0000000003";
+  var VEH=[
+    {id:"02-avanza",eco:"02",desc:"Avanza",label:"02 Avanza"},
+    {id:"03-avanza",eco:"03",desc:"Avanza",label:"03 Avanza"},
+    {id:"05-avanza",eco:"05",desc:"Avanza",label:"05 Avanza"},
+    {id:"06-urvan",eco:"06",desc:"NV350",label:"06 Urvan"},
+    {id:"07-hiace",eco:"07",desc:"Hiace",label:"07 Hiace"}
+  ];
+  var INFO={
+    "01":{id:"01-brv",eco:"01",desc:"BRV",marca:"Honda",modelo:"BRV",anio:"2018",version:"Prime",motor:"1.5 L 4 cil",llantas:"195-60-16",trans:"Automatica",aceite:"Full synthetic",color:"Plata",placas:"ZFS-814-B",poliza:"11100149882",seguro:"55 4488 8810",vin:"MHRDH3840J8004422",compra:"junio 2025",baja:1},
+    "02":{id:"02-avanza",eco:"02",desc:"Avanza",marca:"Toyota",modelo:"Avanza",anio:"2016",version:"Premium",motor:"1.5 L 4 cil",llantas:"185/70 R14",trans:"Estandar",aceite:"Full synthetic",color:"Blanco",placas:"2P8847B",poliza:"11100108997",seguro:"55 4488 8810",vin:"MHKMMP3264K000317",compra:"julio 2025"},
+    "03":{id:"03-avanza",eco:"03",desc:"Avanza",marca:"Toyota",modelo:"Avanza",anio:"2020",version:"LE",motor:"1.5",llantas:"",trans:"Automatica",aceite:"Full synthetic",color:"Blanco",placas:"ZTF533Z3",poliza:"511001676004",seguro:"55 4488 8810",vin:"MHKMF35EGLK005934",compra:"julio 2025"},
+    "04":{id:"04-urvan",eco:"04",desc:"Urvan",marca:"Nissan",modelo:"Urvan",anio:"2017",version:"",motor:"2.5",llantas:"",trans:"Manual",aceite:"Mineral",color:"Amarillo",placas:"ZTF29663",poliza:"51101853207",seguro:"55 4488 8810",vin:"JN1BE0D5H9G15225",compra:"noviembre 2025",baja:1},
+    "05":{id:"05-avanza",eco:"05",desc:"Avanza",marca:"Toyota",modelo:"Avanza",anio:"2026",version:"LE",motor:"1.5",llantas:"",trans:"Manual",aceite:"Mineral",color:"Blanco",placas:"Z0M777A",poliza:"412434853",seguro:"55 4488 8810",vin:"MHFAB1S731J6376",compra:"noviembre 2025"},
+    "06":{id:"06-urvan",eco:"06",desc:"NV350",marca:"Nissan",modelo:"NV350",anio:"2018",version:"",motor:"2.5",llantas:"",trans:"Manual",aceite:"Mineral",color:"Gris Plata",placas:"Z0M7106",poliza:"511001174046",seguro:"55 4488 8810",vin:"JN1BE6D5J9G30619",compra:"mayo 2025"},
+    "07":{id:"07-hiace",eco:"07",desc:"Hiace",marca:"Toyota",modelo:"Hiace",anio:"2018",version:"",motor:"2.7",llantas:"",trans:"Manual",aceite:"Mineral",color:"Blanco",placas:"ZMT776E",poliza:"511001135053",seguro:"55 4488 8810",vin:"JTFSZ3P6J6E185223",compra:"mayo 2025"}
+  };
+  var TIPOS=[
+    {id:"aceite",label:"Cambio de aceite"},
+    {id:"llantas",label:"Llantas"},
+    {id:"suspension",label:"Suspensión"},
+    {id:"motor",label:"Motor"},
+    {id:"otro",label:"Otro"}
+  ];
+  function rolStaff(){try{var q=String((new URLSearchParams(location.search)).get("rol")||"").toLowerCase();if(q==="chofer"||q==="admin"||q==="empleado")return q}catch(e){}try{var x=JSON.parse(localStorage.getItem("mt_valpa_sesion")||"null");if(x&&x.rol&&(!x.exp||Date.now()<=x.exp))return String(x.rol)}catch(e){}return""}
+  var esChofer=rolStaff()==="chofer";
+  var vista="home", infoEco="", form={fecha:"",titulo:"",vehiculo:"",km:"",tipo:"",proximoKm:"",monto:"",comentarios:""}, rows=[], msg="", busy=false, rowId=null, filtVeh="", filtTipo="", proxAceite={}, proxDirty=false;
+
+  function icoVeh(){return '<svg viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2"><path d="M3 13l2-5h14l2 5"/><path d="M5 13h14v5H5z"/><circle cx="7.5" cy="18.5" r="1.5"/><circle cx="16.5" cy="18.5" r="1.5"/></svg>'}
+  function icoTipo(id){
+    if(id==="aceite") return '<svg viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2"><path d="M12 3s6 7 6 11a6 6 0 1 1-12 0c0-4 6-11 6-11z"/><path d="M9 14c.5 2 2 3 3 3"/></svg>';
+    if(id==="llantas") return '<svg viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2M6.3 6.3l1.4 1.4M16.3 16.3l1.4 1.4M17.7 6.3l-1.4 1.4M7.7 16.3l-1.4 1.4"/></svg>';
+    if(id==="suspension") return '<svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M8 3v4M16 3v4M6 7h12M8 7c0 3 8 3 8 6H8c0 3 8 3 8 6H8v3"/></svg>';
+    if(id==="otro") return '<svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>';
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2"><path d="M12 3l8 4v5c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg>';
+  }
+  function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;")}
+  function hoy(){try{return new Intl.DateTimeFormat("en-CA",{timeZone:"America/Mexico_City"}).format(new Date())}catch(e){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}}
+  function hdrs(){return{apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json"}}
+  function parseDoc(n){try{var o=JSON.parse(String(n||"")||"{}");if(Array.isArray(o))return{items:o,proxAceite:{}};return{items:Array.isArray(o.items)?o.items:[],proxAceite:(o.proxAceite&&typeof o.proxAceite==="object"&&!Array.isArray(o.proxAceite))?o.proxAceite:{}}}catch(e){return{items:[],proxAceite:{}}}}
+  function applyDoc(row){rowId=row&&row.id||rowId||null;var doc=parseDoc(row&&row.notas);rows=doc.items;proxAceite=doc.proxAceite||{};return rows}
+  function load(){return fetch(SUPA+"/rest/v1/clientes?telefono=eq."+TEL+"&select=id,notas&limit=1",{headers:hdrs()}).then(function(r){return r.ok?r.json():[]}).then(function(arr){return applyDoc(arr&&arr[0])}).catch(function(){rows=[];proxAceite={};return rows})}
+  function saveAll(list){var body={nombre:"MANTENIMIENTO",telefono:TEL,notas:JSON.stringify({items:list,proxAceite:proxAceite||{}})},h=Object.assign({},hdrs(),{Prefer:"return=representation"});var p=rowId?fetch(SUPA+"/rest/v1/clientes?id=eq."+encodeURIComponent(rowId),{method:"PATCH",headers:h,body:JSON.stringify(body)}):fetch(SUPA+"/rest/v1/clientes",{method:"POST",headers:Object.assign({},h,{Prefer:"return=representation,resolution=merge-duplicates"}),body:JSON.stringify(body)});return p.then(function(r){return r.ok?r.json():[]}).then(function(arr){var row=Array.isArray(arr)?arr[0]:arr;return applyDoc(row)})}
+  function kmNum(v){var n=parseInt(String(v||"").replace(/[^\d]/g,""),10);return isNaN(n)?0:n}
+  function nextAceite(km){return String(kmNum(km)+10000)}
+  function setProxAuto(){if(form.tipo==="aceite"&&!proxDirty)form.proximoKm=nextAceite(form.km)}
+  function ultimoProx(id){
+    if(proxAceite&&proxAceite[id]&&proxAceite[id].km)return String(proxAceite[id].km);
+    var list=(rows||[]).filter(function(r){return r.vehiculo===id&&r.proximoKm}).slice().sort(function(a,b){return String(b.fecha||"").localeCompare(String(a.fecha||""))||String(b.createdAt||"").localeCompare(String(a.createdAt||""))});
+    return list[0]?String(list[0].proximoKm):"";
+  }
+  function fmtKm(n){var s=String(n||"").replace(/[^\d]/g,"");if(!s)return"";try{return Number(s).toLocaleString("es-MX")+" km"}catch(e){return s+" km"}}
+  function lab(t){return '<label class="lab">'+t+"</label>"}
+  function labVeh(id){var v=VEH.filter(function(x){return x.id===id})[0];return v?v.label:id}
+  function labTipo(id){var t=TIPOS.filter(function(x){return x.id===id})[0];return t?t.label:id}
+  function filtered(){return (rows||[]).filter(function(r){if(filtVeh&&r.vehiculo!==filtVeh)return!1;if(filtTipo&&r.tipo!==filtTipo)return!1;return!0}).slice().sort(function(a,b){return String(b.fecha||"").localeCompare(String(a.fecha||""))||String(b.createdAt||"").localeCompare(String(a.createdAt||""))})}
+  function csvCell(s){s=String(s==null?"":s).replace(/"/g,'""');if(/[;"\n,]/.test(s))return '"'+s+'"';return s}
+  function exportXls(list){
+    var lines=["FECHA;TITULO;VEHICULO;TIPO;KM;PROXIMO;MONTO;COMENTARIOS"],tot=0;
+    (list||[]).forEach(function(r){tot+=parseFloat(r.monto)||0;lines.push([csvCell(r.fecha),csvCell(r.titulo),csvCell(labVeh(r.vehiculo)),csvCell(labTipo(r.tipo)),csvCell(r.km),csvCell(r.proximoKm||""),csvCell(r.monto),csvCell(r.comentarios)].join(";"))});
+    lines.push(["","","","","","TOTAL",String(Math.round(tot*100)/100),""].join(";"));
+    var blob=new Blob(["\ufeff"+lines.join("\r\n")],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);a.download="MT-Valpa-mantenimiento.csv";a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},1500);
+  }
+  function infoRows(d){
+    var keys=[["No. ECO","eco"],["Marca","marca"],["Modelo","modelo"],["Año","anio"],["Version","version"],["Motor","motor"],["Llantas","llantas"],["Transmisión","trans"],["Aceite recom.","aceite"],["Color","color"],["Placas","placas"],["Póliza seguro","poliza"],["Seguro","seguro"],["VIN","vin"],["Compra","compra"]];
+    return keys.map(function(k){return '<div class="inforow"><b>'+k[0]+"</b><span>"+esc(d[k[1]]||"—")+"</span></div>"}).join("");
+  }
+  function infoPopup(){
+    if(!infoEco)return "";
+    var inner="";
+    if(infoEco==="baja"){
+      inner=["01","04"].map(function(eco){var d=INFO[eco];return '<div class="infoblock"><div class="infotit">'+esc(d.eco)+" "+esc(d.marca)+" "+esc(d.modelo)+' · BAJA</div>'+infoRows(d)+"</div>"}).join("");
+    } else {
+      var d=INFO[infoEco];if(!d)return "";
+      var px=ultimoProx(d.id), txt=fmtKm(px);
+      inner='<div class="infotit">'+esc(d.eco)+" "+esc(d.marca)+" "+esc(d.modelo)+"</div>"+infoRows(d)+'<div class="inforow"><b>Próximo servicio</b><span>'+esc(d.baja?"Baja":(txt||"Sin registro"))+"</span></div>";
+    }
+    return '<div class="pop" data-xinfo="1"><div class="popc">'+
+      '<button type="button" class="back" data-xinfo="1">‹ Cerrar</button>'+inner+"</div></div>";
+  }
+  function home(){
+    var cards=VEH.map(function(v){
+      var px=ultimoProx(v.id), txt=fmtKm(px);
+      return '<div class="vcard"><div class="vico">'+icoVeh()+'</div><div class="veco">'+esc(v.eco)+'</div><div class="vmeta"><div class="vdesc">'+esc(v.desc)+'</div><div class="vplab">Próximo servicio</div><div class="vprox'+(txt?"":" off")+'">'+(txt||"Sin registro")+"</div></div>"+(esChofer?"":'<button type="button" class="vinfo" data-info="'+v.eco+'">Ver info completa</button>')+"</div>";
+    }).join("");
+    return '<div class="top"><button type="button" class="back" data-exit="1">‹ Volver</button><div><div class="sub">MB RAIT VALPA ZAC</div><h1>'+(esChofer?"Próximos servicios":"Mantenimiento")+"</h1></div></div>"+
+      (esChofer?"":'<button type="button" class="big add" data-go="add">＋  Agregar mantenimiento</button>')+
+      '<div class="vcards">'+cards+"</div>"+
+      (esChofer?"":'<button type="button" class="bajalink" data-info="baja">Ver vehículos con baja</button><div class="hero2"><button type="button" class="big list" data-go="list">☰  Ver registro</button></div>')+
+      (esChofer?"":infoPopup());
+  }
+  function addView(){
+    if(!form.fecha)form.fecha=hoy();
+    var veh=VEH.map(function(v){return '<button type="button" class="pick'+(form.vehiculo===v.id?" on":"")+'" data-veh="'+v.id+'">'+icoVeh()+"<b>"+esc(v.label)+"</b></button>"}).join("");
+    var tip=TIPOS.map(function(t){return '<button type="button" class="pick'+(form.tipo===t.id?" on":"")+'" data-tipo="'+t.id+'">'+icoTipo(t.id)+"<b>"+esc(t.label)+"</b></button>"}).join("");
+    return '<div class="top"><button class="back" data-go="home">‹ Volver</button><div><h1>Agregar</h1><div class="sub">Se guarda en la nube</div></div></div>'+
+      lab("FECHA")+'<input type="date" data-k="fecha" value="'+esc(form.fecha)+'">'+
+      lab("TÍTULO")+'<input type="text" data-k="titulo" placeholder="Ej. Servicio 03 Avanza" value="'+esc(form.titulo)+'">'+
+      lab("VEHÍCULO")+ '<div class="grid">'+veh+"</div>"+
+      lab("KILOMETRAJE ACTUAL")+'<input type="number" min="0" data-k="km" placeholder="Ej. 85400" value="'+esc(form.km)+'">'+
+      lab("TIPO DE SERVICIO")+'<div class="grid4">'+tip+"</div>"+
+      (form.tipo==="aceite"?lab("PRÓXIMO SERVICIO")+'<input type="number" min="0" data-k="proximoKm" placeholder="Kilometraje actual + 10,000" value="'+esc(form.proximoKm)+'">':"")+
+      lab("MONTO")+'<input type="number" min="0" step="0.01" data-k="monto" placeholder="$" value="'+esc(form.monto)+'">'+
+      lab("COMENTARIOS")+'<textarea data-k="comentarios" placeholder="Detalle del servicio">'+esc(form.comentarios)+"</textarea>"+
+      '<button class="go" data-save="1">'+(busy?"Guardando…":"Guardar mantenimiento")+"</button>"+
+      '<div class="msg">'+esc(msg)+"</div>";
+  }
+  function listView(){
+    var list=filtered(), tot=0;
+    list.forEach(function(r){tot+=parseFloat(r.monto)||0});
+    var html='<div class="top"><button class="back" data-go="home">‹ Volver</button><div><h1>Registro</h1><div class="sub">'+list.length+' de '+(rows.length||0)+' servicios</div></div><button type="button" class="xlsx" data-xls="1">Exportar Excel</button></div>';
+    html+='<div class="fils"><div>'+lab("VEHÍCULO")+'<select data-fv="1"><option value="">Todos</option>'+VEH.map(function(v){return '<option value="'+v.id+'"'+(filtVeh===v.id?" selected":"")+">"+esc(v.label)+"</option>"}).join("")+"</select></div>";
+    html+='<div>'+lab("TIPO DE SERVICIO")+'<select data-ft="1"><option value="">Todos</option>'+TIPOS.map(function(t){return '<option value="'+t.id+'"'+(filtTipo===t.id?" selected":"")+">"+esc(t.label)+"</option>"}).join("")+"</select></div></div>";
+    if(!list.length) return html+'<div class="empty">'+(rows.length?"Sin resultados con esos filtros":"Aún no hay mantenimientos")+"</div>";
+    html+='<div class="tblwrap"><table><thead><tr><th>FECHA</th><th>TÍTULO</th><th>VEHÍCULO</th><th>TIPO</th><th>KM</th><th>PRÓX.</th><th>MONTO</th><th>COMENTARIOS</th></tr></thead><tbody>';
+    list.forEach(function(r){
+      html+="<tr><td>"+esc(r.fecha)+"</td><td>"+esc(r.titulo||"—")+"</td><td>"+esc(labVeh(r.vehiculo))+"</td><td>"+esc(labTipo(r.tipo))+"</td><td>"+esc(r.km||"")+"</td><td>"+esc(r.proximoKm||"—")+"</td><td>$"+esc(r.monto||"0")+"</td><td>"+esc(r.comentarios||"")+"</td></tr>";
+    });
+    html+='<tr class="tot"><td colspan="6">TOTAL</td><td>$'+esc(String(Math.round(tot*100)/100))+'</td><td></td></tr></tbody></table></div>';
+    return html;
+  }
+  function paint(){
+    if(esChofer){vista="home";infoEco=""}
+    var el=document.getElementById("app");
+    el.className="app"+(vista==="list"?" wide":"");
+    el.innerHTML=vista==="add"?addView():vista==="list"?listView():home();
+    el.querySelectorAll("[data-go]").forEach(function(b){b.onclick=function(){msg="";infoEco="";vista=b.getAttribute("data-go");if(vista==="list"||vista==="home")load().then(paint);else paint()}});
+    var ex=el.querySelector("[data-exit]");if(ex)ex.onclick=function(){if(history.length>1)history.back();else location.href="index.html"};
+    el.querySelectorAll("[data-info]").forEach(function(b){b.onclick=function(ev){ev.stopPropagation();infoEco=b.getAttribute("data-info");paint()}});
+    el.querySelectorAll("[data-xinfo]").forEach(function(b){b.onclick=function(){infoEco="";paint()}});
+    var popc=el.querySelector(".popc");if(popc)popc.onclick=function(ev){ev.stopPropagation()};
+    var fv=el.querySelector("[data-fv]");if(fv)fv.onchange=function(){filtVeh=fv.value;paint()};
+    var ft=el.querySelector("[data-ft]");if(ft)ft.onchange=function(){filtTipo=ft.value;paint()};
+    var x=el.querySelector("[data-xls]");if(x)x.onclick=function(){exportXls(filtered())};
+    el.querySelectorAll("[data-k]").forEach(function(inp){inp.oninput=function(){
+      var k=inp.getAttribute("data-k");
+      form[k]=inp.value;
+      if(k==="proximoKm")proxDirty=true;
+      if(k==="km"&&form.tipo==="aceite"&&!proxDirty){
+        form.proximoKm=nextAceite(form.km);
+        var p=el.querySelector('[data-k="proximoKm"]');
+        if(p)p.value=form.proximoKm;
+      }
+    }});
+    el.querySelectorAll("[data-veh]").forEach(function(b){b.onclick=function(){form.vehiculo=b.getAttribute("data-veh");paint()}});
+    el.querySelectorAll("[data-tipo]").forEach(function(b){b.onclick=function(){
+      form.tipo=b.getAttribute("data-tipo");
+      if(form.tipo==="aceite"){proxDirty=false;setProxAuto()}
+      else{form.proximoKm="";proxDirty=false}
+      paint();
+    }});
+    var sav=el.querySelector("[data-save]");
+    if(sav)sav.onclick=function(){
+      if(busy)return;
+      if(!form.fecha){msg="Elige la fecha";paint();return}
+      if(!form.titulo){msg="Escribe el título";paint();return}
+      if(!form.vehiculo){msg="Selecciona un vehículo";paint();return}
+      if(!form.km){msg="Escribe el kilometraje";paint();return}
+      if(!form.tipo){msg="Selecciona el tipo de servicio";paint();return}
+      if(form.tipo==="aceite"){setProxAuto();if(!form.proximoKm){msg="Escribe el próximo servicio";paint();return}}
+      if(!form.monto){msg="Escribe el monto";paint();return}
+      busy=true;msg="";paint();
+      load().then(function(list){
+        list=list||[];
+        var item={id:"m"+Date.now(),fecha:form.fecha,titulo:form.titulo,vehiculo:form.vehiculo,km:form.km,tipo:form.tipo,proximoKm:form.tipo==="aceite"?String(form.proximoKm):"",monto:form.monto,comentarios:form.comentarios,createdAt:new Date().toISOString()};
+        list.push(item);
+        if(item.tipo==="aceite"){
+          proxAceite=proxAceite||{};
+          proxAceite[item.vehiculo]={km:item.proximoKm,kmActual:item.km,fecha:item.fecha,itemId:item.id,updatedAt:item.createdAt};
+        }
+        return saveAll(list);
+      }).then(function(){
+        busy=false;form={fecha:hoy(),titulo:"",vehiculo:"",km:"",tipo:"",proximoKm:"",monto:"",comentarios:""};proxDirty=false;vista="list";msg="";paint();
+      }).catch(function(){busy=false;msg="No se pudo guardar en la nube";paint()});
+    };
+  }
+  load().then(paint).catch(paint);
+})();
+  </script>
+</body>
+</html>
