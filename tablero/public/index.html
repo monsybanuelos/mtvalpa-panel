@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Tablero Valpa · Zacatecas</title>
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Tablero Valpa">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <header class="top">
+      <div>
+        <p class="eyebrow">Rait Valpa Zac</p>
+        <h1>Tablero de unidades</h1>
+      </div>
+      <div class="clocks">
+        <div class="chip">
+          <span class="chip-label">Hoy</span>
+          <strong id="today">—</strong>
+        </div>
+        <div class="chip">
+          <span class="chip-label">Último movimiento</span>
+          <strong id="last-global">Sin movimientos aún</strong>
+        </div>
+      </div>
+    </header>
+
+    <p class="hint">Arrastra una unidad o tócala y luego elige la otra zona. El cambio se guarda en el servidor para quien abra este enlace.</p>
+    <p id="status" class="status" role="status">Cargando…</p>
+
+    <main class="board" id="board">
+      <section class="zone" data-zone="valpa" id="zone-valpa">
+        <header class="zone-head valpa">
+          <h2>Valpa</h2>
+          <span class="count" data-count>0</span>
+        </header>
+        <div class="cards" data-cards></div>
+        <p class="empty-hint">Sin unidades en esta zona</p>
+      </section>
+      <section class="zone" data-zone="zacatecas" id="zone-zacatecas">
+        <header class="zone-head zac">
+          <h2>Zacatecas</h2>
+          <span class="count" data-count>0</span>
+        </header>
+        <div class="cards" data-cards></div>
+        <p class="empty-hint">Sin unidades en esta zona</p>
+      </section>
+    </main>
+  </div>
+
+  <div id="ghost" class="ghost" hidden></div>
+  <script src="app.js"></script>
+</body>
+</html>
