@@ -15,6 +15,12 @@
     month: "long",
     year: "numeric",
   });
+  const DATE_SHORT = new Intl.DateTimeFormat("es-MX", {
+    timeZone: TZ,
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+  });
   const DATETIME = new Intl.DateTimeFormat("es-MX", {
     timeZone: TZ,
     day: "numeric",
@@ -62,8 +68,18 @@
     return zone === "valpa" ? "Valpa" : "Zacatecas";
   }
 
+  function isCompact() {
+    return window.matchMedia("(max-width: 760px)").matches;
+  }
+
+  function paintToday() {
+    els.today.textContent = isCompact()
+      ? DATE_SHORT.format(new Date())
+      : DATE.format(new Date());
+  }
+
   function render() {
-    els.today.textContent = DATE.format(new Date());
+    paintToday();
     if (!state) return;
     const last = state.lastMovedVehicleId
       ? VEHICLES.find((v) => v.id === state.lastMovedVehicleId)
@@ -93,7 +109,12 @@
           : "Sin traslado registrado";
         const btn = card.querySelector(".move-btn");
         const dest = otherZone(zone);
-        btn.textContent = "A " + zoneTitle(dest);
+        const full = "A " + zoneTitle(dest);
+        const short = dest === "valpa" ? "A Valpa" : "A Zac";
+        btn.innerHTML =
+          '<span class="btn-full"></span><span class="btn-short"></span>';
+        btn.querySelector(".btn-full").textContent = full;
+        btn.querySelector(".btn-short").textContent = short;
         btn.addEventListener("click", (e) => {
           e.stopPropagation();
           moveVehicle(v.id, dest);
@@ -286,9 +307,7 @@
     if (!document.hidden) poll();
   });
 
-  setInterval(() => {
-    els.today.textContent = DATE.format(new Date());
-  }, 30_000);
+  setInterval(paintToday, 30_000);
   setInterval(poll, 4000);
 
   load().catch(() => setStatus("No se pudo cargar el tablero.", "err"));
