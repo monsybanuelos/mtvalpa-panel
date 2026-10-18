@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CeluMB — vista previa estática v1.7</title>
+  <meta name="celumb-version" content="1.7" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1f24;
+      --ink-soft: #3d4750;
+      --muted: #6b7680;
+      --paper: #f3f1eb;
+      --paper-2: #e8ece8;
+      --line: #c9d0ca;
+      --brand: #0b3d2e;
+      --brand-mid: #147a5a;
+      --accent: #e8a317;
+      --accent-deep: #b8780c;
+      --ok: #1b7a4a;
+      --warn: #b45309;
+      --danger: #a61e1e;
+      --glow: rgba(20, 122, 90, 0.12);
+      --font-display: "Bricolage Grotesque", sans-serif;
+      --font-body: "Figtree", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: var(--font-body);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(232, 163, 23, 0.18), transparent 55%),
+        radial-gradient(900px 500px at 95% 0%, rgba(20, 122, 90, 0.16), transparent 50%),
+        linear-gradient(165deg, #f7f5ef 0%, #eef2ee 42%, #e4ebe6 100%);
+      background-attachment: fixed;
+    }
+    a { color: inherit; text-decoration: none; }
+    .site-header {
+      position: sticky; top: 0; z-index: 40;
+      backdrop-filter: blur(10px);
+      background: rgba(243, 241, 235, 0.82);
+      border-bottom: 1px solid rgba(201, 208, 202, 0.7);
+    }
+    .site-header__inner {
+      max-width: 1120px; margin: 0 auto; padding: 0.85rem 1.25rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    }
+    .brand-mark {
+      display: inline-flex; align-items: center; gap: 0.55rem;
+      font-family: var(--font-display); font-weight: 700;
+      letter-spacing: -0.03em; color: var(--brand);
+    }
+    .brand-mark__glyph {
+      display: grid; place-items: center; width: 2rem; height: 2rem;
+      border-radius: 0.55rem;
+      background: linear-gradient(145deg, var(--brand-mid), var(--brand));
+      color: #f7f5ef; font-size: 0.95rem;
+      box-shadow: 0 6px 18px var(--glow);
+      animation: pulse-mark 3.2s ease-in-out infinite;
+    }
+    .brand-mark__text { font-size: 1.35rem; }
+    .brand-mark__sub {
+      display: block; font-family: var(--font-body);
+      font-size: 0.68rem; font-weight: 600; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--muted); margin-top: -0.15rem;
+    }
+    .site-nav { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    .site-nav__link {
+      padding: 0.45rem 0.8rem; border-radius: 999px;
+      font-size: 0.92rem; font-weight: 600; color: var(--ink-soft);
+      border: none; background: transparent; cursor: pointer; font-family: inherit;
+      transition: background 160ms ease, color 160ms ease;
+    }
+    .site-nav__link:hover { background: rgba(11, 61, 46, 0.08); color: var(--brand); }
+    .site-nav__link.is-active { background: var(--brand); color: #f7f5ef; }
+    .shell { max-width: 1120px; margin: 0 auto; padding: 1.5rem 1.25rem 3.5rem; }
+    .view { display: none; }
+    .view.is-active { display: block; }
+    .hero {
+      position: relative; overflow: hidden; border-radius: 1.4rem;
+      padding: clamp(2rem, 5vw, 3.4rem); min-height: min(72vh, 540px);
+      display: flex; flex-direction: column; justify-content: flex-end;
+      color: #f4f7f4;
+      background:
+        linear-gradient(120deg, rgba(8, 32, 24, 0.92) 0%, rgba(11, 61, 46, 0.75) 48%, rgba(20, 70, 50, 0.45) 100%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.07'%3E%3Crect x='18' y='28' width='52' height='92' rx='10'/%3E%3Crect x='90' y='40' width='44' height='78' rx='8'/%3E%3Ccircle cx='44' cy='110' r='3'/%3E%3C/g%3E%3C/svg%3E"),
+        linear-gradient(160deg, #0b3d2e, #1a5c45 55%, #0f2a22);
+      background-size: cover, 160px 160px, cover;
+      box-shadow: 0 24px 50px rgba(11, 61, 46, 0.22);
+      animation: hero-in 700ms ease both;
+    }
+    .hero__brand {
+      font-family: var(--font-display); font-size: clamp(3rem, 9vw, 5.2rem);
+      font-weight: 800; letter-spacing: -0.045em; line-height: 0.95; margin: 0 0 0.85rem;
+    }
+    .hero__tag {
+      max-width: 34rem; margin: 0 0 1.4rem; font-size: 1.05rem;
+      line-height: 1.5; color: rgba(244, 247, 244, 0.88);
+    }
+    .hero__actions { display: flex; flex-wrap: wrap; gap: 0.7rem; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      border: none; cursor: pointer; border-radius: 999px;
+      padding: 0.7rem 1.2rem; font-weight: 700; font-size: 0.95rem;
+      font-family: inherit; transition: transform 140ms ease, background 140ms ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary { background: var(--accent); color: #1a1508; box-shadow: 0 10px 24px rgba(232, 163, 23, 0.28); }
+    .btn-ghost { background: rgba(244, 247, 244, 0.12); color: #f4f7f4; border: 1px solid rgba(244, 247, 244, 0.28); }
+    .btn-solid { background: var(--brand); color: #f7f5ef; }
+    .section { margin-top: 2.2rem; animation: rise 550ms ease both; }
+    .section__head { margin-bottom: 1rem; }
+    .section__title {
+      font-family: var(--font-display); font-size: clamp(1.55rem, 3vw, 2rem);
+      letter-spacing: -0.03em; margin: 0; color: var(--brand);
+    }
+    .section__lede { margin: 0.25rem 0 0; color: var(--muted); max-width: 38rem; line-height: 1.45; }
+    .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.85rem; }
+    .stat-row--featured { grid-template-columns: minmax(220px, 1.4fr) repeat(3, minmax(140px, 1fr)); margin-bottom: 0.75rem; }
+    .stat-row--secondary { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.65rem; }
+    .stat {
+      padding: 1rem 1.1rem; border-radius: 1rem;
+      background: rgba(255, 255, 255, 0.55);
+      border: 1px solid rgba(201, 208, 202, 0.8); backdrop-filter: blur(6px);
+    }
+    .stat--hero {
+      background: linear-gradient(145deg, rgba(20,122,90,0.14), rgba(232,163,23,0.12));
+      border-color: rgba(20,122,90,0.35);
+    }
+    .stat--muted { padding: 0.75rem 0.9rem; background: rgba(255,255,255,0.4); }
+    .stat__label {
+      display: block; font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.35rem;
+    }
+    .stat__value {
+      font-family: var(--font-display); font-size: 1.55rem;
+      letter-spacing: -0.03em; color: var(--ink);
+    }
+    .stat__value--lg { font-size: 2.2rem; font-weight: 800; color: var(--brand); }
+    .stat__value--sm { font-size: 1.15rem; color: var(--ink-soft); }
+    .stat__pct { font-size: 0.72em; font-weight: 700; }
+    .panel {
+      background: rgba(255, 255, 255, 0.62);
+      border: 1px solid rgba(201, 208, 202, 0.85);
+      border-radius: 1.1rem; padding: 1.15rem 1.2rem; backdrop-filter: blur(6px);
+    }
+    .panel + .panel { margin-top: 1rem; }
+    .panel__title {
+      font-family: var(--font-display); font-size: 1.15rem;
+      margin: 0 0 0.85rem; letter-spacing: -0.02em; color: var(--brand);
+    }
+    .grid-2 { display: grid; gap: 1rem; }
+    @media (min-width: 900px) { .grid-2 { grid-template-columns: 1.05fr 0.95fr; } }
+    .table-wrap {
+      overflow-x: auto; border-radius: 0.9rem;
+      border: 1px solid var(--line); background: rgba(255, 255, 255, 0.7);
+    }
+    table.data { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    table.data th, table.data td {
+      padding: 0.7rem 0.8rem; text-align: left;
+      border-bottom: 1px solid rgba(201, 208, 202, 0.75); white-space: nowrap;
+    }
+    table.data th {
+      font-size: 0.72rem; letter-spacing: 0.05em; text-transform: uppercase;
+      color: var(--muted); background: rgba(232, 236, 232, 0.7);
+    }
+    table.data tr:last-child td { border-bottom: none; }
+    .badge {
+      display: inline-flex; align-items: center;
+      padding: 0.18rem 0.55rem; border-radius: 999px;
+      font-size: 0.75rem; font-weight: 700;
+    }
+    .badge-ok { background: rgba(27, 122, 74, 0.12); color: var(--ok); }
+    .badge-sold { background: rgba(61, 71, 80, 0.12); color: var(--ink-soft); }
+    .badge-warn { background: rgba(180, 83, 9, 0.14); color: var(--warn); }
+    .badge-credit { background: rgba(232, 163, 23, 0.18); color: var(--accent-deep); }
+    .form-grid {
+      display: grid; gap: 0.75rem;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    }
+    .field { display: flex; flex-direction: column; gap: 0.3rem; }
+    .field label {
+      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em;
+      text-transform: uppercase; color: var(--muted);
+    }
+    .field input, .field select, .field textarea {
+      border: 1px solid var(--line); background: #fff; border-radius: 0.65rem;
+      padding: 0.55rem 0.7rem; font: inherit; color: var(--ink);
+    }
+    .field textarea { min-height: 4rem; resize: vertical; }
+    .field-check {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding-top: 1.4rem; font-weight: 600; color: var(--ink-soft);
+    }
+    .form-actions { display: flex; gap: 0.75rem; margin-top: 0.75rem; }
+    .muted { color: var(--muted); }
+    .money-pos { color: var(--ok); font-weight: 700; }
+    .money-neg { color: var(--danger); font-weight: 700; }
+    .list-plain { list-style: none; margin: 0; padding: 0; }
+    .list-plain li {
+      display: flex; justify-content: space-between; gap: 1rem;
+      padding: 0.55rem 0; border-bottom: 1px dashed rgba(201, 208, 202, 0.9);
+    }
+    .list-plain li:last-child { border-bottom: none; }
+    .preview-note {
+      max-width: 1120px; margin: 0 auto; padding: 0.6rem 1.25rem 0;
+      font-size: 0.8rem; color: var(--muted);
+    }
+    @keyframes hero-in {
+      from { opacity: 0; transform: translateY(12px) scale(0.985); }
+      to { opacity: 1; transform: none; }
+    }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: none; }
+    }
+    @keyframes pulse-mark {
+      0%, 100% { box-shadow: 0 6px 18px var(--glow); }
+      50% { box-shadow: 0 8px 26px rgba(232, 163, 23, 0.28); }
+    }
+    @media (max-width: 640px) {
+      .site-header__inner { flex-direction: column; align-items: flex-start; }
+      .hero { min-height: 420px; }
+    }
+  
+    .section__head--cta { align-items: center; }
+    .btn-cta { font-size: 1.05rem; padding: 0.85rem 1.45rem; box-shadow: 0 12px 28px rgba(232, 163, 23, 0.32); }
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 80; display: none;
+      justify-items: center; align-items: start; overflow: auto;
+      padding: 1.25rem 1rem 2rem; background: rgba(12, 24, 20, 0.55); backdrop-filter: blur(4px);
+    }
+    .modal-backdrop.is-open { display: grid; }
+    .modal-panel {
+      width: min(720px, 100%); max-height: min(92vh, 900px); overflow: auto;
+      background: #f7f5ef; border: 1px solid rgba(201, 208, 202, 0.9);
+      border-radius: 1.2rem; padding: 1.25rem 1.35rem 1.4rem;
+      box-shadow: 0 28px 60px rgba(8, 32, 24, 0.35);
+    }
+    .modal-panel__head { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; margin-bottom: 1rem; }
+    .modal-eyebrow { margin: 0; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-mid); }
+    .modal-panel__title { font-family: var(--font-display); font-size: 1.55rem; letter-spacing: -0.03em; margin: 0.15rem 0 0; color: var(--brand); }
+    .modal-close { border: none; background: rgba(11, 61, 46, 0.08); color: var(--brand); width: 2.2rem; height: 2.2rem; border-radius: 999px; font-size: 1.4rem; cursor: pointer; }
+    .field-span { grid-column: 1 / -1; }
+    fieldset.field { border: none; margin: 0; padding: 0; min-width: 0; }
+    .field legend { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.35rem; }
+    .choice-row { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+    .choice { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.75rem; border-radius: 999px; border: 1px solid var(--line); background: #fff; font-weight: 600; font-size: 0.9rem; cursor: pointer; }
+    .choice:has(input:checked) { border-color: var(--brand-mid); background: rgba(20, 122, 90, 0.1); color: var(--brand); }
+    .carrier-other { margin-top: 0.55rem; width: 100%; border: 1px solid var(--line); border-radius: 0.65rem; padding: 0.55rem 0.7rem; font: inherit; display: none; }
+    .carrier-other.is-on { display: block; }
+
+  
+    .site-header__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.55rem; }
+    .btn-nav-cta {
+      font-size: 0.92rem; padding: 0.5rem 1rem; white-space: nowrap;
+      box-shadow: 0 8px 20px rgba(232, 163, 23, 0.35);
+      animation: nav-cta-pulse 2.8s ease-in-out infinite;
+    }
+    @keyframes nav-cta-pulse {
+      0%, 100% { box-shadow: 0 8px 20px rgba(232, 163, 23, 0.35); }
+      50% { box-shadow: 0 10px 28px rgba(232, 163, 23, 0.5); }
+    }
+
+  
+    .credit-block-label {
+      margin: 0.35rem 0 0; font-family: var(--font-display); font-size: 1.05rem;
+      color: var(--brand); letter-spacing: -0.02em;
+    }
+    .input-locked {
+      background: rgba(11, 61, 46, 0.06); color: var(--brand); font-weight: 700;
+      letter-spacing: 0.04em; cursor: default; border-color: rgba(20, 122, 90, 0.35);
+    }
+    .field-hint { margin: 0.3rem 0 0; font-size: 0.78rem; color: var(--muted); }
+    .panel__toolbar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:0.75rem; margin-bottom:0.85rem; }
+    .stock-actions { display:flex; gap:0.5rem; flex-wrap:wrap; }
+    .filter-bar { display:flex; flex-wrap:wrap; gap:0.75rem 1rem; align-items:flex-end; margin:0 0 1rem; padding:0.85rem 1rem; border-radius:0.85rem; background:rgba(11,61,46,0.05); border:1px solid rgba(201,208,202,0.85); }
+    .share-page { max-width:1100px; margin:0 auto; padding:1.5rem 1.25rem 3rem; }
+    .share-brand { margin:0; font-size:0.75rem; font-weight:750; letter-spacing:0.12em; text-transform:uppercase; color:var(--brand-mid); }
+    .share-title { margin:0.25rem 0 0; font-family:var(--font-display); font-size:2rem; color:var(--brand); letter-spacing:-0.03em; }
+    .toast-stack {
+      position: fixed; top: 1rem; right: 1rem; z-index: 1000;
+      display: flex; flex-direction: column; gap: 0.55rem;
+      max-width: min(22rem, calc(100vw - 2rem)); pointer-events: none;
+    }
+    .toast {
+      pointer-events: auto; padding: 0.85rem 1.05rem; border-radius: 0.75rem;
+      font-size: 0.95rem; font-weight: 650; line-height: 1.35;
+      box-shadow: 0 14px 36px rgba(26, 31, 36, 0.18);
+      animation: toast-in 280ms ease both; border: 1px solid transparent;
+    }
+    .toast-ok {
+      background: #ecf8f0; color: #145c38; border-color: rgba(27, 122, 74, 0.28);
+    }
+    .toast-err {
+      background: #fdf0ef; color: #8a1a1a; border-color: rgba(166, 30, 30, 0.28);
+    }
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+      to { opacity: 1; transform: none; }
+    }
+  
+  
+  </style>
+</head>
+<body>
+  <p class="preview-note">CeluMB <strong>v1.7</strong> · Descargable desde <code>downloads/celumb/</code>. Datos vivos del SQLite · Pestañas = pantallas · <strong>Registrar adquisición</strong> abre el formulario.</p>
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a href="#inicio" class="brand-mark" data-nav="inicio" aria-label="CeluMB inicio">
+        <span class="brand-mark__glyph" aria-hidden="true">◈</span>
+        <span>
+          <span class="brand-mark__text">CeluMB</span>
+          <span class="brand-mark__sub">MB Celulares · v1.7</span>
+        </span>
+      </a>
+      <div class="site-header__actions">
+        <nav class="site-nav" aria-label="Principal">
+        <button type="button" class="site-nav__link is-active" data-nav="inicio">Inicio</button>
+        <button type="button" class="site-nav__link" data-nav="inventario">Inventario</button>
+        <button type="button" class="site-nav__link" data-nav="ventas">Ventas</button>
+        <button type="button" class="site-nav__link" data-nav="credito">Crédito</button>
+      </nav>
+        <button type="button" class="btn btn-primary btn-nav-cta" data-open-adq>Registrar adquisición</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <div id="view-inicio" class="view is-active">
+      <section class="hero" aria-label="CeluMB">
+        <h1 class="hero__brand">CeluMB</h1>
+        <p class="hero__tag">
+          Inventario por No. de stock, ventas con utilidad y crédito con cobranza —
+          el flujo de MB Celulares en un solo lugar.
+        </p>
+        <div class="hero__actions">
+          <button type="button" class="btn btn-primary" data-open-adq>Registrar adquisición</button>
+          <button type="button" class="btn btn-ghost" data-nav="inventario">Ver inventario</button>
+          <button type="button" class="btn btn-ghost" data-nav="ventas">Registrar venta</button>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section__head">
+          <div>
+            <h2 class="section__title">Resumen del negocio</h2>
+            <p class="section__lede">Ventas del mes en primer plano, utilidad y margen, stock en piso y lo que falta liquidar a crédito.</p>
+          </div>
+        </div>
+        <div class="stat-row stat-row--featured">
+          <div class="stat stat--hero"><span class="stat__label">Ventas mensual · oct 2026</span><span class="stat__value stat__value--lg">$7,700</span></div>
+          <div class="stat"><span class="stat__label">Utilidad mensual</span><span class="stat__value money-pos">$2,200</span></div>
+          <div class="stat"><span class="stat__label">Utilidad</span><span class="stat__value money-pos">$5,503</span></div>
+          <div class="stat"><span class="stat__label">Margen</span><span class="stat__value money-pos">12%</span></div>
+        </div>
+        <div class="stat-row stat-row--secondary">
+          <div class="stat stat--muted"><span class="stat__label">Costo stock</span><span class="stat__value stat__value--sm">$11,400</span></div>
+          <div class="stat stat--muted"><span class="stat__label">Por cobrar</span><span class="stat__value stat__value--sm" id="home-receivable">$2,500</span></div>
+          <div class="stat stat--muted"><span class="stat__label">Stock hoy</span><span class="stat__value stat__value--sm">8</span></div>
+          <div class="stat stat--muted"><span class="stat__label">Vendidos</span><span class="stat__value stat__value--sm">11</span></div>
+          <div class="stat stat--muted"><span class="stat__label">Ventas totales</span><span class="stat__value stat__value--sm">$45,900</span></div>
+        </div>
+      </section>
+
+      <section class="section grid-2">
+        <div class="panel">
+          <h3 class="panel__title">Disponibles</h3>
+          <ul class="list-plain"><li><span><strong>MBC10</strong> · Redmi A3</span><span>$1,400</span></li>
+<li><span><strong>MBC11</strong> · Redmi 9.0</span><span>$1,200</span></li>
+<li><span><strong>MBC12</strong> · Motorola Moto g2025</span><span>$2,000</span></li>
+<li><span><strong>MBC13</strong> · Doppio S4128</span><span>$1,500</span></li>
+<li><span><strong>MBC14</strong> · Apple iPhone SE</span><span>$1,500</span></li></ul>
+          <p style="margin-top:0.9rem"><button type="button" class="btn btn-solid" data-nav="inventario">Ir a inventario</button></p>
+        </div>
+        <div class="panel">
+          <h3 class="panel__title">Crédito y cobranza</h3>
+          <ul class="list-plain"><li><span><strong>Iván</strong> · MBC17</span><span class="money-neg">$2,500</span></li></ul>
+          <p style="margin-top:0.9rem"><button type="button" class="btn btn-solid" data-nav="credito">Ir a crédito</button></p>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="panel">
+          <h3 class="panel__title">Tiempo en stock (disponibles)</h3>
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th>No. Stock</th><th>Equipo</th><th>Días</th><th>Costo</th></tr></thead>
+              <tbody><tr><td>MBC10</td><td>Redmi A3</td><td><span class="badge badge-warn">47 d</span></td><td>$900</td></tr>
+<tr><td>MBC11</td><td>Redmi 9.0</td><td><span class="badge badge-ok">17 d</span></td><td>$800</td></tr>
+<tr><td>MBC12</td><td>Motorola Moto g2025</td><td><span class="badge badge-ok">17 d</span></td><td>$1,600</td></tr>
+<tr><td>MBC13</td><td>Doppio S4128</td><td><span class="badge badge-ok">16 d</span></td><td>$1,000</td></tr>
+<tr><td>MBC14</td><td>Apple iPhone SE</td><td><span class="badge badge-ok">16 d</span></td><td>$1,000</td></tr>
+<tr><td>MBC15</td><td>Samsung A02</td><td><span class="badge badge-ok">16 d</span></td><td>$800</td></tr>
+<tr><td>MBC18</td><td>Apple iPhone 12</td><td><span class="badge badge-ok">11 d</span></td><td>$3,000</td></tr>
+<tr><td>MBC19</td><td>Apple iPhone</td><td><span class="badge badge-ok">5 d</span></td><td>$2,300</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="view-inventario" class="view">
+      <section class="section" style="margin-top:0">
+        <div class="section__head section__head--cta">
+          <div>
+            <h1 class="section__title">Inventario</h1>
+            <p class="section__lede">Cada equipo es un No. de stock (MBC##). Tipo de ingreso = Adquisición — mismos campos que el Google Form de MB Celulares.</p>
+          </div>
+          <button type="button" class="btn btn-primary btn-cta" data-open-adq>Registrar adquisición</button>
+        </div>
+      </section>
+      <section class="section">
+        <div class="panel">
+          <div class="panel__toolbar">
+            <h2 class="panel__title" style="margin:0">Stock · 19 equipos</h2>
+            <div class="stock-actions">
+              <button type="button" class="btn btn-solid" id="btn-filtrar">Filtrar</button>
+              <a class="btn btn-primary" href="#view-compartir" data-nav="compartir">Compartir</a>
+            </div>
+          </div>
+          <div class="filter-bar" id="filter-bar" hidden>
+            <div class="field"><label>Estado</label>
+              <select id="filter-estado">
+                <option value="all">Todos</option>
+                <option value="disponible">Disponible</option>
+                <option value="vendido">Vendido</option>
+              </select>
+            </div>
+            <div class="field"><label>Marca</label>
+              <select id="filter-marca">
+                <option value="all">Todas</option>
+                <option>Apple</option>
+<option>Doppio</option>
+<option>Motorola</option>
+<option>OPPO</option>
+<option>Realme</option>
+<option>Redmi</option>
+<option>Samsung</option>
+<option>ZTE</option>
+<option>iPhone</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="data" id="stock-table">
+              <thead>
+                <tr>
+                  <th>No. Stock</th><th>Estado</th><th>Marca / Modelo</th><th>Precio</th>
+                  <th>Compañia</th><th>Condicion estetica</th><th>RAM</th><th>Almac.</th><th>% bat.</th>
+                  <th>Incluye cargador</th><th>Costo</th><th>Margen</th><th>IMEI</th>
+                </tr>
+              </thead>
+              <tbody><tr data-estado="vendido" data-marca="Samsung"><td><strong>MBC01</strong></td><td><span class="badge badge-sold">VENDIDO</span></td><td>Samsung Galaxy M15</td><td>$1,800</td><td>Liberado</td><td>A Bueno (9-10)</td><td>4</td><td>128</td><td>—</td><td>Si</td><td>$1,300</td><td class="money-pos" title="$500">27.8%</td><td>—</td></tr>
+<tr data-estado="vendido" data-marca="OPPO"><td><strong>MBC02</strong></td><td><span class="badge badge-sold">VENDIDO</span></td><td>OPPO A57</td><td>$1,500</td><td>Liberado</td><td>A Bueno (9-10)</td><td>4</td><td>64</td><td>—</td><td>Si</td><td>$1,000</td><td class="money-pos" title="$500">33.3%</td><td>—</td></tr>
+<tr data-estado="vendido" data-marca="ZTE"><td><strong>MBC03</strong></td><td><span class="badge badge-sold">VENDIDO</span></td><td>ZTE V70 Max</td><td>$2,100</td><td>Liberado</td><td>A Bueno (9-10)</td><td>8</td><td>512</td><td>—</td><td>Si</td><td>$1,600</td><td class="money-pos" title="$500">23.8%</td><td>—</td></tr>
+<tr data-estado="vendido" data-marca="Samsung"><td><strong>MBC04</strong></td><td><span class="badge badge-sold">VENDIDO</span></td><td>Samsung Galaxy a06</td><td>$1,500</td><td>Telcel</td><td>AA Nuevo</td><td>4</td><td>128</td><td>—</td><td>Si</td><td>$1,000</td><td class="money-pos" title="$500">33.3%</td><td>—</td></tr>
+<tr data-estado="vendido" data-marca="Samsung"><td><strong>MBC05</strong></td><td><span class="badge badge-sold">VENDIDO</span></td><td>Samsung A07</td><td>$1,800</td><td>Liberado</td><td>AA Nuevo</td><td>—</td><td>—</td><td>—</td><td>Si</td><td>$1,499</td><td class="money-pos" title="$301">16.7%</td><td>—</td></tr>
+<tr data-estado="vendido" data-marca="Apple"><td><strong>MBC06</strong></td><td><span class="badge badge-sold">VENDIDO</span></td><td>Apple iPhone 17 Pro Max</td><td>$26,800</td><td>Liberado</td><td>AA Nuevo</td><td>—</td><td>—</td><td>—</td><td>Si</td><td>$25,200</td><td class="money-pos" title="$1,600">6.0%</td><td>—</td></tr>
+<tr data-estado="vendido" data-marca="Samsung"><td><strong>MBC07</strong></td><td><span class="badge badge-sold">VENDIDO</span></td><td>Samsung A07</td><td>$1,700</td><td>Telcel</td><td>AA Nuevo</td><td>4</td><td>128</td><td>—</td><td>Si</td><td>$1,499</td><td class="money-pos" title="$201">11.8%</td><td>—</td></tr>
+<tr data-estado="vendido" data-marca="Samsung"><td><strong>MBC08</strong></td><td><span class="badge badge-sold">VENDIDO</span></td><td>Samsung A07</td><td>$1,800</td><td>Liberado</td><td>AA Nuevo</td><td>—</td><td>—</td><td>—</td><td>Si</td><td>$1,499</td><td class="money-pos" title="$301">16.7%</td><td>—</td></tr>
+<tr data-estado="vendido" data-marca="Motorola"><td><strong>MBC09</strong></td><td><span class="badge badge-sold">VENDIDO</span></td><td>Motorola Moto G15</td><td>$1,600</td><td>Liberado</td><td>A Bueno (9-10)</td><td>4</td><td>512</td><td>—</td><td>No</td><td>$1,300</td><td class="money-pos" title="$300">18.8%</td><td>—</td></tr>
+<tr data-estado="disponible" data-marca="Redmi"><td><strong>MBC10</strong></td><td><span class="badge badge-ok">DISPONIBLE</span></td><td>Redmi A3</td><td>$1,400</td><td>Liberado</td><td>A Bueno (9-10)</td><td>3</td><td>64</td><td>—</td><td>No</td><td>$900</td><td class="money-pos" title="$500">35.7%</td><td>865723073540123</td></tr>
+<tr data-estado="disponible" data-marca="Redmi"><td><strong>MBC11</strong></td><td><span class="badge badge-ok">DISPONIBLE</span></td><td>Redmi 9.0</td><td>$1,200</td><td>Liberado</td><td>A Bueno (9-10)</td><td>4 + 1</td><td>64</td><td>—</td><td>No</td><td>$800</td><td class="money-pos" title="$400">33.3%</td><td>868063052891404</td></tr>
+<tr data-estado="disponible" data-marca="Motorola"><td><strong>MBC12</strong></td><td><span class="badge badge-ok">DISPONIBLE</span></td><td>Motorola Moto g2025</td><td>$2,000</td><td>Liberado</td><td>A Bueno (9-10)</td><td>4 + 2</td><td>128</td><td>—</td><td>No</td><td>$1,600</td><td class="money-pos" title="$400">20.0%</td><td>—</td></tr>
+<tr data-estado="disponible" data-marca="Doppio"><td><strong>MBC13</strong></td><td><span class="badge badge-ok">DISPONIBLE</span></td><td>Doppio S4128</td><td>$1,500</td><td>Telcel</td><td>AA Nuevo</td><td>6</td><td>128</td><td>—</td><td>Si</td><td>$1,000</td><td class="money-pos" title="$500">33.3%</td><td>—</td></tr>
+<tr data-estado="disponible" data-marca="Apple"><td><strong>MBC14</strong></td><td><span class="badge badge-ok">DISPONIBLE</span></td><td>Apple iPhone SE</td><td>$1,500</td><td>Liberado</td><td>A Bueno (9-10)</td><td>3</td><td>128</td><td>—</td><td>Se incluira en venta</td><td>$1,000</td><td class="money-pos" title="$500">33.3%</td><td>—</td></tr>
+<tr data-estado="disponible" data-marca="Samsung"><td><strong>MBC15</strong></td><td><span class="badge badge-ok">DISPONIBLE</span></td><td>Samsung A02</td><td>$1,300</td><td>Liberado</td><td>A Bueno (9-10)</td><td>3 + 2</td><td>32</td><td>—</td><td>No</td><td>$800</td><td class="money-pos" title="$500">38.5%</td><td>—</td></tr>
+<tr data-estado="vendido" data-marca="Realme"><td><strong>MBC16</strong></td><td><span class="badge badge-sold">VENDIDO</span></td><td>Realme C75</td><td>$2,500</td><td>Telcel</td><td>A Bueno (9-10)</td><td>8</td><td>256</td><td>—</td><td>Se incluira en venta</td><td>$1,500</td><td class="money-pos" title="$1,000">40.0%</td><td>—</td></tr>
+<tr data-estado="vendido" data-marca="iPhone"><td><strong>MBC17</strong></td><td><span class="badge badge-sold">VENDIDO</span></td><td>iPhone iPhone 12</td><td>$3,500</td><td>Liberado</td><td>A Bueno (9-10)</td><td>—</td><td>128 GB</td><td>—</td><td>Si</td><td>$2,700</td><td class="money-pos" title="$800">22.9%</td><td>—</td></tr>
+<tr data-estado="disponible" data-marca="Apple"><td><strong>MBC18</strong></td><td><span class="badge badge-ok">DISPONIBLE</span></td><td>Apple iPhone 12</td><td>$3,600</td><td>Liberado</td><td>A Bueno (9-10)</td><td>—</td><td>64 GB</td><td>—</td><td>No</td><td>$3,000</td><td class="money-pos" title="$600">16.7%</td><td>—</td></tr>
+<tr data-estado="disponible" data-marca="Apple"><td><strong>MBC19</strong></td><td><span class="badge badge-ok">DISPONIBLE</span></td><td>Apple iPhone</td><td>$2,900</td><td>Liberado</td><td>A Bueno (9-10)</td><td>—</td><td>64 GB</td><td>—</td><td>Si</td><td>$2,300</td><td class="money-pos" title="$600">20.7%</td><td>—</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+      <section class="section">
+        <div class="panel">
+          <h2 class="panel__title">Movimientos (adquisición / venta / cobranza)</h2>
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th>Fecha</th><th>Tipo de ingreso</th><th>No. Stock</th><th>Monto</th><th>Nota</th></tr></thead>
+              <tbody><tr><td>13 oct 2026</td><td>Adquisición</td><td>MBC19</td><td class="money-neg">-$2,300</td><td>Adquisición Apple iPhone</td></tr>
+<tr><td>11 oct 2026</td><td>Venta</td><td>MBC16</td><td class="money-pos">$2,400</td><td>Venta Contado — Vendio Job</td></tr>
+<tr><td>07 oct 2026</td><td>Adquisición</td><td>MBC18</td><td class="money-neg">-$3,000</td><td>Adquisición Apple iPhone 12</td></tr>
+<tr><td>03 oct 2026</td><td>Cobranza</td><td>MBC17</td><td class="money-pos">$1,000</td><td>Cobranza Iván</td></tr>
+<tr><td>03 oct 2026</td><td>Venta</td><td>MBC17</td><td class="money-pos">$3,500</td><td>Venta Credito — Iván</td></tr>
+<tr><td>02 oct 2026</td><td>Venta</td><td>MBC01</td><td class="money-pos">$1,800</td><td>Venta Contado — Facebook</td></tr>
+<tr><td>02 oct 2026</td><td>Adquisición</td><td>MBC17</td><td class="money-neg">-$2,700</td><td>Adquisición iPhone iPhone 12</td></tr>
+<tr><td>02 oct 2026</td><td>Adquisición</td><td>MBC16</td><td class="money-neg">-$1,500</td><td>Adquisición Realme C75</td></tr>
+<tr><td>02 oct 2026</td><td>Adquisición</td><td>MBC15</td><td class="money-neg">-$800</td><td>Adquisición Samsung A02</td></tr>
+<tr><td>02 oct 2026</td><td>Adquisición</td><td>MBC14</td><td class="money-neg">-$1,000</td><td>Adquisición Apple iPhone SE</td></tr>
+<tr><td>02 oct 2026</td><td>Adquisición</td><td>MBC13</td><td class="money-neg">-$1,000</td><td>Adquisición Doppio S4128</td></tr>
+<tr><td>01 oct 2026</td><td>Adquisición</td><td>MBC12</td><td class="money-neg">-$1,600</td><td>Adquisición Motorola Moto g2025</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="view-ventas" class="view">
+      <section class="section" style="margin-top:0">
+        <div class="section__head">
+          <div>
+            <h1 class="section__title">Ventas / ingresos</h1>
+            <p class="section__lede">Venta ligada a un No. de stock: monto, cliente, canal, costos extraordinarios y utilidad automática.</p>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="panel">
+            <h2 class="panel__title">Registrar venta</h2>
+            <form onsubmit="return false" novalidate>
+              <div class="form-grid">
+                <div class="field" style="grid-column:1/-1"><label>No. de Stock</label>
+                  <select><option>MBC10 — Redmi A3</option>
+<option>MBC11 — Redmi 9.0</option>
+<option>MBC12 — Motorola Moto g2025</option>
+<option>MBC13 — Doppio S4128</option>
+<option>MBC14 — Apple iPhone SE</option>
+<option>MBC15 — Samsung A02</option>
+<option>MBC18 — Apple iPhone 12</option>
+<option>MBC19 — Apple iPhone</option></select>
+                </div>
+                <div class="field"><label>Fecha</label><input type="date" value="2026-10-18" /></div>
+                <div class="field"><label>Monto venta</label><input type="number" placeholder="1400" /></div>
+                <div class="field"><label>Cliente</label><input placeholder="Cliente" /></div>
+                <fieldset class="field field-span"><legend>TIpo de venta</legend>
+                  <div class="choice-row">
+                    <label class="choice"><input type="radio" name="st" checked /> Contado</label>
+                    <label class="choice"><input type="radio" name="st" /> Credito</label>
+                  </div>
+                </fieldset>
+                <div class="field"><label>Costos extraordinarios</label><input type="number" value="0" /></div>
+              </div>
+              <div class="form-actions"><button type="button" class="btn btn-solid" id="btn-save-venta">Guardar venta</button></div>
+            </form>
+          </div>
+          <div class="panel">
+            <h2 class="panel__title">Ingresos por canal</h2>
+            <ul class="list-plain"><li><span>Contado · 10 ventas</span><span class="money-pos">$42,400</span></li>
+<li><span>Credito · 1 venta</span><span class="money-pos">$3,500</span></li></ul>
+          </div>
+        </div>
+      </section>
+      <section class="section">
+        <div class="panel">
+          <h2 class="panel__title">Historial de ventas · 11</h2>
+          <div class="table-wrap">
+            <table class="data">
+              <thead>
+                <tr>
+                  <th>Fecha</th><th>No. Stock</th><th>Equipo</th><th>Monto venta</th>
+                  <th>Cliente</th><th>Tipo</th><th>Margen</th><th>Tiempo stock</th>
+                </tr>
+              </thead>
+              <tbody><tr><td>11 oct 2026</td><td><strong>MBC16</strong></td><td>Realme C75</td><td>$2,400</td><td>Vendio Job</td><td><span class="badge badge-ok">Contado</span></td><td class="money-pos">$900</td><td>9 d</td></tr>
+<tr><td>03 oct 2026</td><td><strong>MBC17</strong></td><td>iPhone iPhone 12</td><td>$3,500</td><td>Iván</td><td><span class="badge badge-credit">Credito</span></td><td class="money-pos">$800</td><td>1 d</td></tr>
+<tr><td>02 oct 2026</td><td><strong>MBC01</strong></td><td>Samsung Galaxy M15</td><td>$1,800</td><td>Facebook</td><td><span class="badge badge-ok">Contado</span></td><td class="money-pos">$500</td><td>3 d</td></tr>
+<tr><td>30 sep 2026</td><td><strong>MBC02</strong></td><td>OPPO A57</td><td>$1,400</td><td>Facebook</td><td><span class="badge badge-ok">Contado</span></td><td class="money-pos">$400</td><td>0 d</td></tr>
+<tr><td>30 sep 2026</td><td><strong>MBC03</strong></td><td>ZTE V70 Max</td><td>$2,100</td><td>Facebook</td><td><span class="badge badge-ok">Contado</span></td><td class="money-pos">$500</td><td>0 d</td></tr>
+<tr><td>30 sep 2026</td><td><strong>MBC08</strong></td><td>Samsung A07</td><td>$1,600</td><td>azucena García Sosa</td><td><span class="badge badge-ok">Contado</span></td><td class="money-pos">$101</td><td>161 d</td></tr>
+<tr><td>29 sep 2026</td><td><strong>MBC09</strong></td><td>Motorola Moto G15</td><td>$1,600</td><td>Azucena García Sosa</td><td><span class="badge badge-ok">Contado</span></td><td class="money-pos">$300</td><td>156 d</td></tr>
+<tr><td>15 sep 2026</td><td><strong>MBC04</strong></td><td>Samsung Galaxy a06</td><td>$1,500</td><td>Luisa Hernández</td><td><span class="badge badge-ok">Contado</span></td><td class="money-pos">$500</td><td>-15 d</td></tr>
+<tr><td>15 sep 2026</td><td><strong>MBC07</strong></td><td>Samsung A07</td><td>$1,400</td><td>Luisa Hernández</td><td><span class="badge badge-ok">Contado</span></td><td class="money-neg">-$99</td><td>146 d</td></tr>
+<tr><td>30 abr 2026</td><td><strong>MBC05</strong></td><td>Samsung A07</td><td>$1,800</td><td>Presencial</td><td><span class="badge badge-ok">Contado</span></td><td class="money-pos">$301</td><td>8 d</td></tr>
+<tr><td>22 abr 2026</td><td><strong>MBC06</strong></td><td>Apple iPhone 17 Pro Max</td><td>$26,800</td><td>Christopher Contreras</td><td><span class="badge badge-ok">Contado</span></td><td class="money-pos">$1,300</td><td>5 d</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="view-credito" class="view">
+      <section class="section" style="margin-top:0">
+        <div class="section__head">
+          <div>
+            <h1 class="section__title">Crédito y cobranza</h1>
+            <p class="section__lede">Cartera clientes y crédito de adquisición a acreedores.</p>
+          </div>
+        </div>
+        <div class="stat-row" style="margin-bottom:1.2rem">
+          <div class="stat"><span class="stat__label">Créditos abiertos</span><span class="stat__value" id="kpi-credit-open">1</span></div>
+          <div class="stat"><span class="stat__label">Falta liquidar</span><span class="stat__value" id="kpi-receivable">$2,500</span></div>
+        </div>
+        <div class="grid-2">
+          <div class="panel">
+            <h2 class="panel__title">Registrar cobranza</h2>
+            <form onsubmit="return false" novalidate>
+              <div class="form-grid">
+                <div class="field" style="grid-column:1/-1">
+                  <label>Acreedor / cuenta</label>
+                  <select id="cob-credit"><option value="2" data-balance="2500" data-name="Iván" data-stock="MBC17">Iván — MBC17 (faltan $2,500)</option></select>
+                </div>
+                <div class="field"><label>Cantidad / pagado</label><input type="number" id="cob-amount" placeholder="2500" min="1" /></div>
+                <div class="field"><label>Fecha</label><input type="date" id="cob-fecha" value="2026-10-18" /></div>
+              </div>
+              <div class="form-actions"><button type="button" class="btn btn-solid" id="btn-save-cobranza">Registrar pago</button></div>
+              <p class="form-status muted" id="cob-status"></p>
+            </form>
+          </div>
+          <div class="panel">
+            <h2 class="panel__title">Últimas cobranzas</h2>
+            <ul class="list-plain"><li><span>03 oct 2026 · Iván · MBC17</span><span class="money-pos">$1,000</span></li></ul>
+          </div>
+        </div>
+      </section>
+      <section class="section">
+        <div class="panel">
+          <h2 class="panel__title">Cuentas</h2>
+          <div class="table-wrap">
+            <table class="data">
+              <thead>
+                <tr>
+                  <th>Nombre</th><th>No. Stock</th><th>Equipo</th><th>Tipo</th>
+                  <th>Principal</th><th>Pago 1</th><th>Pago 2</th><th>Pago 3</th>
+                  <th>Pagado</th><th>Falta liquidar</th><th>Fecha límite</th><th>Liquidado</th>
+                </tr>
+              </thead>
+              <tbody><tr><td><strong>Iván</strong></td><td>MBC17</td><td>iPhone iPhone 12</td><td><span class="badge badge-credit">Credito</span></td><td>$3,500</td><td>$1,000</td><td>No</td><td>No</td><td>$1,000</td><td class="money-neg">$2,500</td><td>—</td><td><span class="badge badge-sold">No</span></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+      <section class="section">
+        <div class="section__head"><div>
+          <h2 class="section__title">Crédito de adquisición</h2>
+          <p class="section__lede">Deudas con acreedores al comprar mercancía.</p>
+        </div></div>
+        <div class="grid-2">
+          <div class="panel">
+            <h3 class="panel__title">Registrar crédito de adquisición</h3>
+            <form onsubmit="return false">
+              <div class="form-grid">
+                <div class="field"><label>Fecha</label><input type="date" value="2026-10-18" /></div>
+                <div class="field"><label>Cantidad</label><input type="number" /></div>
+                <div class="field"><label>Acreedor</label><input /></div>
+              </div>
+              <div class="form-actions"><button type="button" class="btn btn-primary">Guardar crédito de adquisición</button></div>
+            </form>
+          </div>
+          <div class="panel">
+            <h3 class="panel__title">Deudas a acreedores</h3>
+            <p class="muted">Sin créditos de adquisición.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="view-compartir" class="view">
+      <div class="share-page">
+        <p class="share-brand">CeluMB · MB Celulares</p>
+        <h1 class="share-title">Equipos disponibles</h1>
+        <p class="muted">8 equipos · solo DISPONIBLE</p>
+        <div class="table-wrap" style="margin-top:1rem">
+          <table class="data">
+            <thead>
+              <tr><th>No. Stock</th><th>Marca / Modelo</th><th>Precio</th><th>Condición</th><th>RAM</th><th>Almac.</th><th>% bat.</th><th>Compañía</th></tr>
+            </thead>
+            <tbody><tr><td><strong>MBC10</strong></td><td>Redmi A3</td><td>$1,400</td><td>A Bueno (9-10)</td><td>3</td><td>64</td><td>—</td><td>Liberado</td></tr>
+<tr><td><strong>MBC11</strong></td><td>Redmi 9.0</td><td>$1,200</td><td>A Bueno (9-10)</td><td>4 + 1</td><td>64</td><td>—</td><td>Liberado</td></tr>
+<tr><td><strong>MBC12</strong></td><td>Motorola Moto g2025</td><td>$2,000</td><td>A Bueno (9-10)</td><td>4 + 2</td><td>128</td><td>—</td><td>Liberado</td></tr>
+<tr><td><strong>MBC13</strong></td><td>Doppio S4128</td><td>$1,500</td><td>AA Nuevo</td><td>6</td><td>128</td><td>—</td><td>Telcel</td></tr>
+<tr><td><strong>MBC14</strong></td><td>Apple iPhone SE</td><td>$1,500</td><td>A Bueno (9-10)</td><td>3</td><td>128</td><td>—</td><td>Liberado</td></tr>
+<tr><td><strong>MBC15</strong></td><td>Samsung A02</td><td>$1,300</td><td>A Bueno (9-10)</td><td>3 + 2</td><td>32</td><td>—</td><td>Liberado</td></tr>
+<tr><td><strong>MBC18</strong></td><td>Apple iPhone 12</td><td>$3,600</td><td>A Bueno (9-10)</td><td>—</td><td>64 GB</td><td>—</td><td>Liberado</td></tr>
+<tr><td><strong>MBC19</strong></td><td>Apple iPhone</td><td>$2,900</td><td>A Bueno (9-10)</td><td>—</td><td>64 GB</td><td>—</td><td>Liberado</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="adq-modal" class="modal-backdrop" role="presentation">
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="adq-title">
+      <div class="modal-panel__head">
+        <div>
+          <p class="modal-eyebrow">Tipo de ingreso · Adquisición</p>
+          <h2 id="adq-title" class="modal-panel__title">Registrar adquisición</h2>
+          <p class="muted" style="margin:0.25rem 0 0">Compra/Ingreso de mercancía — No. Stock sugerido MBC20 (editable).</p>
+        </div>
+        <button type="button" class="modal-close" data-close-adq aria-label="Cerrar">×</button>
+      </div>
+      <form id="adq-form" onsubmit="return false" novalidate>
+        <div class="form-grid">
+          <div class="field"><label>Fecha</label><input type="date" value="2026-10-18" id="adq-fecha" /></div>
+          <div class="field">
+            <label>No. Stock</label>
+            <input id="adq-stock" value="MBC20" />
+            <p class="field-hint">Sugerido: MBC20 — puedes editarlo</p>
+          </div>
+          <div class="field"><label>Costo</label><input id="adq-cost" type="number" min="0" step="1" value="" /></div>
+          <div class="field"><label>Precio inicial sugerido</label><input id="adq-price" type="number" min="0" step="1" value="" /></div>
+          <div class="field">
+            <label>Margen</label>
+            <input id="adq-margin" class="input-locked" readonly value="—" />
+            <p class="field-hint">Precio − costo (se guarda con el equipo)</p>
+          </div>
+          <fieldset class="field field-span"><legend>Incluye cargador</legend>
+            <div class="choice-row">
+              <label class="choice"><input type="radio" name="chg" checked /> Si</label>
+              <label class="choice"><input type="radio" name="chg" /> No</label>
+              <label class="choice"><input type="radio" name="chg" /> Se incluira en venta</label>
+            </div>
+          </fieldset>
+          <div class="field"><label>Marca</label><input placeholder="Samsung" value="" /></div>
+          <div class="field"><label>Modelo</label><input placeholder="Galaxy A07" value="" /></div>
+          <div class="field"><label>IMEI</label><input placeholder="Opcional" value="" /></div>
+          <fieldset class="field field-span"><legend>Compañia</legend>
+            <div class="choice-row">
+              <label class="choice"><input type="radio" name="cia" checked data-cia="Liberado" /> Liberado</label>
+              <label class="choice"><input type="radio" name="cia" data-cia="Telcel" /> Telcel</label>
+              <label class="choice"><input type="radio" name="cia" data-cia="otra" /> Otra</label>
+            </div>
+            <input class="carrier-other" id="cia-other" placeholder="Escribe la compañía" />
+          </fieldset>
+          <fieldset class="field field-span"><legend>Condicion estetica</legend>
+            <div class="choice-row">
+              <label class="choice"><input type="radio" name="cond" /> AA Nuevo</label>
+              <label class="choice"><input type="radio" name="cond" checked /> A Bueno (9-10)</label>
+              <label class="choice"><input type="radio" name="cond" /> B Regular (8)</label>
+              <label class="choice"><input type="radio" name="cond" /> C Con marcas de uso (7)</label>
+            </div>
+          </fieldset>
+          <div class="field"><label>RAM</label><input placeholder="4 / 4 + 1" value="" /></div>
+          <div class="field"><label>Almacenamiento</label><input placeholder="128" value="" /></div>
+          <div class="field"><label>% de batería</label><input type="number" min="0" max="100" placeholder="85" value="" /></div>
+          <div class="field field-span"><label>Comentarios</label><textarea></textarea></div>
+        </div>
+        <div class="form-actions" style="margin-top:1rem">
+          <button type="submit" class="btn btn-primary">Registrar adquisición</button>
+          <button type="button" class="btn btn-solid" data-close-adq>Cancelar</button>
+        </div>
+        <p class="form-status muted" id="adq-status"></p>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const EXISTING_STOCK = new Set(["MBC01", "MBC02", "MBC03", "MBC04", "MBC05", "MBC06", "MBC07", "MBC08", "MBC09", "MBC10", "MBC11", "MBC12", "MBC13", "MBC14", "MBC15", "MBC16", "MBC17", "MBC18", "MBC19"]);
+    function showView(id) {
+      document.querySelectorAll(".view").forEach((el) => el.classList.toggle("is-active", el.id === "view-" + id));
+      document.querySelectorAll("[data-nav]").forEach((el) => {
+        if (el.classList.contains("site-nav__link")) {
+          el.classList.toggle("is-active", el.getAttribute("data-nav") === id);
+        }
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    document.querySelectorAll("[data-nav]").forEach((el) => {
+      el.addEventListener("click", (e) => { e.preventDefault(); showView(el.getAttribute("data-nav")); });
+    });
+    const modal = document.getElementById("adq-modal");
+    document.querySelectorAll("[data-open-adq]").forEach((btn) => {
+      btn.addEventListener("click", () => modal.classList.add("is-open"));
+    });
+    document.querySelectorAll("[data-close-adq]").forEach((btn) => {
+      btn.addEventListener("click", () => modal.classList.remove("is-open"));
+    });
+    modal.addEventListener("click", (e) => { if (e.target === modal) modal.classList.remove("is-open"); });
+    document.querySelectorAll("[data-cia]").forEach((r) => {
+      r.addEventListener("change", () => {
+        document.getElementById("cia-other").classList.toggle("is-on", r.dataset.cia === "otra" && r.checked);
+      });
+    });
+    function pushToast(kind, msg) {
+      const stack = document.getElementById("toast-stack");
+      const t = document.createElement("div");
+      t.className = kind === "ok" ? "toast toast-ok" : "toast toast-err";
+      t.textContent = msg;
+      stack.appendChild(t);
+      setTimeout(() => t.remove(), 3200);
+    }
+    document.getElementById("adq-form").addEventListener("submit", () => {
+      const cost = document.getElementById("adq-cost").value.trim();
+      const price = document.getElementById("adq-price").value.trim();
+      const stock = document.getElementById("adq-stock").value.trim();
+      if (!cost || !price) {
+        document.getElementById("adq-status").textContent = "Costo y Precio son obligatorios (sin datos).";
+        document.getElementById("adq-status").className = "form-status err";
+        pushToast("err", "Costo y Precio inicial sugerido son obligatorios (sin datos).");
+        return;
+      }
+      if (!stock) { pushToast("err", "El No. de stock es obligatorio."); return; }
+      if (EXISTING_STOCK.has(stock.toUpperCase())) {
+        pushToast("err", "Ese No. de stock (" + stock.toUpperCase() + ") ya existe. Elige otro.");
+        return;
+      }
+      pushToast("ok", "Registrado " + stock.toUpperCase());
+      setTimeout(() => modal.classList.remove("is-open"), 900);
+    });
+    document.getElementById("btn-save-venta")?.addEventListener("click", () => pushToast("ok", "Venta registrada (vista previa)."));
+    (function setupCobranza() {
+      const money = (n) => "$" + Math.round(n).toLocaleString("es-MX");
+      const fmtDate = (iso) => {
+        const [y,m,d] = iso.split("-").map(Number);
+        const months = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+        return String(d).padStart(2,"0") + " " + months[m-1] + " " + y;
+      };
+      const btn = document.getElementById("btn-save-cobranza");
+      if (!btn) return;
+      btn.addEventListener("click", () => {
+        const sel = document.getElementById("cob-credit");
+        const opt = sel?.selectedOptions?.[0];
+        const amount = Number(document.getElementById("cob-amount")?.value);
+        const fecha = document.getElementById("cob-fecha")?.value || new Date().toISOString().slice(0,10);
+        const status = document.getElementById("cob-status");
+        if (!opt || !opt.value) {
+          pushToast("err", "Selecciona una cuenta / acreedor.");
+          if (status) { status.textContent = "Selecciona una cuenta."; status.className = "form-status err"; }
+          return;
+        }
+        if (!Number.isFinite(amount) || amount <= 0) {
+          pushToast("err", "La cantidad / pagado es obligatoria.");
+          if (status) { status.textContent = "Cantidad obligatoria."; status.className = "form-status err"; }
+          return;
+        }
+        let bal = Number(opt.dataset.balance || 0);
+        if (amount > bal + 0.01) {
+          pushToast("err", "El monto supera lo que falta liquidar (" + money(bal) + ").");
+          if (status) { status.textContent = "Monto supera el saldo."; status.className = "form-status err"; }
+          return;
+        }
+        bal = Math.max(0, bal - amount);
+        opt.dataset.balance = String(bal);
+        const name = opt.dataset.name || "Cliente";
+        const stock = opt.dataset.stock || "";
+        opt.textContent = name + " — " + stock + " (faltan " + money(bal) + ")";
+        const list = document.getElementById("cob-list");
+        if (list) {
+          const li = document.createElement("li");
+          li.innerHTML = "<span>" + fmtDate(fecha) + " · " + name + " · " + stock + "</span><span class=\\"money-pos\\">" + money(amount) + "</span>";
+          list.insertBefore(li, list.firstChild);
+        }
+        const kpiRec = document.getElementById("kpi-receivable");
+        const kpiOpen = document.getElementById("kpi-credit-open");
+        const homeRec = document.getElementById("home-receivable");
+        if (kpiRec) kpiRec.textContent = money(bal);
+        if (homeRec) homeRec.textContent = money(bal);
+        if (bal <= 0) {
+          if (kpiOpen) kpiOpen.textContent = "0";
+          opt.disabled = true;
+          pushToast("ok", "Cobranza registrada: " + money(amount) + " · " + name + " · " + stock + " (liquidado).");
+          if (status) { status.textContent = "Liquidado."; status.className = "form-status ok"; }
+        } else {
+          pushToast("ok", "Cobranza registrada: " + money(amount) + " · " + name + " · " + stock + ".");
+          if (status) { status.textContent = "Registrado " + money(amount); status.className = "form-status ok"; }
+        }
+        const amtEl = document.getElementById("cob-amount");
+        if (amtEl) amtEl.value = "";
+      });
+    })();
+    document.querySelectorAll("[data-open-adq]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.getElementById("adq-fecha").value = new Date().toISOString().slice(0, 10);
+      });
+    });
+    function refreshAdqMargin() {
+      const c = Number(document.getElementById("adq-cost").value);
+      const p = Number(document.getElementById("adq-price").value);
+      const el = document.getElementById("adq-margin");
+      if (!Number.isFinite(c) || !Number.isFinite(p) || document.getElementById("adq-cost").value.trim() === "" || document.getElementById("adq-price").value.trim() === "") {
+        el.value = "—"; return;
+      }
+      const m = p - c;
+      const pct = p > 0 ? Math.round((m / p) * 1000) / 10 : null;
+      el.value = "$" + Math.round(m).toLocaleString("es-MX") + (pct != null ? " (" + pct + "%)" : "");
+    }
+    document.getElementById("adq-cost").addEventListener("input", refreshAdqMargin);
+    document.getElementById("adq-price").addEventListener("input", refreshAdqMargin);
+    const filterBar = document.getElementById("filter-bar");
+    document.getElementById("btn-filtrar")?.addEventListener("click", () => { filterBar.hidden = !filterBar.hidden; });
+    function applyStockFilter() {
+      const est = document.getElementById("filter-estado")?.value || "all";
+      const mar = document.getElementById("filter-marca")?.value || "all";
+      document.querySelectorAll("#stock-table tbody tr").forEach((tr) => {
+        const okE = est === "all" || tr.dataset.estado === est;
+        const okM = mar === "all" || tr.dataset.marca === mar;
+        tr.style.display = okE && okM ? "" : "none";
+      });
+    }
+    document.getElementById("filter-estado")?.addEventListener("change", applyStockFilter);
+    document.getElementById("filter-marca")?.addEventListener("change", applyStockFilter);
+  </script>
+  <div id="toast-stack" class="toast-stack" aria-live="polite"></div>
+</body>
+</html>
