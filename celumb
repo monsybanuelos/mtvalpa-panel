@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CeluMB — vista previa estática v1.7</title>
-  <meta name="celumb-version" content="1.7" />
+  <title>CeluMB — vista previa estática v1.9</title>
+  <meta name="celumb-version" content="1.9" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -307,53 +307,51 @@
     }
   
   
-  </style>
+  
+    .try-live-banner {
+      margin: 0; padding: 0.75rem 1.25rem; text-align: center;
+      background: #fff4d6; color: #6b4a00; border-bottom: 1px solid #e8c96a;
+      font-size: 0.92rem; font-weight: 650; line-height: 1.35;
+    }
+    .try-live-banner code { font-size: 0.85em; }
+    </style>
 </head>
 <body>
-  <p class="preview-note">CeluMB <strong>v1.7</strong> · Descargable desde <code>downloads/celumb/</code>. Datos vivos del SQLite · Pestañas = pantallas · <strong>Registrar adquisición</strong> abre el formulario.</p>
+  <p class="try-live-banner">CeluMB <strong>v1.9</strong> · Destino cloud: <a href="https://mtvalpa.com/celumb">https://mtvalpa.com/celumb</a> · Supabase <code>ewyehjazgecejwnmhybw</code>. Esta HTML es vista previa; datos compartidos requieren Try Live / app desplegada (migración DB pendiente de keys — ver internal/celumb-cloud-blockers.md).</p>
+  <p class="preview-note">CeluMB <strong>v1.9</strong> · Descargable desde <code>downloads/celumb/</code>. Pestañas = pantallas.</p>
   <header class="site-header">
     <div class="site-header__inner">
       <a href="#inicio" class="brand-mark" data-nav="inicio" aria-label="CeluMB inicio">
         <span class="brand-mark__glyph" aria-hidden="true">◈</span>
-        <span>
-          <span class="brand-mark__text">CeluMB</span>
-          <span class="brand-mark__sub">MB Celulares · v1.7</span>
-        </span>
+        <span><span class="brand-mark__text">CeluMB</span><span class="brand-mark__sub">MB Celulares · v1.9</span></span>
       </a>
       <div class="site-header__actions">
         <nav class="site-nav" aria-label="Principal">
-        <button type="button" class="site-nav__link is-active" data-nav="inicio">Inicio</button>
-        <button type="button" class="site-nav__link" data-nav="inventario">Inventario</button>
-        <button type="button" class="site-nav__link" data-nav="ventas">Ventas</button>
-        <button type="button" class="site-nav__link" data-nav="credito">Crédito</button>
-      </nav>
+          <button type="button" class="site-nav__link is-active" data-nav="inicio">Inicio</button>
+          <button type="button" class="site-nav__link" data-nav="inventario">Inventario</button>
+          <button type="button" class="site-nav__link" data-nav="ventas">Ventas</button>
+          <button type="button" class="site-nav__link" data-nav="credito">Crédito</button>
+        </nav>
         <button type="button" class="btn btn-primary btn-nav-cta" data-open-adq>Registrar adquisición</button>
       </div>
     </div>
   </header>
-
   <main class="shell">
     <div id="view-inicio" class="view is-active">
       <section class="hero" aria-label="CeluMB">
         <h1 class="hero__brand">CeluMB</h1>
-        <p class="hero__tag">
-          Inventario por No. de stock, ventas con utilidad y crédito con cobranza —
-          el flujo de MB Celulares en un solo lugar.
-        </p>
+        <p class="hero__tag">Inventario por No. de stock, ventas con utilidad y crédito con cobranza — el flujo de MB Celulares en un solo lugar.</p>
         <div class="hero__actions">
           <button type="button" class="btn btn-primary" data-open-adq>Registrar adquisición</button>
           <button type="button" class="btn btn-ghost" data-nav="inventario">Ver inventario</button>
           <button type="button" class="btn btn-ghost" data-nav="ventas">Registrar venta</button>
         </div>
       </section>
-
       <section class="section">
-        <div class="section__head">
-          <div>
-            <h2 class="section__title">Resumen del negocio</h2>
-            <p class="section__lede">Ventas del mes en primer plano, utilidad y margen, stock en piso y lo que falta liquidar a crédito.</p>
-          </div>
-        </div>
+        <div class="section__head"><div>
+          <h2 class="section__title">Resumen del negocio</h2>
+          <p class="section__lede">Ventas del mes en primer plano, utilidad y margen, stock en piso y lo que falta liquidar a crédito.</p>
+        </div></div>
         <div class="stat-row stat-row--featured">
           <div class="stat stat--hero"><span class="stat__label">Ventas mensual · oct 2026</span><span class="stat__value stat__value--lg">$7,700</span></div>
           <div class="stat"><span class="stat__label">Utilidad mensual</span><span class="stat__value money-pos">$2,200</span></div>
@@ -368,75 +366,47 @@
           <div class="stat stat--muted"><span class="stat__label">Ventas totales</span><span class="stat__value stat__value--sm">$45,900</span></div>
         </div>
       </section>
-
       <section class="section grid-2">
-        <div class="panel">
-          <h3 class="panel__title">Disponibles</h3>
-          <ul class="list-plain"><li><span><strong>MBC10</strong> · Redmi A3</span><span>$1,400</span></li>
+        <div class="panel"><h3 class="panel__title">Disponibles</h3><ul class="list-plain"><li><span><strong>MBC10</strong> · Redmi A3</span><span>$1,400</span></li>
 <li><span><strong>MBC11</strong> · Redmi 9.0</span><span>$1,200</span></li>
 <li><span><strong>MBC12</strong> · Motorola Moto g2025</span><span>$2,000</span></li>
 <li><span><strong>MBC13</strong> · Doppio S4128</span><span>$1,500</span></li>
 <li><span><strong>MBC14</strong> · Apple iPhone SE</span><span>$1,500</span></li></ul>
-          <p style="margin-top:0.9rem"><button type="button" class="btn btn-solid" data-nav="inventario">Ir a inventario</button></p>
-        </div>
-        <div class="panel">
-          <h3 class="panel__title">Crédito y cobranza</h3>
-          <ul class="list-plain"><li><span><strong>Iván</strong> · MBC17</span><span class="money-neg">$2,500</span></li></ul>
-          <p style="margin-top:0.9rem"><button type="button" class="btn btn-solid" data-nav="credito">Ir a crédito</button></p>
-        </div>
+          <p style="margin-top:0.9rem"><button type="button" class="btn btn-solid" data-nav="inventario">Ir a inventario</button></p></div>
+        <div class="panel"><h3 class="panel__title">Crédito y cobranza</h3><ul class="list-plain"><li><span><strong>Iván</strong> · MBC17</span><span class="money-neg">$2,500</span></li></ul>
+          <p style="margin-top:0.9rem"><button type="button" class="btn btn-solid" data-nav="credito">Ir a crédito</button></p></div>
       </section>
-
-      <section class="section">
-        <div class="panel">
-          <h3 class="panel__title">Tiempo en stock (disponibles)</h3>
-          <div class="table-wrap">
-            <table class="data">
-              <thead><tr><th>No. Stock</th><th>Equipo</th><th>Días</th><th>Costo</th></tr></thead>
-              <tbody><tr><td>MBC10</td><td>Redmi A3</td><td><span class="badge badge-warn">47 d</span></td><td>$900</td></tr>
+      <section class="section"><div class="panel"><h3 class="panel__title">Tiempo en stock (disponibles)</h3>
+        <div class="table-wrap"><table class="data"><thead><tr><th>No. Stock</th><th>Equipo</th><th>Días</th><th>Costo</th></tr></thead><tbody><tr><td>MBC10</td><td>Redmi A3</td><td><span class="badge badge-warn">47 d</span></td><td>$900</td></tr>
 <tr><td>MBC11</td><td>Redmi 9.0</td><td><span class="badge badge-ok">17 d</span></td><td>$800</td></tr>
 <tr><td>MBC12</td><td>Motorola Moto g2025</td><td><span class="badge badge-ok">17 d</span></td><td>$1,600</td></tr>
 <tr><td>MBC13</td><td>Doppio S4128</td><td><span class="badge badge-ok">16 d</span></td><td>$1,000</td></tr>
 <tr><td>MBC14</td><td>Apple iPhone SE</td><td><span class="badge badge-ok">16 d</span></td><td>$1,000</td></tr>
 <tr><td>MBC15</td><td>Samsung A02</td><td><span class="badge badge-ok">16 d</span></td><td>$800</td></tr>
 <tr><td>MBC18</td><td>Apple iPhone 12</td><td><span class="badge badge-ok">11 d</span></td><td>$3,000</td></tr>
-<tr><td>MBC19</td><td>Apple iPhone</td><td><span class="badge badge-ok">5 d</span></td><td>$2,300</td></tr></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
+<tr><td>MBC19</td><td>Apple iPhone</td><td><span class="badge badge-ok">5 d</span></td><td>$2,300</td></tr></tbody></table></div>
+      </div></section>
     </div>
 
     <div id="view-inventario" class="view">
       <section class="section" style="margin-top:0">
-        <div class="section__head section__head--cta">
-          <div>
-            <h1 class="section__title">Inventario</h1>
-            <p class="section__lede">Cada equipo es un No. de stock (MBC##). Tipo de ingreso = Adquisición — mismos campos que el Google Form de MB Celulares.</p>
-          </div>
-          <button type="button" class="btn btn-primary btn-cta" data-open-adq>Registrar adquisición</button>
+        <div class="section__head section__head--cta"><div>
+          <h1 class="section__title">Inventario</h1>
+          <p class="section__lede">Cada equipo es un No. de stock (MBC##).</p>
         </div>
+        <button type="button" class="btn btn-primary btn-cta" data-open-adq>Registrar adquisición</button></div>
       </section>
-      <section class="section">
-        <div class="panel">
-          <div class="panel__toolbar">
-            <h2 class="panel__title" style="margin:0">Stock · 19 equipos</h2>
-            <div class="stock-actions">
-              <button type="button" class="btn btn-solid" id="btn-filtrar">Filtrar</button>
-              <a class="btn btn-primary" href="#view-compartir" data-nav="compartir">Compartir</a>
-            </div>
+      <section class="section"><div class="panel">
+        <div class="panel__toolbar">
+          <h2 class="panel__title" style="margin:0">Stock · 19 equipos</h2>
+          <div class="stock-actions">
+            <button type="button" class="btn btn-solid" id="btn-filtrar">Filtrar</button>
+            <a class="btn btn-primary" href="#view-compartir" data-nav="compartir">Compartir</a>
           </div>
-          <div class="filter-bar" id="filter-bar" hidden>
-            <div class="field"><label>Estado</label>
-              <select id="filter-estado">
-                <option value="all">Todos</option>
-                <option value="disponible">Disponible</option>
-                <option value="vendido">Vendido</option>
-              </select>
-            </div>
-            <div class="field"><label>Marca</label>
-              <select id="filter-marca">
-                <option value="all">Todas</option>
-                <option>Apple</option>
+        </div>
+        <div class="filter-bar" id="filter-bar" hidden>
+          <div class="field"><label>Estado</label><select id="filter-estado"><option value="all">Todos</option><option value="disponible">Disponible</option><option value="vendido">Vendido</option></select></div>
+          <div class="field"><label>Marca</label><select id="filter-marca"><option value="all">Todas</option><option>Apple</option>
 <option>Doppio</option>
 <option>Motorola</option>
 <option>OPPO</option>
@@ -444,20 +414,11 @@
 <option>Redmi</option>
 <option>Samsung</option>
 <option>ZTE</option>
-<option>iPhone</option>
-              </select>
-            </div>
-          </div>
-          <div class="table-wrap">
-            <table class="data" id="stock-table">
-              <thead>
-                <tr>
-                  <th>No. Stock</th><th>Estado</th><th>Marca / Modelo</th><th>Precio</th>
-                  <th>Compañia</th><th>Condicion estetica</th><th>RAM</th><th>Almac.</th><th>% bat.</th>
-                  <th>Incluye cargador</th><th>Costo</th><th>Margen</th><th>IMEI</th>
-                </tr>
-              </thead>
-              <tbody><tr data-estado="vendido" data-marca="Samsung"><td><strong>MBC01</strong></td><td><span class="badge badge-sold">VENDIDO</span></td><td>Samsung Galaxy M15</td><td>$1,800</td><td>Liberado</td><td>A Bueno (9-10)</td><td>4</td><td>128</td><td>—</td><td>Si</td><td>$1,300</td><td class="money-pos" title="$500">27.8%</td><td>—</td></tr>
+<option>iPhone</option></select></div>
+        </div>
+        <div class="table-wrap"><table class="data" id="stock-table">
+          <thead><tr><th>No. Stock</th><th>Estado</th><th>Marca / Modelo</th><th>Precio</th><th>Compañia</th><th>Condicion estetica</th><th>RAM</th><th>Almac.</th><th>% bat.</th><th>Incluye cargador</th><th>Costo</th><th>Margen</th><th>IMEI</th></tr></thead>
+          <tbody><tr data-estado="vendido" data-marca="Samsung"><td><strong>MBC01</strong></td><td><span class="badge badge-sold">VENDIDO</span></td><td>Samsung Galaxy M15</td><td>$1,800</td><td>Liberado</td><td>A Bueno (9-10)</td><td>4</td><td>128</td><td>—</td><td>Si</td><td>$1,300</td><td class="money-pos" title="$500">27.8%</td><td>—</td></tr>
 <tr data-estado="vendido" data-marca="OPPO"><td><strong>MBC02</strong></td><td><span class="badge badge-sold">VENDIDO</span></td><td>OPPO A57</td><td>$1,500</td><td>Liberado</td><td>A Bueno (9-10)</td><td>4</td><td>64</td><td>—</td><td>Si</td><td>$1,000</td><td class="money-pos" title="$500">33.3%</td><td>—</td></tr>
 <tr data-estado="vendido" data-marca="ZTE"><td><strong>MBC03</strong></td><td><span class="badge badge-sold">VENDIDO</span></td><td>ZTE V70 Max</td><td>$2,100</td><td>Liberado</td><td>A Bueno (9-10)</td><td>8</td><td>512</td><td>—</td><td>Si</td><td>$1,600</td><td class="money-pos" title="$500">23.8%</td><td>—</td></tr>
 <tr data-estado="vendido" data-marca="Samsung"><td><strong>MBC04</strong></td><td><span class="badge badge-sold">VENDIDO</span></td><td>Samsung Galaxy a06</td><td>$1,500</td><td>Telcel</td><td>AA Nuevo</td><td>4</td><td>128</td><td>—</td><td>Si</td><td>$1,000</td><td class="money-pos" title="$500">33.3%</td><td>—</td></tr>
@@ -476,17 +437,11 @@
 <tr data-estado="vendido" data-marca="iPhone"><td><strong>MBC17</strong></td><td><span class="badge badge-sold">VENDIDO</span></td><td>iPhone iPhone 12</td><td>$3,500</td><td>Liberado</td><td>A Bueno (9-10)</td><td>—</td><td>128 GB</td><td>—</td><td>Si</td><td>$2,700</td><td class="money-pos" title="$800">22.9%</td><td>—</td></tr>
 <tr data-estado="disponible" data-marca="Apple"><td><strong>MBC18</strong></td><td><span class="badge badge-ok">DISPONIBLE</span></td><td>Apple iPhone 12</td><td>$3,600</td><td>Liberado</td><td>A Bueno (9-10)</td><td>—</td><td>64 GB</td><td>—</td><td>No</td><td>$3,000</td><td class="money-pos" title="$600">16.7%</td><td>—</td></tr>
 <tr data-estado="disponible" data-marca="Apple"><td><strong>MBC19</strong></td><td><span class="badge badge-ok">DISPONIBLE</span></td><td>Apple iPhone</td><td>$2,900</td><td>Liberado</td><td>A Bueno (9-10)</td><td>—</td><td>64 GB</td><td>—</td><td>Si</td><td>$2,300</td><td class="money-pos" title="$600">20.7%</td><td>—</td></tr></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-      <section class="section">
-        <div class="panel">
-          <h2 class="panel__title">Movimientos (adquisición / venta / cobranza)</h2>
-          <div class="table-wrap">
-            <table class="data">
-              <thead><tr><th>Fecha</th><th>Tipo de ingreso</th><th>No. Stock</th><th>Monto</th><th>Nota</th></tr></thead>
-              <tbody><tr><td>13 oct 2026</td><td>Adquisición</td><td>MBC19</td><td class="money-neg">-$2,300</td><td>Adquisición Apple iPhone</td></tr>
+        </table></div>
+      </div></section>
+      <section class="section"><div class="panel"><h2 class="panel__title">Movimientos</h2>
+        <div class="table-wrap"><table class="data"><thead><tr><th>Fecha</th><th>Tipo</th><th>No. Stock</th><th>Monto</th><th>Nota</th></tr></thead><tbody><tr><td>18 oct 2026</td><td>Cobranza</td><td>MBC17</td><td class="money-pos">$2,500</td><td>Cobranza Iván</td></tr>
+<tr><td>13 oct 2026</td><td>Adquisición</td><td>MBC19</td><td class="money-neg">-$2,300</td><td>Adquisición Apple iPhone</td></tr>
 <tr><td>11 oct 2026</td><td>Venta</td><td>MBC16</td><td class="money-pos">$2,400</td><td>Venta Contado — Vendio Job</td></tr>
 <tr><td>07 oct 2026</td><td>Adquisición</td><td>MBC18</td><td class="money-neg">-$3,000</td><td>Adquisición Apple iPhone 12</td></tr>
 <tr><td>03 oct 2026</td><td>Cobranza</td><td>MBC17</td><td class="money-pos">$1,000</td><td>Cobranza Iván</td></tr>
@@ -496,70 +451,38 @@
 <tr><td>02 oct 2026</td><td>Adquisición</td><td>MBC16</td><td class="money-neg">-$1,500</td><td>Adquisición Realme C75</td></tr>
 <tr><td>02 oct 2026</td><td>Adquisición</td><td>MBC15</td><td class="money-neg">-$800</td><td>Adquisición Samsung A02</td></tr>
 <tr><td>02 oct 2026</td><td>Adquisición</td><td>MBC14</td><td class="money-neg">-$1,000</td><td>Adquisición Apple iPhone SE</td></tr>
-<tr><td>02 oct 2026</td><td>Adquisición</td><td>MBC13</td><td class="money-neg">-$1,000</td><td>Adquisición Doppio S4128</td></tr>
-<tr><td>01 oct 2026</td><td>Adquisición</td><td>MBC12</td><td class="money-neg">-$1,600</td><td>Adquisición Motorola Moto g2025</td></tr></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
+<tr><td>02 oct 2026</td><td>Adquisición</td><td>MBC13</td><td class="money-neg">-$1,000</td><td>Adquisición Doppio S4128</td></tr></tbody></table></div>
+      </div></section>
     </div>
 
     <div id="view-ventas" class="view">
       <section class="section" style="margin-top:0">
-        <div class="section__head">
-          <div>
-            <h1 class="section__title">Ventas / ingresos</h1>
-            <p class="section__lede">Venta ligada a un No. de stock: monto, cliente, canal, costos extraordinarios y utilidad automática.</p>
-          </div>
-        </div>
+        <div class="section__head"><div><h1 class="section__title">Ventas / ingresos</h1><p class="section__lede">Venta ligada a un No. de stock.</p></div></div>
         <div class="grid-2">
-          <div class="panel">
-            <h2 class="panel__title">Registrar venta</h2>
+          <div class="panel"><h2 class="panel__title">Registrar venta</h2>
             <form onsubmit="return false" novalidate>
               <div class="form-grid">
-                <div class="field" style="grid-column:1/-1"><label>No. de Stock</label>
-                  <select><option>MBC10 — Redmi A3</option>
+                <div class="field" style="grid-column:1/-1"><label>No. de Stock</label><select><option>MBC10 — Redmi A3</option>
 <option>MBC11 — Redmi 9.0</option>
 <option>MBC12 — Motorola Moto g2025</option>
 <option>MBC13 — Doppio S4128</option>
 <option>MBC14 — Apple iPhone SE</option>
 <option>MBC15 — Samsung A02</option>
 <option>MBC18 — Apple iPhone 12</option>
-<option>MBC19 — Apple iPhone</option></select>
-                </div>
+<option>MBC19 — Apple iPhone</option></select></div>
                 <div class="field"><label>Fecha</label><input type="date" value="2026-10-18" /></div>
                 <div class="field"><label>Monto venta</label><input type="number" placeholder="1400" /></div>
                 <div class="field"><label>Cliente</label><input placeholder="Cliente" /></div>
-                <fieldset class="field field-span"><legend>TIpo de venta</legend>
-                  <div class="choice-row">
-                    <label class="choice"><input type="radio" name="st" checked /> Contado</label>
-                    <label class="choice"><input type="radio" name="st" /> Credito</label>
-                  </div>
-                </fieldset>
-                <div class="field"><label>Costos extraordinarios</label><input type="number" value="0" /></div>
               </div>
               <div class="form-actions"><button type="button" class="btn btn-solid" id="btn-save-venta">Guardar venta</button></div>
             </form>
           </div>
-          <div class="panel">
-            <h2 class="panel__title">Ingresos por canal</h2>
-            <ul class="list-plain"><li><span>Contado · 10 ventas</span><span class="money-pos">$42,400</span></li>
-<li><span>Credito · 1 venta</span><span class="money-pos">$3,500</span></li></ul>
-          </div>
+          <div class="panel"><h2 class="panel__title">Ingresos por canal</h2><ul class="list-plain"><li><span>Contado · 10 ventas</span><span class="money-pos">$42,400</span></li>
+<li><span>Credito · 1 venta</span><span class="money-pos">$3,500</span></li></ul></div>
         </div>
       </section>
-      <section class="section">
-        <div class="panel">
-          <h2 class="panel__title">Historial de ventas · 11</h2>
-          <div class="table-wrap">
-            <table class="data">
-              <thead>
-                <tr>
-                  <th>Fecha</th><th>No. Stock</th><th>Equipo</th><th>Monto venta</th>
-                  <th>Cliente</th><th>Tipo</th><th>Margen</th><th>Tiempo stock</th>
-                </tr>
-              </thead>
-              <tbody><tr><td>11 oct 2026</td><td><strong>MBC16</strong></td><td>Realme C75</td><td>$2,400</td><td>Vendio Job</td><td><span class="badge badge-ok">Contado</span></td><td class="money-pos">$900</td><td>9 d</td></tr>
+      <section class="section"><div class="panel"><h2 class="panel__title">Historial de ventas · 11</h2>
+        <div class="table-wrap"><table class="data"><thead><tr><th>Fecha</th><th>No. Stock</th><th>Equipo</th><th>Monto</th><th>Cliente</th><th>Tipo</th><th>Margen</th><th>Tiempo</th></tr></thead><tbody><tr><td>11 oct 2026</td><td><strong>MBC16</strong></td><td>Realme C75</td><td>$2,400</td><td>Vendio Job</td><td><span class="badge badge-ok">Contado</span></td><td class="money-pos">$900</td><td>9 d</td></tr>
 <tr><td>03 oct 2026</td><td><strong>MBC17</strong></td><td>iPhone iPhone 12</td><td>$3,500</td><td>Iván</td><td><span class="badge badge-credit">Credito</span></td><td class="money-pos">$800</td><td>1 d</td></tr>
 <tr><td>02 oct 2026</td><td><strong>MBC01</strong></td><td>Samsung Galaxy M15</td><td>$1,800</td><td>Facebook</td><td><span class="badge badge-ok">Contado</span></td><td class="money-pos">$500</td><td>3 d</td></tr>
 <tr><td>30 sep 2026</td><td><strong>MBC02</strong></td><td>OPPO A57</td><td>$1,400</td><td>Facebook</td><td><span class="badge badge-ok">Contado</span></td><td class="money-pos">$400</td><td>0 d</td></tr>
@@ -569,87 +492,34 @@
 <tr><td>15 sep 2026</td><td><strong>MBC04</strong></td><td>Samsung Galaxy a06</td><td>$1,500</td><td>Luisa Hernández</td><td><span class="badge badge-ok">Contado</span></td><td class="money-pos">$500</td><td>-15 d</td></tr>
 <tr><td>15 sep 2026</td><td><strong>MBC07</strong></td><td>Samsung A07</td><td>$1,400</td><td>Luisa Hernández</td><td><span class="badge badge-ok">Contado</span></td><td class="money-neg">-$99</td><td>146 d</td></tr>
 <tr><td>30 abr 2026</td><td><strong>MBC05</strong></td><td>Samsung A07</td><td>$1,800</td><td>Presencial</td><td><span class="badge badge-ok">Contado</span></td><td class="money-pos">$301</td><td>8 d</td></tr>
-<tr><td>22 abr 2026</td><td><strong>MBC06</strong></td><td>Apple iPhone 17 Pro Max</td><td>$26,800</td><td>Christopher Contreras</td><td><span class="badge badge-ok">Contado</span></td><td class="money-pos">$1,300</td><td>5 d</td></tr></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
+<tr><td>22 abr 2026</td><td><strong>MBC06</strong></td><td>Apple iPhone 17 Pro Max</td><td>$26,800</td><td>Christopher Contreras</td><td><span class="badge badge-ok">Contado</span></td><td class="money-pos">$1,300</td><td>5 d</td></tr></tbody></table></div>
+      </div></section>
     </div>
 
     <div id="view-credito" class="view">
       <section class="section" style="margin-top:0">
-        <div class="section__head">
-          <div>
-            <h1 class="section__title">Crédito y cobranza</h1>
-            <p class="section__lede">Cartera clientes y crédito de adquisición a acreedores.</p>
-          </div>
-        </div>
+        <div class="section__head"><div><h1 class="section__title">Crédito y cobranza</h1><p class="section__lede">Cartera clientes.</p></div></div>
         <div class="stat-row" style="margin-bottom:1.2rem">
           <div class="stat"><span class="stat__label">Créditos abiertos</span><span class="stat__value" id="kpi-credit-open">1</span></div>
           <div class="stat"><span class="stat__label">Falta liquidar</span><span class="stat__value" id="kpi-receivable">$2,500</span></div>
         </div>
         <div class="grid-2">
-          <div class="panel">
-            <h2 class="panel__title">Registrar cobranza</h2>
+          <div class="panel"><h2 class="panel__title">Registrar cobranza</h2>
             <form onsubmit="return false" novalidate>
               <div class="form-grid">
-                <div class="field" style="grid-column:1/-1">
-                  <label>Acreedor / cuenta</label>
-                  <select id="cob-credit"><option value="2" data-balance="2500" data-name="Iván" data-stock="MBC17">Iván — MBC17 (faltan $2,500)</option></select>
-                </div>
+                <div class="field" style="grid-column:1/-1"><label>Acreedor / cuenta</label><select id="cob-credit"><option value="2" data-balance="2500.0" data-name="Iván" data-stock="MBC17">Iván — MBC17 (faltan $2,500)</option></select></div>
                 <div class="field"><label>Cantidad / pagado</label><input type="number" id="cob-amount" placeholder="2500" min="1" /></div>
                 <div class="field"><label>Fecha</label><input type="date" id="cob-fecha" value="2026-10-18" /></div>
               </div>
               <div class="form-actions"><button type="button" class="btn btn-solid" id="btn-save-cobranza">Registrar pago</button></div>
-              <p class="form-status muted" id="cob-status"></p>
             </form>
           </div>
-          <div class="panel">
-            <h2 class="panel__title">Últimas cobranzas</h2>
-            <ul class="list-plain"><li><span>03 oct 2026 · Iván · MBC17</span><span class="money-pos">$1,000</span></li></ul>
-          </div>
+          <div class="panel"><h2 class="panel__title">Últimas cobranzas</h2><ul class="list-plain" id="cob-list"><li><span>03 oct 2026 · Iván · MBC17</span><span class="money-pos">$1,000</span></li></ul></div>
         </div>
       </section>
-      <section class="section">
-        <div class="panel">
-          <h2 class="panel__title">Cuentas</h2>
-          <div class="table-wrap">
-            <table class="data">
-              <thead>
-                <tr>
-                  <th>Nombre</th><th>No. Stock</th><th>Equipo</th><th>Tipo</th>
-                  <th>Principal</th><th>Pago 1</th><th>Pago 2</th><th>Pago 3</th>
-                  <th>Pagado</th><th>Falta liquidar</th><th>Fecha límite</th><th>Liquidado</th>
-                </tr>
-              </thead>
-              <tbody><tr><td><strong>Iván</strong></td><td>MBC17</td><td>iPhone iPhone 12</td><td><span class="badge badge-credit">Credito</span></td><td>$3,500</td><td>$1,000</td><td>No</td><td>No</td><td>$1,000</td><td class="money-neg">$2,500</td><td>—</td><td><span class="badge badge-sold">No</span></td></tr></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-      <section class="section">
-        <div class="section__head"><div>
-          <h2 class="section__title">Crédito de adquisición</h2>
-          <p class="section__lede">Deudas con acreedores al comprar mercancía.</p>
-        </div></div>
-        <div class="grid-2">
-          <div class="panel">
-            <h3 class="panel__title">Registrar crédito de adquisición</h3>
-            <form onsubmit="return false">
-              <div class="form-grid">
-                <div class="field"><label>Fecha</label><input type="date" value="2026-10-18" /></div>
-                <div class="field"><label>Cantidad</label><input type="number" /></div>
-                <div class="field"><label>Acreedor</label><input /></div>
-              </div>
-              <div class="form-actions"><button type="button" class="btn btn-primary">Guardar crédito de adquisición</button></div>
-            </form>
-          </div>
-          <div class="panel">
-            <h3 class="panel__title">Deudas a acreedores</h3>
-            <p class="muted">Sin créditos de adquisición.</p>
-          </div>
-        </div>
-      </section>
+      <section class="section"><div class="panel"><h2 class="panel__title">Cuentas</h2>
+        <div class="table-wrap"><table class="data"><thead><tr><th>Nombre</th><th>No. Stock</th><th>Equipo</th><th>Tipo</th><th>Principal</th><th>Pago 1</th><th>Pago 2</th><th>Pago 3</th><th>Pagado</th><th>Falta</th><th>Límite</th><th>Liquidado</th></tr></thead><tbody><tr><td><strong>Iván</strong></td><td>MBC17</td><td>iPhone iPhone 12</td><td><span class="badge badge-credit">Credito</span></td><td>$3,500</td><td>$1,000</td><td>No</td><td>No</td><td>$1,000</td><td class="money-neg">$2,500</td><td>—</td><td><span class="badge badge-sold">No</span></td></tr></tbody></table></div>
+      </div></section>
     </div>
 
     <div id="view-compartir" class="view">
@@ -657,12 +527,9 @@
         <p class="share-brand">CeluMB · MB Celulares</p>
         <h1 class="share-title">Equipos disponibles</h1>
         <p class="muted">8 equipos · solo DISPONIBLE</p>
-        <div class="table-wrap" style="margin-top:1rem">
-          <table class="data">
-            <thead>
-              <tr><th>No. Stock</th><th>Marca / Modelo</th><th>Precio</th><th>Condición</th><th>RAM</th><th>Almac.</th><th>% bat.</th><th>Compañía</th></tr>
-            </thead>
-            <tbody><tr><td><strong>MBC10</strong></td><td>Redmi A3</td><td>$1,400</td><td>A Bueno (9-10)</td><td>3</td><td>64</td><td>—</td><td>Liberado</td></tr>
+        <div class="table-wrap" style="margin-top:1rem"><table class="data">
+          <thead><tr><th>No. Stock</th><th>Marca / Modelo</th><th>Precio</th><th>Condición</th><th>RAM</th><th>Almac.</th><th>% bat.</th><th>Compañía</th></tr></thead>
+          <tbody><tr><td><strong>MBC10</strong></td><td>Redmi A3</td><td>$1,400</td><td>A Bueno (9-10)</td><td>3</td><td>64</td><td>—</td><td>Liberado</td></tr>
 <tr><td><strong>MBC11</strong></td><td>Redmi 9.0</td><td>$1,200</td><td>A Bueno (9-10)</td><td>4 + 1</td><td>64</td><td>—</td><td>Liberado</td></tr>
 <tr><td><strong>MBC12</strong></td><td>Motorola Moto g2025</td><td>$2,000</td><td>A Bueno (9-10)</td><td>4 + 2</td><td>128</td><td>—</td><td>Liberado</td></tr>
 <tr><td><strong>MBC13</strong></td><td>Doppio S4128</td><td>$1,500</td><td>AA Nuevo</td><td>6</td><td>128</td><td>—</td><td>Telcel</td></tr>
@@ -670,8 +537,7 @@
 <tr><td><strong>MBC15</strong></td><td>Samsung A02</td><td>$1,300</td><td>A Bueno (9-10)</td><td>3 + 2</td><td>32</td><td>—</td><td>Liberado</td></tr>
 <tr><td><strong>MBC18</strong></td><td>Apple iPhone 12</td><td>$3,600</td><td>A Bueno (9-10)</td><td>—</td><td>64 GB</td><td>—</td><td>Liberado</td></tr>
 <tr><td><strong>MBC19</strong></td><td>Apple iPhone</td><td>$2,900</td><td>A Bueno (9-10)</td><td>—</td><td>64 GB</td><td>—</td><td>Liberado</td></tr></tbody>
-          </table>
-        </div>
+        </table></div>
       </div>
     </div>
   </main>
@@ -682,25 +548,17 @@
         <div>
           <p class="modal-eyebrow">Tipo de ingreso · Adquisición</p>
           <h2 id="adq-title" class="modal-panel__title">Registrar adquisición</h2>
-          <p class="muted" style="margin:0.25rem 0 0">Compra/Ingreso de mercancía — No. Stock sugerido MBC20 (editable).</p>
+          <p class="muted" style="margin:0.25rem 0 0">No. Stock sugerido MBC20 (editable).</p>
         </div>
         <button type="button" class="modal-close" data-close-adq aria-label="Cerrar">×</button>
       </div>
       <form id="adq-form" onsubmit="return false" novalidate>
         <div class="form-grid">
           <div class="field"><label>Fecha</label><input type="date" value="2026-10-18" id="adq-fecha" /></div>
-          <div class="field">
-            <label>No. Stock</label>
-            <input id="adq-stock" value="MBC20" />
-            <p class="field-hint">Sugerido: MBC20 — puedes editarlo</p>
-          </div>
+          <div class="field"><label>No. Stock</label><input id="adq-stock" value="MBC20" /><p class="field-hint">Sugerido: MBC20 — puedes editarlo</p></div>
           <div class="field"><label>Costo</label><input id="adq-cost" type="number" min="0" step="1" value="" /></div>
           <div class="field"><label>Precio inicial sugerido</label><input id="adq-price" type="number" min="0" step="1" value="" /></div>
-          <div class="field">
-            <label>Margen</label>
-            <input id="adq-margin" class="input-locked" readonly value="—" />
-            <p class="field-hint">Precio − costo (se guarda con el equipo)</p>
-          </div>
+          <div class="field"><label>Margen</label><input id="adq-margin" class="input-locked" readonly value="—" /><p class="field-hint">Precio − costo</p></div>
           <fieldset class="field field-span"><legend>Incluye cargador</legend>
             <div class="choice-row">
               <label class="choice"><input type="radio" name="chg" checked /> Si</label>
@@ -736,12 +594,11 @@
           <button type="submit" class="btn btn-primary">Registrar adquisición</button>
           <button type="button" class="btn btn-solid" data-close-adq>Cancelar</button>
         </div>
-        <p class="form-status muted" id="adq-status"></p>
       </form>
     </div>
   </div>
-
   <script>
+
     const EXISTING_STOCK = new Set(["MBC01", "MBC02", "MBC03", "MBC04", "MBC05", "MBC06", "MBC07", "MBC08", "MBC09", "MBC10", "MBC11", "MBC12", "MBC13", "MBC14", "MBC15", "MBC16", "MBC17", "MBC18", "MBC19"]);
     function showView(id) {
       document.querySelectorAll(".view").forEach((el) => el.classList.toggle("is-active", el.id === "view-" + id));
@@ -757,7 +614,10 @@
     });
     const modal = document.getElementById("adq-modal");
     document.querySelectorAll("[data-open-adq]").forEach((btn) => {
-      btn.addEventListener("click", () => modal.classList.add("is-open"));
+      btn.addEventListener("click", () => {
+        modal.classList.add("is-open");
+        document.getElementById("adq-fecha").value = new Date().toISOString().slice(0, 10);
+      });
     });
     document.querySelectorAll("[data-close-adq]").forEach((btn) => {
       btn.addEventListener("click", () => modal.classList.remove("is-open"));
@@ -774,15 +634,17 @@
       t.className = kind === "ok" ? "toast toast-ok" : "toast toast-err";
       t.textContent = msg;
       stack.appendChild(t);
-      setTimeout(() => t.remove(), 3200);
+      setTimeout(() => t.remove(), 3800);
     }
-    document.getElementById("adq-form").addEventListener("submit", () => {
+    function noticeLive(action) {
+      pushToast("err", action + " — vista previa estática. Usa Try Live / localhost:3000 para guardar de verdad.");
+    }
+    document.getElementById("adq-form").addEventListener("submit", (e) => {
+      e.preventDefault();
       const cost = document.getElementById("adq-cost").value.trim();
       const price = document.getElementById("adq-price").value.trim();
       const stock = document.getElementById("adq-stock").value.trim();
       if (!cost || !price) {
-        document.getElementById("adq-status").textContent = "Costo y Precio son obligatorios (sin datos).";
-        document.getElementById("adq-status").className = "form-status err";
         pushToast("err", "Costo y Precio inicial sugerido son obligatorios (sin datos).");
         return;
       }
@@ -791,82 +653,65 @@
         pushToast("err", "Ese No. de stock (" + stock.toUpperCase() + ") ya existe. Elige otro.");
         return;
       }
-      pushToast("ok", "Registrado " + stock.toUpperCase());
+      noticeLive("Adquisición simulada (" + stock.toUpperCase() + ")");
       setTimeout(() => modal.classList.remove("is-open"), 900);
     });
-    document.getElementById("btn-save-venta")?.addEventListener("click", () => pushToast("ok", "Venta registrada (vista previa)."));
+    document.getElementById("btn-save-venta")?.addEventListener("click", () => noticeLive("Venta simulada"));
     (function setupCobranza() {
-      const money = (n) => "$" + Math.round(n).toLocaleString("es-MX");
+      const moneyFmt = (n) => "$" + Math.round(n).toLocaleString("es-MX");
       const fmtDate = (iso) => {
-        const [y,m,d] = iso.split("-").map(Number);
+        const parts = iso.split("-").map(Number);
         const months = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
-        return String(d).padStart(2,"0") + " " + months[m-1] + " " + y;
+        return String(parts[2]).padStart(2,"0") + " " + months[parts[1]-1] + " " + parts[0];
       };
       const btn = document.getElementById("btn-save-cobranza");
       if (!btn) return;
       btn.addEventListener("click", () => {
         const sel = document.getElementById("cob-credit");
-        const opt = sel?.selectedOptions?.[0];
-        const amount = Number(document.getElementById("cob-amount")?.value);
-        const fecha = document.getElementById("cob-fecha")?.value || new Date().toISOString().slice(0,10);
-        const status = document.getElementById("cob-status");
-        if (!opt || !opt.value) {
-          pushToast("err", "Selecciona una cuenta / acreedor.");
-          if (status) { status.textContent = "Selecciona una cuenta."; status.className = "form-status err"; }
-          return;
-        }
-        if (!Number.isFinite(amount) || amount <= 0) {
-          pushToast("err", "La cantidad / pagado es obligatoria.");
-          if (status) { status.textContent = "Cantidad obligatoria."; status.className = "form-status err"; }
-          return;
-        }
+        const opt = sel && sel.selectedOptions && sel.selectedOptions[0];
+        const amount = Number(document.getElementById("cob-amount") && document.getElementById("cob-amount").value);
+        const fecha = (document.getElementById("cob-fecha") && document.getElementById("cob-fecha").value) || new Date().toISOString().slice(0,10);
+        if (!opt || !opt.value) { pushToast("err", "Selecciona una cuenta / acreedor."); return; }
+        if (!Number.isFinite(amount) || amount <= 0) { pushToast("err", "La cantidad / pagado es obligatoria."); return; }
         let bal = Number(opt.dataset.balance || 0);
-        if (amount > bal + 0.01) {
-          pushToast("err", "El monto supera lo que falta liquidar (" + money(bal) + ").");
-          if (status) { status.textContent = "Monto supera el saldo."; status.className = "form-status err"; }
-          return;
-        }
+        if (amount > bal + 0.01) { pushToast("err", "El monto supera lo que falta liquidar (" + moneyFmt(bal) + ")."); return; }
         bal = Math.max(0, bal - amount);
         opt.dataset.balance = String(bal);
         const name = opt.dataset.name || "Cliente";
         const stock = opt.dataset.stock || "";
-        opt.textContent = name + " — " + stock + " (faltan " + money(bal) + ")";
+        opt.textContent = name + " — " + stock + " (faltan " + moneyFmt(bal) + ")";
         const list = document.getElementById("cob-list");
         if (list) {
           const li = document.createElement("li");
-          li.innerHTML = "<span>" + fmtDate(fecha) + " · " + name + " · " + stock + "</span><span class=\\"money-pos\\">" + money(amount) + "</span>";
+          const left = document.createElement("span");
+          left.textContent = fmtDate(fecha) + " · " + name + " · " + stock;
+          const right = document.createElement("span");
+          right.className = "money-pos";
+          right.textContent = moneyFmt(amount);
+          li.appendChild(left);
+          li.appendChild(right);
           list.insertBefore(li, list.firstChild);
         }
         const kpiRec = document.getElementById("kpi-receivable");
-        const kpiOpen = document.getElementById("kpi-credit-open");
         const homeRec = document.getElementById("home-receivable");
-        if (kpiRec) kpiRec.textContent = money(bal);
-        if (homeRec) homeRec.textContent = money(bal);
+        if (kpiRec) kpiRec.textContent = moneyFmt(bal);
+        if (homeRec) homeRec.textContent = moneyFmt(bal);
         if (bal <= 0) {
+          const kpiOpen = document.getElementById("kpi-credit-open");
           if (kpiOpen) kpiOpen.textContent = "0";
           opt.disabled = true;
-          pushToast("ok", "Cobranza registrada: " + money(amount) + " · " + name + " · " + stock + " (liquidado).");
-          if (status) { status.textContent = "Liquidado."; status.className = "form-status ok"; }
-        } else {
-          pushToast("ok", "Cobranza registrada: " + money(amount) + " · " + name + " · " + stock + ".");
-          if (status) { status.textContent = "Registrado " + money(amount); status.className = "form-status ok"; }
         }
+        noticeLive("Cobranza simulada (" + moneyFmt(amount) + ")");
         const amtEl = document.getElementById("cob-amount");
         if (amtEl) amtEl.value = "";
       });
     })();
-    document.querySelectorAll("[data-open-adq]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        document.getElementById("adq-fecha").value = new Date().toISOString().slice(0, 10);
-      });
-    });
     function refreshAdqMargin() {
-      const c = Number(document.getElementById("adq-cost").value);
-      const p = Number(document.getElementById("adq-price").value);
+      const cRaw = document.getElementById("adq-cost").value.trim();
+      const pRaw = document.getElementById("adq-price").value.trim();
       const el = document.getElementById("adq-margin");
-      if (!Number.isFinite(c) || !Number.isFinite(p) || document.getElementById("adq-cost").value.trim() === "" || document.getElementById("adq-price").value.trim() === "") {
-        el.value = "—"; return;
-      }
+      const c = Number(cRaw); const p = Number(pRaw);
+      if (cRaw === "" || pRaw === "" || !Number.isFinite(c) || !Number.isFinite(p)) { el.value = "—"; return; }
       const m = p - c;
       const pct = p > 0 ? Math.round((m / p) * 1000) / 10 : null;
       el.value = "$" + Math.round(m).toLocaleString("es-MX") + (pct != null ? " (" + pct + "%)" : "");
@@ -886,6 +731,7 @@
     }
     document.getElementById("filter-estado")?.addEventListener("change", applyStockFilter);
     document.getElementById("filter-marca")?.addEventListener("change", applyStockFilter);
+
   </script>
   <div id="toast-stack" class="toast-stack" aria-live="polite"></div>
 </body>
