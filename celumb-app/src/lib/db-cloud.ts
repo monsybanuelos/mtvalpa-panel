@@ -116,6 +116,17 @@ export async function getPhone(id: number): Promise<Phone | undefined> {
   return q1<Phone>(`SELECT * FROM phones WHERE id = $1`, [id]);
 }
 
+export async function getPhoneByStockNo(
+  stockNo: string,
+): Promise<Phone | undefined> {
+  const code = stockNo.trim();
+  if (!code) return undefined;
+  return q1<Phone>(
+    `SELECT * FROM phones WHERE lower(stock_no) = lower($1)`,
+    [code],
+  );
+}
+
 export async function listAvailablePhones(): Promise<Phone[]> {
   return listPhones("disponible");
 }

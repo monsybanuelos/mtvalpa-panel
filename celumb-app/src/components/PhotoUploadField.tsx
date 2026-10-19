@@ -8,6 +8,8 @@ type Props = {
   value: string;
   /** When set, a successful upload replaces this phone's slot and drops the previous file. */
   phoneId?: number;
+  /** Ask before replacing a photo that is already in this slot. */
+  confirmReplace?: boolean;
   onBusyChange?: (busy: boolean) => void;
   onChange: (path: string) => void;
   onSuccessMessage: (msg: string) => void;
@@ -122,6 +124,7 @@ export function PhotoUploadField({
   label,
   value,
   phoneId,
+  confirmReplace,
   onBusyChange,
   onChange,
   onSuccessMessage,
@@ -131,14 +134,13 @@ export function PhotoUploadField({
   const inputRef = useRef<HTMLInputElement>(null);
   const [progress, setProgress] = useState<number | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [uploaded, setUploaded] = useState(false);
+  const [pendingReplace, setPendingReplace] = useState<File | null>(null);
   const uploading = progress != null && progress < 100;
+  const slotName = label.replace(/^Subir\s+/i, "") || `Foto ${slot}`;
 
-  async function handleFile(file: File | null) {
-    if (!file) return;
-    if (!isAllowedPhoto(file)) {
-      onErrorMessage("Elige una foto JPEG, PNG o HEIC.");
-      return;
-    }
+  async function startUpload(file: File) {
+    setPendingReplace(null);
     setProgress(0);
     onBusyChange?.(true);
     try {
@@ -156,6 +158,7 @@ export function PhotoUploadField({
         phoneId,
       );
       onChange(path);
+      setUploaded(true);
       onSuccessMessage(message || "Foto subida con éxito");
     } catch (e) {
       setProgress(null);
@@ -163,9 +166,27 @@ export function PhotoUploadField({
     } finally {
       onBusyChange?.(false);
       if (inputRef.current) inputRef.current.value = "";
-      // leave progress at 100 briefly then clear bar
       setTimeout(() => setProgress(null), 1200);
     }
+  }
+
+  function handleFile(file: File | null) {
+    if (!file) return;
+    if (!isAllowedPhoto(file)) {
+      onErrorMessage("Elige una foto JPEG, PNG o HEIC.");
+      if (inputRef.current) inputRef.current.value = "";
+      return;
+    }
+    if (confirmReplace && value.trim()) {
+      setPendingReplace(file);
+      return;
+    }
+    void startUpload(file);
+  }
+
+  function cancelReplace() {
+    setPendingReplace(null);
+    if (inputRef.current) inputRef.current.value = "";
   }
 
   const thumbUrl = value
@@ -181,7 +202,7 @@ export function PhotoUploadField({
         <button
           type="button"
           className="btn btn-solid photo-upload__btn"
-          disabled={uploading}
+          disabled={uploading || pendingReplace != null}
           onClick={() => inputRef.current?.click()}
         >
           {uploading ? `Subiendo… ${progress}%` : label}
@@ -217,7 +238,31 @@ export function PhotoUploadField({
           />
         </div>
       )}
-      {value && progress == null && (
+      {pendingReplace && (
+        <div className="photo-replace-warn" role="alert">
+          <p>
+            Ya hay una {slotName}. Si continúas, la nueva imagen reemplaza la
+            anterior y se borra el archivo viejo.
+          </p>
+          <div className="photo-replace-warn__actions">
+            <button
+              type="button"
+              className="btn btn-solid"
+              onClick={() => void startUpload(pendingReplace)}
+            >
+              Reemplazar
+            </button>
+            <button
+              type="button"
+              className="btn btn-ghost-light"
+              onClick={cancelReplace}
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
+      {uploaded && value && progress == null && !pendingReplace && (
         <p className="field-hint ok">Foto subida con éxito</p>
       )}
     </div>

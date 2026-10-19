@@ -31,8 +31,8 @@ export const SALES_STOCK_SELECT = `
   storage,
   battery_pct,
   includes_charger,
-  (photo1_path IS NOT NULL AND length(trim(photo1_path)) > 0) AS has_photo1,
-  (photo2_path IS NOT NULL AND length(trim(photo2_path)) > 0) AS has_photo2
+  CASE WHEN photo1_path IS NOT NULL AND length(trim(photo1_path)) > 0 THEN 1 ELSE 0 END AS has_photo1,
+  CASE WHEN photo2_path IS NOT NULL AND length(trim(photo2_path)) > 0 THEN 1 ELSE 0 END AS has_photo2
 `;
 
 function asBool(value: unknown): boolean {

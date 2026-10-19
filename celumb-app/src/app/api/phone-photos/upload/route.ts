@@ -110,7 +110,8 @@ export async function POST(request: Request) {
           { status: 500 },
         );
       }
-      storedPath = publicPhotoUrl(filename);
+      const pub = sb.storage.from(PHOTO_BUCKET).getPublicUrl(filename);
+      storedPath = pub.data.publicUrl || publicPhotoUrl(filename);
       publicUrl = storedPath;
     } else {
       fs.mkdirSync(PHOTO_DIR, { recursive: true });
@@ -139,6 +140,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ ok: false, error: msg }, { status: 500 });
       }
       revalidatePath("/inventario");
+      revalidatePath("/inventario/editar", "layout");
     }
 
     return NextResponse.json({

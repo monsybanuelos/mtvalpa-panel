@@ -1016,6 +1016,14 @@ export function updatePhonePhoto(
   return tx();
 }
 
+export function getPhoneByStockNo(stockNo: string): Phone | undefined {
+  const code = stockNo.trim();
+  if (!code) return undefined;
+  return getDb()
+    .prepare(`SELECT * FROM phones WHERE stock_no = ? COLLATE NOCASE`)
+    .get(code) as Phone | undefined;
+}
+
 export function getPhone(id: number): Phone | undefined {
   return getDb().prepare(`SELECT * FROM phones WHERE id = ?`).get(id) as
     | Phone

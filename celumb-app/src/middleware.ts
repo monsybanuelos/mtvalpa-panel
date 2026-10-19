@@ -47,9 +47,10 @@ export function middleware(request: NextRequest) {
 
 /** Ventas may open stock and download phone photos. Nothing else. */
 function ventasPathAllowed(pathname: string): boolean {
-  if (pathname === "/inventario" || pathname.startsWith("/inventario/")) {
-    return true;
-  }
+  if (pathname === "/inventario") return true;
+  if (pathname.startsWith("/inventario/editar")) return false;
+  if (pathname.startsWith("/inventario/")) return true;
+  if (pathname.startsWith("/api/phone-photos/upload")) return false;
   if (pathname.startsWith("/api/phone-photos")) return true;
   return false;
 }

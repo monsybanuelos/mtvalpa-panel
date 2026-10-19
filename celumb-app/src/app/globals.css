@@ -1315,6 +1315,56 @@ table.data tr:hover td {
   color: var(--ok, #0b7a45);
   font-weight: 600;
 }
+
+.photo-replace-warn {
+  margin-top: 0.65rem;
+  padding: 0.75rem 0.8rem;
+  border-radius: 0.8rem;
+  background: rgba(180, 83, 9, 0.1);
+  border: 1px solid rgba(180, 83, 9, 0.35);
+}
+
+.photo-replace-warn p {
+  margin: 0 0 0.65rem;
+}
+
+.photo-replace-warn__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.photo-replace-warn__actions .btn {
+  min-height: 44px;
+}
+
+html:has(.edit-phone-page) {
+  scroll-behavior: auto;
+}
+
+.edit-phone-page__back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin-bottom: 0.9rem;
+}
+
+.edit-phone-page__form {
+  margin-top: 1rem;
+}
+
+.edit-phone-page .form-actions a.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+}
+
+.edit-phone-page .form-actions a.btn.is-disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
 .ventas-actions {
   display: flex;
   flex-direction: column;
@@ -1600,6 +1650,13 @@ table.data tr:hover td {
     min-width: 0;
     width: 100%;
     min-height: 44px;
+  }
+
+  .edit-phone-page__back,
+  .photo-replace-warn__actions .btn,
+  .edit-phone-page .form-actions a.btn,
+  .edit-phone-page .form-actions .btn {
+    width: 100%;
   }
 
   .toast-stack {

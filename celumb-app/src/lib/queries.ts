@@ -32,6 +32,11 @@ export async function listPhones(filter?: "disponible" | "vendido" | "all") {
   return local.listPhones(filter);
 }
 
+export async function getPhoneByStockNo(stockNo: string) {
+  if (useCloudDb()) return cloud.getPhoneByStockNo(stockNo);
+  return local.getPhoneByStockNo(stockNo);
+}
+
 export async function listAvailablePhones() {
   if (useCloudDb()) return cloud.listAvailablePhones();
   return local.listAvailablePhones();

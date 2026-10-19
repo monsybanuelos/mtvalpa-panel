@@ -2,7 +2,10 @@ import { NextResponse } from "next/server";
 import fs from "node:fs";
 import path from "node:path";
 import { getSession } from "@/lib/auth";
+import { useCloudDb } from "@/lib/cloud-env";
+import { storageObjectName } from "@/lib/phone-photo-storage";
 import { getSalesPhoto } from "@/lib/queries";
+import { PHOTO_BUCKET, supabaseAdmin } from "@/lib/supabase-admin";
 
 export const runtime = "nodejs";
 
@@ -28,6 +31,44 @@ function safeFilename(stockNo: string, slot: 1 | 2, ext: string): string {
   return `${stock}-foto${slot}.${ext}`;
 }
 
+/** Read the object stored in photo1_path / photo2_path. Same file Ventas downloads. */
+async function loadPhoto(
+  stored: string,
+): Promise<{ bytes: Buffer; ext: string } | null> {
+  const name = storageObjectName(stored);
+  if (useCloudDb() && name) {
+    const { data, error } = await supabaseAdmin()
+      .storage.from(PHOTO_BUCKET)
+      .download(name);
+    if (!error && data) {
+      return {
+        bytes: Buffer.from(await data.arrayBuffer()),
+        ext: extOf(name),
+      };
+    }
+  }
+
+  if (/^https?:\/\//i.test(stored)) {
+    const remote = await fetch(stored);
+    if (!remote.ok) return null;
+    const bytes = Buffer.from(await remote.arrayBuffer());
+    let ext = extOf(stored.split("?")[0]?.split("/").pop() || "");
+    const ctype = remote.headers.get("content-type") || "";
+    const fromType = Object.entries(MIME).find(([, mime]) =>
+      ctype.startsWith(mime),
+    );
+    if (fromType) ext = fromType[0] === "jpeg" ? "jpg" : fromType[0];
+    return { bytes, ext };
+  }
+
+  if (!name) return null;
+  const root = path.resolve(PHOTO_DIR);
+  const abs = path.resolve(root, name);
+  if (abs !== root && !abs.startsWith(root + path.sep)) return null;
+  if (!fs.existsSync(abs)) return null;
+  return { bytes: fs.readFileSync(abs), ext: extOf(name) };
+}
+
 export async function GET(request: Request) {
   const session = await getSession();
   if (!session) {
@@ -46,35 +87,11 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Sin foto" }, { status: 404 });
   }
 
-  const stored = photo.photo_path;
-  let bytes: Buffer;
-  let ext = "jpg";
-
-  if (/^https?:\/\//i.test(stored)) {
-    const remote = await fetch(stored);
-    if (!remote.ok) {
-      return NextResponse.json({ error: "No encontrado" }, { status: 404 });
-    }
-    bytes = Buffer.from(await remote.arrayBuffer());
-    const fromUrl = stored.split("?")[0]?.split("/").pop() || "";
-    ext = extOf(fromUrl);
-    const ctype = remote.headers.get("content-type") || "";
-    const fromType = Object.entries(MIME).find(([, mime]) =>
-      ctype.startsWith(mime),
-    );
-    if (fromType) ext = fromType[0] === "jpeg" ? "jpg" : fromType[0];
-  } else {
-    const safe = path.basename(stored);
-    if (!safe || safe.includes("..")) {
-      return NextResponse.json({ error: "Archivo inválido" }, { status: 400 });
-    }
-    const abs = path.join(PHOTO_DIR, safe);
-    if (!abs.startsWith(PHOTO_DIR) || !fs.existsSync(abs)) {
-      return NextResponse.json({ error: "No encontrado" }, { status: 404 });
-    }
-    bytes = fs.readFileSync(abs);
-    ext = extOf(safe);
+  const loaded = await loadPhoto(photo.photo_path);
+  if (!loaded) {
+    return NextResponse.json({ error: "No encontrado" }, { status: 404 });
   }
+  const { bytes, ext } = loaded;
 
   const filename = safeFilename(photo.stock_no, slot, ext);
   return new NextResponse(new Uint8Array(bytes), {

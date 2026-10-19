@@ -1,13 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import type { Accessory, Phone } from "@/lib/db";
 import { daysBetween, formatDate, formatMoney } from "@/lib/format";
 import { AdquisicionForm } from "@/components/AdquisicionForm";
-import {
-  EditAccessoryModal,
-  EditPhoneModal,
-} from "@/components/EditInventoryForms";
+import { EditAccessoryModal } from "@/components/EditInventoryForms";
 
 type Props = {
   phones: Phone[];
@@ -36,10 +34,9 @@ export function InventarioStock({
   today,
 }: Props) {
   const [tipo, setTipo] = useState<InventarioTipo>("celulares");
-  const [estado, setEstado] = useState<EstadoFilter>("all");
+  const [estado, setEstado] = useState<EstadoFilter>("disponible");
   const [marca, setMarca] = useState("all");
   const [open, setOpen] = useState(false);
-  const [editPhone, setEditPhone] = useState<Phone | null>(null);
   const [editAcc, setEditAcc] = useState<Accessory | null>(null);
 
   const brands = useMemo(() => {
@@ -56,8 +53,9 @@ export function InventarioStock({
   }, [phones, estado, marca]);
 
   const isPhones = tipo === "celulares";
+  const visiblePhones = filteredPhones.length;
   const titleCount = isPhones
-    ? `${phones.length} equipos`
+    ? `${visiblePhones} equipo${visiblePhones === 1 ? "" : "s"}`
     : `${accessories.length} SKUs`;
 
   return (
@@ -304,13 +302,13 @@ export function InventarioStock({
                       <td data-label="Fecha">{formatDate(p.acquired_at)}</td>
                       <td data-label="Días">{daysBetween(p.acquired_at)}</td>
                       <td data-label="">
-                        <button
-                          type="button"
+                        <Link
                           className="btn-link"
-                          onClick={() => setEditPhone(p)}
+                          scroll
+                          href={`/inventario/editar/${encodeURIComponent(p.stock_no)}`}
                         >
                           Editar
-                        </button>
+                        </Link>
                       </td>
                     </tr>
                   );
@@ -383,13 +381,6 @@ export function InventarioStock({
         </div>
       )}
 
-      {editPhone ? (
-        <EditPhoneModal
-          phone={editPhone}
-          open
-          onClose={() => setEditPhone(null)}
-        />
-      ) : null}
       {editAcc ? (
         <EditAccessoryModal
           accessory={editAcc}
