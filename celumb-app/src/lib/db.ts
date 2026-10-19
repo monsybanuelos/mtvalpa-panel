@@ -995,6 +995,27 @@ export function listPhones(filter?: "disponible" | "vendido" | "all"): Phone[] {
     .all(filter) as Phone[];
 }
 
+/** Replace one photo slot. Clears the previous path, then stores the new one. */
+export function updatePhonePhoto(
+  id: number,
+  slot: 1 | 2,
+  photoPath: string,
+): { previous: string | null } {
+  const db = getDb();
+  const col = slot === 2 ? "photo2_path" : "photo1_path";
+  const tx = db.transaction(() => {
+    const row = db
+      .prepare(`SELECT ${col} AS photo_path FROM phones WHERE id = ?`)
+      .get(id) as { photo_path: string | null } | undefined;
+    if (!row) throw new Error("NOT_FOUND");
+    const previous = row.photo_path?.trim() || null;
+    db.prepare(`UPDATE phones SET ${col} = NULL WHERE id = ?`).run(id);
+    db.prepare(`UPDATE phones SET ${col} = ? WHERE id = ?`).run(photoPath, id);
+    return { previous };
+  });
+  return tx();
+}
+
 export function getPhone(id: number): Phone | undefined {
   return getDb().prepare(`SELECT * FROM phones WHERE id = ?`).get(id) as
     | Phone

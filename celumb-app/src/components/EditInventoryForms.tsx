@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   updateAccessory,
@@ -8,6 +8,7 @@ import {
   type ActionResult,
 } from "@/lib/actions";
 import type { Accessory, Phone } from "@/lib/db";
+import { PhotoUploadField } from "@/components/PhotoUploadField";
 import { useToast } from "@/components/Toast";
 
 const CONDITIONS = [
@@ -65,10 +66,20 @@ type PhoneEditProps = {
 };
 
 export function EditPhoneModal({ phone, open, onClose }: PhoneEditProps) {
+  const toast = useToast();
+  const router = useRouter();
+  const [photo1, setPhoto1] = useState(phone.photo1_path || "");
+  const [photo2, setPhoto2] = useState(phone.photo2_path || "");
+  const [photoBusy, setPhotoBusy] = useState(0);
   const { formAction, pending, resetMarker } = useSaveAction(
     updatePhone,
     onClose,
   );
+  const locked = pending || photoBusy > 0;
+
+  function onPhotoBusy(busy: boolean) {
+    setPhotoBusy((n) => Math.max(0, n + (busy ? 1 : -1)));
+  }
 
   if (!open) return null;
 
@@ -77,7 +88,7 @@ export function EditPhoneModal({ phone, open, onClose }: PhoneEditProps) {
       className="modal-backdrop is-open"
       role="presentation"
       onClick={(e) => {
-        if (e.target === e.currentTarget && !pending) onClose();
+        if (e.target === e.currentTarget && !locked) onClose();
       }}
     >
       <div
@@ -98,7 +109,7 @@ export function EditPhoneModal({ phone, open, onClose }: PhoneEditProps) {
             className="modal-close"
             aria-label="Cerrar"
             onClick={onClose}
-            disabled={pending}
+            disabled={locked}
           >
             ×
           </button>
@@ -254,16 +265,44 @@ export function EditPhoneModal({ phone, open, onClose }: PhoneEditProps) {
                   defaultValue={phone.comments || ""}
                 />
               </div>
+              <div className="field-span photo-upload-grid">
+                <PhotoUploadField
+                  slot={1}
+                  label="Subir Foto 1"
+                  value={photo1}
+                  phoneId={phone.id}
+                  onBusyChange={onPhotoBusy}
+                  onChange={(path) => {
+                    setPhoto1(path);
+                    router.refresh();
+                  }}
+                  onSuccessMessage={(m) => toast.success(m)}
+                  onErrorMessage={(m) => toast.error(m)}
+                />
+                <PhotoUploadField
+                  slot={2}
+                  label="Subir Foto 2"
+                  value={photo2}
+                  phoneId={phone.id}
+                  onBusyChange={onPhotoBusy}
+                  onChange={(path) => {
+                    setPhoto2(path);
+                    router.refresh();
+                  }}
+                  onSuccessMessage={(m) => toast.success(m)}
+                  onErrorMessage={(m) => toast.error(m)}
+                />
+              </div>
             </div>
             <div className="form-actions">
-              <button type="submit" className="btn btn-solid" disabled={pending}>
+              <button type="submit" className="btn btn-solid" disabled={locked}>
                 {pending ? "Guardando…" : "Guardar cambios"}
               </button>
               <button
                 type="button"
                 className="btn btn-ghost-light"
                 onClick={onClose}
-                disabled={pending}
+                disabled={locked}
               >
                 Cancelar
               </button>

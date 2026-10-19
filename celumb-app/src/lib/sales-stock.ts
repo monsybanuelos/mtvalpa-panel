@@ -2,6 +2,7 @@
 
 export type SalesStockPhone = {
   id: number;
+  stock_no: string;
   status: "disponible" | "vendido";
   brand: string;
   model: string;
@@ -19,6 +20,7 @@ export type SalesStockPhone = {
 /** Listed columns only, plus flags for the two photo downloads. No cost or credit. */
 export const SALES_STOCK_SELECT = `
   id,
+  stock_no,
   status,
   brand,
   model,
@@ -57,6 +59,7 @@ export function toSalesStockPhone(row: object): SalesStockPhone {
   const batteryN = battery == null || battery === "" ? null : Number(battery);
   return {
     id: Number(src.id),
+    stock_no: String(src.stock_no ?? "").trim(),
     status,
     brand: String(src.brand ?? ""),
     model: String(src.model ?? ""),

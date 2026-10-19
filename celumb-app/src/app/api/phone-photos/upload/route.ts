@@ -2,8 +2,13 @@ import { NextResponse } from "next/server";
 import fs from "node:fs";
 import path from "node:path";
 import { randomBytes } from "node:crypto";
+import { revalidatePath } from "next/cache";
 import { requireSession, canAcquire } from "@/lib/auth";
 import { useCloudDb } from "@/lib/cloud-env";
+import {
+  deleteStoredPhoto,
+  saveReplacedPhonePhoto,
+} from "@/lib/phone-photo-storage";
 import { PHOTO_BUCKET, publicPhotoUrl, supabaseAdmin } from "@/lib/supabase-admin";
 
 export const runtime = "nodejs";
@@ -15,10 +20,8 @@ const ALLOWED = new Set([
   "image/jpeg",
   "image/jpg",
   "image/png",
-  "image/webp",
   "image/heic",
   "image/heif",
-  "image/gif",
 ]);
 
 function extFor(type: string, name: string): string {
@@ -49,6 +52,19 @@ export async function POST(request: Request) {
     const form = await request.formData();
     const file = form.get("file");
     const slot = String(form.get("slot") ?? "1");
+    const slotNum: 1 | 2 = slot === "2" ? 2 : 1;
+    const phoneIdRaw = String(form.get("phoneId") ?? "").trim();
+    let phoneId: number | null = null;
+    if (phoneIdRaw) {
+      const n = Number(phoneIdRaw);
+      if (!Number.isInteger(n) || n <= 0) {
+        return NextResponse.json(
+          { ok: false, error: "Equipo no válido." },
+          { status: 400 },
+        );
+      }
+      phoneId = n;
+    }
     if (!(file instanceof File)) {
       return NextResponse.json(
         { ok: false, error: "Archivo requerido." },
@@ -65,10 +81,11 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
-    const type = (file.type || "image/jpeg").toLowerCase();
-    if (type && !ALLOWED.has(type) && !type.startsWith("image/")) {
+    const type = (file.type || "").toLowerCase();
+    const nameOk = /\.(jpe?g|png|heic|heif)$/i.test(file.name || "");
+    if ((!type && !nameOk) || (type && !ALLOWED.has(type) && !nameOk)) {
       return NextResponse.json(
-        { ok: false, error: "Formato no soportado. Usa una foto del iPhone." },
+        { ok: false, error: "Formato no soportado. Usa JPEG, PNG o HEIC." },
         { status: 400 },
       );
     }
@@ -76,13 +93,16 @@ export async function POST(request: Request) {
     const buf = Buffer.from(await file.arrayBuffer());
     const ext = extFor(type, file.name || "photo.jpg");
     const id = randomBytes(8).toString("hex");
-    const filename = `adq-${slot}-${Date.now()}-${id}.${ext}`;
+    const filename = `adq-${slotNum}-${Date.now()}-${id}.${ext}`;
+
+    let storedPath: string;
+    let publicUrl: string;
 
     if (useCloudDb()) {
       const sb = supabaseAdmin();
       const { error } = await sb.storage.from(PHOTO_BUCKET).upload(filename, buf, {
-        contentType: type.startsWith("image/") ? type : "image/jpeg",
-        upsert: true,
+        contentType: ALLOWED.has(type) ? type : "image/jpeg",
+        upsert: false,
       });
       if (error) {
         return NextResponse.json(
@@ -90,23 +110,41 @@ export async function POST(request: Request) {
           { status: 500 },
         );
       }
-      const url = publicPhotoUrl(filename);
-      return NextResponse.json({
-        ok: true,
-        path: url,
-        url,
-        message: "Foto subida con éxito",
-      });
+      storedPath = publicPhotoUrl(filename);
+      publicUrl = storedPath;
+    } else {
+      fs.mkdirSync(PHOTO_DIR, { recursive: true });
+      const abs = path.join(PHOTO_DIR, filename);
+      fs.writeFileSync(abs, buf);
+      storedPath = `phone-photos/${filename}`;
+      publicUrl = `/api/phone-photos/${filename}`;
     }
 
-    fs.mkdirSync(PHOTO_DIR, { recursive: true });
-    const abs = path.join(PHOTO_DIR, filename);
-    fs.writeFileSync(abs, buf);
-    const rel = `phone-photos/${filename}`;
+    if (phoneId) {
+      try {
+        await saveReplacedPhonePhoto({
+          phoneId,
+          slot: slotNum,
+          path: storedPath,
+        });
+      } catch (err) {
+        await deleteStoredPhoto(storedPath).catch(() => undefined);
+        const msg = err instanceof Error ? err.message : "No se pudo guardar la foto.";
+        if (msg === "NOT_FOUND") {
+          return NextResponse.json(
+            { ok: false, error: "Equipo no encontrado." },
+            { status: 404 },
+          );
+        }
+        return NextResponse.json({ ok: false, error: msg }, { status: 500 });
+      }
+      revalidatePath("/inventario");
+    }
+
     return NextResponse.json({
       ok: true,
-      path: rel,
-      url: `/api/phone-photos/${filename}`,
+      path: storedPath,
+      url: publicUrl,
       message: "Foto subida con éxito",
     });
   } catch (e) {

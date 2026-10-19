@@ -211,6 +211,29 @@ export async function updatePhoneCloud(p: {
   });
 }
 
+/** Replace one photo slot. Clears the previous path in the same transaction, then stores the new one. */
+export async function updatePhonePhotoCloud(p: {
+  id: number;
+  slot: 1 | 2;
+  path: string;
+}): Promise<{ previous: string | null }> {
+  const col = p.slot === 2 ? "photo2_path" : "photo1_path";
+  return withTx(async (c) => {
+    const existing = await c.query<{ photo_path: string | null }>(
+      `SELECT ${col} AS photo_path FROM phones WHERE id = $1`,
+      [p.id],
+    );
+    if (!existing.rows[0]) throw new Error("NOT_FOUND");
+    const previous = existing.rows[0].photo_path?.trim() || null;
+    await c.query(`UPDATE phones SET ${col} = NULL WHERE id = $1`, [p.id]);
+    await c.query(`UPDATE phones SET ${col} = $1 WHERE id = $2`, [
+      p.path,
+      p.id,
+    ]);
+    return { previous };
+  });
+}
+
 export async function updateAccessoryCloud(p: {
   id: number;
   descripcion: string;

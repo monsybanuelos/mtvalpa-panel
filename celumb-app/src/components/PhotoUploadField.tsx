@@ -6,10 +6,27 @@ type Props = {
   slot: 1 | 2;
   label: string;
   value: string;
+  /** When set, a successful upload replaces this phone's slot and drops the previous file. */
+  phoneId?: number;
+  onBusyChange?: (busy: boolean) => void;
   onChange: (path: string) => void;
   onSuccessMessage: (msg: string) => void;
   onErrorMessage: (msg: string) => void;
 };
+
+function isAllowedPhoto(file: File): boolean {
+  const type = (file.type || "").toLowerCase();
+  if (
+    type === "image/jpeg" ||
+    type === "image/jpg" ||
+    type === "image/png" ||
+    type === "image/heic" ||
+    type === "image/heif"
+  ) {
+    return true;
+  }
+  return /\.(jpe?g|png|heic|heif)$/i.test(file.name);
+}
 
 const MAX_EDGE = 1600;
 const JPEG_QUALITY = 0.72;
@@ -67,6 +84,7 @@ function uploadWithProgress(
   filename: string,
   slot: number,
   onProgress: (pct: number) => void,
+  phoneId?: number,
 ): Promise<{ path: string; message?: string }> {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
@@ -94,6 +112,7 @@ function uploadWithProgress(
     const fd = new FormData();
     fd.append("file", blob, filename);
     fd.append("slot", String(slot));
+    if (phoneId) fd.append("phoneId", String(phoneId));
     xhr.send(fd);
   });
 }
@@ -102,6 +121,8 @@ export function PhotoUploadField({
   slot,
   label,
   value,
+  phoneId,
+  onBusyChange,
   onChange,
   onSuccessMessage,
   onErrorMessage,
@@ -114,11 +135,12 @@ export function PhotoUploadField({
 
   async function handleFile(file: File | null) {
     if (!file) return;
-    if (!file.type.startsWith("image/") && !/\.(jpe?g|png|webp|heic|heif|gif)$/i.test(file.name)) {
-      onErrorMessage("Elige una imagen (foto del iPhone).");
+    if (!isAllowedPhoto(file)) {
+      onErrorMessage("Elige una foto JPEG, PNG o HEIC.");
       return;
     }
     setProgress(0);
+    onBusyChange?.(true);
     try {
       const compressed = await compressImage(file);
       setProgress(8);
@@ -131,14 +153,15 @@ export function PhotoUploadField({
         outName,
         slot,
         setProgress,
+        phoneId,
       );
       onChange(path);
       onSuccessMessage(message || "Foto subida con éxito");
     } catch (e) {
       setProgress(null);
-      onChange("");
       onErrorMessage(e instanceof Error ? e.message : "No se pudo subir la foto.");
     } finally {
+      onBusyChange?.(false);
       if (inputRef.current) inputRef.current.value = "";
       // leave progress at 100 briefly then clear bar
       setTimeout(() => setProgress(null), 1200);
@@ -167,7 +190,7 @@ export function PhotoUploadField({
           ref={inputRef}
           id={inputId}
           type="file"
-          accept="image/jpeg,image/png,image/heic,image/heif,.jpg,.jpeg,.png,.heic,.heif,image/*"
+          accept="image/jpeg,image/png,image/heic,image/heif,.jpg,.jpeg,.png,.heic,.heif"
           className="photo-upload__input"
           onChange={(e) => void handleFile(e.target.files?.[0] ?? null)}
         />

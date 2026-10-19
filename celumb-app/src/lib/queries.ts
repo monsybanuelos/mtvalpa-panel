@@ -7,6 +7,7 @@ import { toSalesStockPhone, type SalesStockPhone } from "./sales-stock";
 
 const SALES_STOCK_KEYS = new Set([
   "id",
+  "stock_no",
   "status",
   "brand",
   "model",
