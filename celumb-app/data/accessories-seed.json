@@ -1,0 +1,236 @@
+[
+  {
+    "stock_no": "ACC001",
+    "catalog_code": "B V8 USB",
+    "descripcion": "CABLE USB NORMAL TRENZADO SIN CAJA",
+    "qty": 20,
+    "cost_unit": 5.0,
+    "precio_sugerido": 60.0,
+    "precio_maximo": 80.0
+  },
+  {
+    "stock_no": "ACC002",
+    "catalog_code": "B USB - C",
+    "descripcion": "CABLE USB TIPO C TRENZADO SIN CAJA",
+    "qty": 40,
+    "cost_unit": 8.0,
+    "precio_sugerido": 75.0,
+    "precio_maximo": 100.0
+  },
+  {
+    "stock_no": "ACC003",
+    "catalog_code": "P USB - C Mot",
+    "descripcion": "CABLE ORIGINAL USB A C MOTOROLA",
+    "qty": 20,
+    "cost_unit": 20.0,
+    "precio_sugerido": 90.0,
+    "precio_maximo": 120.0
+  },
+  {
+    "stock_no": "ACC004",
+    "catalog_code": "P C-C Sam",
+    "descripcion": "CABLE ORIGINAL TIPO C-C SAMSUNG",
+    "qty": 20,
+    "cost_unit": 20.0,
+    "precio_sugerido": 90.0,
+    "precio_maximo": 120.0
+  },
+  {
+    "stock_no": "ACC005",
+    "catalog_code": "P C-C iP",
+    "descripcion": "CABLE ORIGINAL IPHONE TIPO C",
+    "qty": 30,
+    "cost_unit": 11.0,
+    "precio_sugerido": 120.0,
+    "precio_maximo": 150.0
+  },
+  {
+    "stock_no": "ACC006",
+    "catalog_code": "B iPh L",
+    "descripcion": "CABLE IPHONE C A LIGTHNING",
+    "qty": 40,
+    "cost_unit": 5.5,
+    "precio_sugerido": 100.0,
+    "precio_maximo": 150.0
+  },
+  {
+    "stock_no": "ACC007",
+    "catalog_code": "Cubo iPhone",
+    "descripcion": "CUBO 20W ORIGINAL IPHONE",
+    "qty": 50,
+    "cost_unit": 20.0,
+    "precio_sugerido": 120.0,
+    "precio_maximo": 150.0
+  },
+  {
+    "stock_no": "ACC008",
+    "catalog_code": "P iPh C-L",
+    "descripcion": "CARGDOR IPHONE ORIGINAL C-LIGTH",
+    "qty": 13,
+    "cost_unit": 29.0,
+    "precio_sugerido": 150.0,
+    "precio_maximo": 200.0
+  },
+  {
+    "stock_no": "ACC009",
+    "catalog_code": "Cubo medio",
+    "descripcion": "CARGADOR GEN12W USB + C Sin CAJA",
+    "qty": 52,
+    "cost_unit": 20.0,
+    "precio_sugerido": 100.0,
+    "precio_maximo": 150.0
+  },
+  {
+    "stock_no": "ACC010",
+    "catalog_code": "B Charg Comp C",
+    "descripcion": "CARGADOR COMPLETO 1 HORA TIPO C",
+    "qty": 10,
+    "cost_unit": 28.0,
+    "precio_sugerido": 80.0,
+    "precio_maximo": 150.0
+  },
+  {
+    "stock_no": "ACC011",
+    "catalog_code": "P Charg comp C",
+    "descripcion": "CARGADOR ORIGINAL SAMSUNG USB-C",
+    "qty": 9,
+    "cost_unit": 45.0,
+    "precio_sugerido": 180.0,
+    "precio_maximo": 250.0
+  },
+  {
+    "stock_no": "ACC012",
+    "catalog_code": "B Charg iPhone L",
+    "descripcion": "CARGADOR ECONOMICO IPHONE",
+    "qty": 40,
+    "cost_unit": null,
+    "precio_sugerido": 80.0,
+    "precio_maximo": 150.0
+  },
+  {
+    "stock_no": "ACC013",
+    "catalog_code": "P Charg iPhone C-L",
+    "descripcion": "CARGADOR ORIGINAL IPHONE LIGTHNING",
+    "qty": 10,
+    "cost_unit": 31.0,
+    "precio_sugerido": 150.0,
+    "precio_maximo": 250.0
+  },
+  {
+    "stock_no": "ACC014",
+    "catalog_code": "Bocina 01",
+    "descripcion": "BOCINA GENERICA CHICA",
+    "qty": 2,
+    "cost_unit": 45.0,
+    "precio_sugerido": 150.0,
+    "precio_maximo": 250.0
+  },
+  {
+    "stock_no": "ACC015",
+    "catalog_code": "Bocina 02",
+    "descripcion": "BOCINA GENERICA MEDIANA",
+    "qty": 2,
+    "cost_unit": 80.0,
+    "precio_sugerido": 200.0,
+    "precio_maximo": 300.0
+  },
+  {
+    "stock_no": "ACC016",
+    "catalog_code": "Audifono Eco",
+    "descripcion": "AUDIFONOS BLUETOOTH GENERICOS",
+    "qty": 17,
+    "cost_unit": 21.0,
+    "precio_sugerido": 120.0,
+    "precio_maximo": 180.0
+  },
+  {
+    "stock_no": "ACC017",
+    "catalog_code": "Airpods Pro 3",
+    "descripcion": "AIRPODS PRO 3 CANCELACION GPS #SERIE",
+    "qty": 47,
+    "cost_unit": 150.0,
+    "precio_sugerido": 450.0,
+    "precio_maximo": 600.0
+  },
+  {
+    "stock_no": "ACC018",
+    "catalog_code": "Adaptador 4 en 1",
+    "descripcion": "ADAPTADOR CABLE 4 EN 1",
+    "qty": 10,
+    "cost_unit": 17.0,
+    "precio_sugerido": 100.0,
+    "precio_maximo": 200.0
+  },
+  {
+    "stock_no": "ACC019",
+    "catalog_code": "Bluetooth Aux",
+    "descripcion": "AUXILIAR BLUETOOTH",
+    "qty": 3,
+    "cost_unit": 18.0,
+    "precio_sugerido": 80.0,
+    "precio_maximo": 150.0
+  },
+  {
+    "stock_no": "ACC020",
+    "catalog_code": "Bocina go 4",
+    "descripcion": "BOCINA JBL CHICA GO 4",
+    "qty": 12,
+    "cost_unit": 95.0,
+    "precio_sugerido": 250.0,
+    "precio_maximo": 350.0
+  },
+  {
+    "stock_no": "ACC021",
+    "catalog_code": "Bocina lip 6",
+    "descripcion": "BOCINA JBL GRANDE FLIP 6",
+    "qty": 5,
+    "cost_unit": 210.0,
+    "precio_sugerido": 450.0,
+    "precio_maximo": 600.0
+  },
+  {
+    "stock_no": "ACC022",
+    "catalog_code": "Car Charg",
+    "descripcion": "CARGADOR CARRO",
+    "qty": 5,
+    "cost_unit": 5.0,
+    "precio_sugerido": 120.0,
+    "precio_maximo": 200.0
+  },
+  {
+    "stock_no": "ACC023",
+    "catalog_code": "Transmisor",
+    "descripcion": "TRANSMISOR DE CARRO",
+    "qty": 5,
+    "cost_unit": 45.0,
+    "precio_sugerido": 120.0,
+    "precio_maximo": 200.0
+  },
+  {
+    "stock_no": "ACC024",
+    "catalog_code": "Powerbank",
+    "descripcion": "POWERBANK 20,000 Ma",
+    "qty": 5,
+    "cost_unit": 55.0,
+    "precio_sugerido": 150.0,
+    "precio_maximo": 250.0
+  },
+  {
+    "stock_no": "ACC025",
+    "catalog_code": "Smart Watch 1",
+    "descripcion": "RELOJ INTELIGENTE",
+    "qty": 1,
+    "cost_unit": 80.0,
+    "precio_sugerido": 250.0,
+    "precio_maximo": 400.0
+  },
+  {
+    "stock_no": "ACC026",
+    "catalog_code": "Smart watch 2",
+    "descripcion": "RELOJ INTELIGENTE COMBO",
+    "qty": 2,
+    "cost_unit": 158.0,
+    "precio_sugerido": 350.0,
+    "precio_maximo": 500.0
+  }
+]

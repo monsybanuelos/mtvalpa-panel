@@ -1,0 +1,42 @@
+{
+  "name": "celumb",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "db:reset": "rm -f data/celumb.db data/celumb.db-wal data/celumb.db-shm && node -e \"require('fs').mkdirSync('data',{recursive:true}); console.log('DB will reseed on next request')\"",
+    "migrate:supabase": "node scripts/supabase/migrate-from-sqlite.mjs",
+    "storage:photos": "node scripts/supabase/setup-storage-and-photos.mjs",
+    "db:cloud": "npm run migrate:supabase && npm run storage:photos"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.118.0",
+    "@types/pg": "^8.23.1",
+    "better-sqlite3": "^13.0.3",
+    "next": "16.4.2",
+    "pg": "^8.23.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@tailwindcss/turbopack": "^4",
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.2",
+    "playwright": "^1.64.1",
+    "tailwindcss": "^4",
+    "tsx": "^4.23.15",
+    "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=20 <23"
+  }
+}
