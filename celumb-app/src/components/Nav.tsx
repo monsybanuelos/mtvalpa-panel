@@ -1,9 +1,13 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { AdquisicionForm } from "@/components/AdquisicionForm";
 import { logoutAction } from "@/lib/auth-actions";
+
+const AdquisicionForm = dynamic(() =>
+  import("@/components/AdquisicionForm").then((m) => m.AdquisicionForm),
+);
 import type { SessionUser } from "@/lib/auth";
 import { roleLabel } from "@/lib/auth-client";
 
@@ -29,11 +33,18 @@ export function Nav({
 }: Props) {
   const pathname = usePathname();
   const isAdmin = user.role === "admin";
+  const visibleLinks = isAdmin
+    ? links
+    : links.filter((l) => l.href === "/inventario");
 
   return (
     <header className="site-header">
       <div className="site-header__inner">
-        <Link href="/" className="brand-mark" aria-label="CeluMB inicio">
+        <Link
+          href={isAdmin ? "/" : "/inventario"}
+          className="brand-mark"
+          aria-label={isAdmin ? "CeluMB inicio" : "CeluMB inventario"}
+        >
           <span className="brand-mark__glyph" aria-hidden>
             ◈
           </span>
@@ -44,7 +55,7 @@ export function Nav({
         </Link>
         <div className="site-header__actions">
           <nav className="site-nav" aria-label="Principal">
-            {links.map((l) => {
+            {visibleLinks.map((l) => {
               const active =
                 l.href === "/"
                   ? pathname === "/"

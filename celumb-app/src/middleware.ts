@@ -13,7 +13,8 @@ export function middleware(request: NextRequest) {
   ) {
     const session = peekSessionCookie(request.headers.get("cookie"));
     if (pathname.startsWith("/login") && session) {
-      return NextResponse.redirect(new URL("/", request.url));
+      const dest = session.role === "ventas" ? "/inventario" : "/";
+      return NextResponse.redirect(new URL(dest, request.url));
     }
     return NextResponse.next();
   }
@@ -30,6 +31,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(login);
   }
 
+  if (session.role === "ventas" && !ventasPathAllowed(pathname)) {
+    return NextResponse.redirect(new URL("/inventario", request.url), 303);
+  }
+
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-celumb-role", session.role);
   requestHeaders.set("x-celumb-user", session.username);
@@ -38,6 +43,15 @@ export function middleware(request: NextRequest) {
   return NextResponse.next({
     request: { headers: requestHeaders },
   });
+}
+
+/** Ventas may open stock and download phone photos. Nothing else. */
+function ventasPathAllowed(pathname: string): boolean {
+  if (pathname === "/inventario" || pathname.startsWith("/inventario/")) {
+    return true;
+  }
+  if (pathname.startsWith("/api/phone-photos")) return true;
+  return false;
 }
 
 export const config = {

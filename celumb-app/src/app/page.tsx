@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AdquisicionForm } from "@/components/AdquisicionForm";
+import { requireAdminPage } from "@/lib/auth";
 import {
   getDashboardStats,
   listCreditAccounts,
@@ -13,6 +14,7 @@ import { formatMoney, todayISO } from "@/lib/format";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
+  await requireAdminPage();
   const stats = await getDashboardStats();
   const available = (await listPhones("disponible")).slice(0, 5);
   const credits = (await listCreditAccounts())

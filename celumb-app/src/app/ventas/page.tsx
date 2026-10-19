@@ -1,4 +1,5 @@
 import { VentaForm } from "@/components/VentaForm";
+import { requireAdminPage } from "@/lib/auth";
 import {
   incomeByChannel,
   listAvailablePhones,
@@ -9,6 +10,7 @@ import { formatDate, formatMoney, todayISO } from "@/lib/format";
 export const dynamic = "force-dynamic";
 
 export default async function VentasPage() {
+  await requireAdminPage();
   const available = await listAvailablePhones();
   const sales = await listSales();
   const byChannel = await incomeByChannel();

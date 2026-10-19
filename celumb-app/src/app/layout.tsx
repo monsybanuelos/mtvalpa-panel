@@ -38,9 +38,12 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const hdrs = await headers();
   const path = hdrs.get("x-celumb-path") || "";
   const isShare = path.startsWith("/compartir");
+  const isAdmin = session?.role === "admin";
   const showAppChrome = Boolean(session) && !isShare;
-  const suggestedStockNo = showAppChrome ? await nextStockNo() : "MBC01";
-  const suggestedAccStockNo = showAppChrome ? await nextAccStockNo() : "ACC001";
+  const suggestedStockNo =
+    showAppChrome && isAdmin ? await nextStockNo() : "MBC01";
+  const suggestedAccStockNo =
+    showAppChrome && isAdmin ? await nextAccStockNo() : "ACC001";
   const today = todayISO();
 
   return (

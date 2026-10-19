@@ -1,0 +1,304 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { formatMoney } from "@/lib/format";
+import { salesPostText, type SalesStockPhone } from "@/lib/sales-stock";
+import { useToast } from "@/components/Toast";
+
+type EstadoFilter = "all" | "disponible" | "vendido";
+
+type Props = {
+  phones: SalesStockPhone[];
+};
+
+function extFrom(href: string, blob: Blob): string {
+  const subtype = blob.type.split("/")[1]?.split(";")[0]?.trim();
+  if (subtype && /^[a-z0-9]{2,5}$/i.test(subtype)) {
+    return subtype.toLowerCase() === "jpeg" ? "jpg" : subtype.toLowerCase();
+  }
+  const match = href.match(/\.([a-z0-9]{2,5})(?:\?|$)/i);
+  return match ? match[1].toLowerCase() : "jpg";
+}
+
+async function downloadImage(href: string) {
+  const res = await fetch(href);
+  if (!res.ok) throw new Error("No se pudo leer la foto.");
+  const blob = await res.blob();
+  const named = (res.headers.get("Content-Disposition") || "").match(
+    /filename="([^"]+)"/,
+  )?.[1];
+  const filename = named || `foto.${extFrom(href, blob)}`;
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+async function copyText(text: string) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    const area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.left = "-9999px";
+    document.body.appendChild(area);
+    area.select();
+    let ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch {
+      ok = false;
+    }
+    area.remove();
+    return ok;
+  }
+}
+
+export function VentasStock({ phones }: Props) {
+  const toast = useToast();
+  const [estado, setEstado] = useState<EstadoFilter>("all");
+  const [marca, setMarca] = useState("all");
+  const [open, setOpen] = useState(false);
+  const [pub, setPub] = useState<string | null>(null);
+  const [busyPhoto, setBusyPhoto] = useState<string | null>(null);
+
+  const brands = useMemo(() => {
+    const set = new Set(phones.map((p) => p.brand).filter(Boolean));
+    return Array.from(set).sort((a, b) => a.localeCompare(b, "es"));
+  }, [phones]);
+
+  const filtered = useMemo(() => {
+    return phones.filter((p) => {
+      if (estado !== "all" && p.status !== estado) return false;
+      if (marca !== "all" && p.brand !== marca) return false;
+      return true;
+    });
+  }, [phones, estado, marca]);
+
+  async function onDownload(phone: SalesStockPhone, slot: 1 | 2) {
+    const key = `${phone.id}-${slot}`;
+    setBusyPhoto(key);
+    try {
+      await downloadImage(
+        `/api/phone-photos/download?id=${phone.id}&slot=${slot}`,
+      );
+      toast.success(`Imagen ${slot} descargada`);
+    } catch {
+      toast.error(`No se pudo descargar la imagen ${slot}.`);
+    } finally {
+      setBusyPhoto(null);
+    }
+  }
+
+  async function onPublish(phone: SalesStockPhone) {
+    const text = salesPostText(phone);
+    setPub(text);
+    const copied = await copyText(text);
+    if (copied) toast.success("Publicación copiada");
+    else toast.error("No se pudo copiar. Copia el texto del recuadro.");
+  }
+
+  return (
+    <div className="panel">
+      <div className="panel__toolbar">
+        <h2 className="panel__title" style={{ margin: 0 }}>
+          Stock · {phones.length} equipo{phones.length === 1 ? "" : "s"}
+        </h2>
+        <div className="stock-actions">
+          <button
+            type="button"
+            className="btn btn-solid"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+          >
+            Filtrar
+          </button>
+        </div>
+      </div>
+
+      {open && (
+        <div className="filter-bar" role="search">
+          <div className="field">
+            <label htmlFor="filter_estado">Estado</label>
+            <select
+              id="filter_estado"
+              value={estado}
+              onChange={(e) => setEstado(e.target.value as EstadoFilter)}
+            >
+              <option value="all">Todos</option>
+              <option value="disponible">Disponible</option>
+              <option value="vendido">Vendido</option>
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="filter_marca">Marca</label>
+            <select
+              id="filter_marca"
+              value={marca}
+              onChange={(e) => setMarca(e.target.value)}
+            >
+              <option value="all">Todas</option>
+              {brands.map((b) => (
+                <option key={b} value={b}>
+                  {b}
+                </option>
+              ))}
+            </select>
+          </div>
+          <p className="filter-bar__count muted">
+            {filtered.length} de {phones.length}
+          </p>
+        </div>
+      )}
+
+      <div className="table-wrap">
+        <table className="data">
+          <thead>
+            <tr>
+              <th>Estado</th>
+              <th>Marca / Modelo</th>
+              <th>Precio</th>
+              <th>Compañía</th>
+              <th>Condición</th>
+              <th>RAM</th>
+              <th>Almacenamiento</th>
+              <th>% batería</th>
+              <th>Cargador</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.length === 0 ? (
+              <tr>
+                <td colSpan={10} className="muted">
+                  Sin equipos con ese filtro.
+                </td>
+              </tr>
+            ) : (
+              filtered.map((p) => {
+                return (
+                  <tr key={p.id}>
+                    <td data-label="Estado">
+                      <span
+                        className={
+                          p.status === "disponible"
+                            ? "badge badge-ok"
+                            : "badge badge-sold"
+                        }
+                      >
+                        {p.status === "disponible" ? "DISPONIBLE" : "VENDIDO"}
+                      </span>
+                    </td>
+                    <td data-label="Marca / Modelo">
+                      {p.brand} {p.model}
+                    </td>
+                    <td data-label="Precio">{formatMoney(p.suggested_price)}</td>
+                    <td data-label="Compañía">{p.carrier || "—"}</td>
+                    <td data-label="Condición">{p.condition_label || "—"}</td>
+                    <td data-label="RAM">{p.ram || "—"}</td>
+                    <td data-label="Almacenamiento">{p.storage || "—"}</td>
+                    <td data-label="% batería">
+                      {p.battery_pct != null && Number.isFinite(p.battery_pct)
+                        ? `${p.battery_pct}%`
+                        : "—"}
+                    </td>
+                    <td data-label="Cargador">{p.includes_charger || "—"}</td>
+                    <td data-label="Acciones">
+                      <div className="ventas-actions">
+                        <button
+                          type="button"
+                          className="btn-link"
+                          disabled={!p.has_photo1 || busyPhoto === `${p.id}-1`}
+                          onClick={() => onDownload(p, 1)}
+                        >
+                          Descargar imagen 1
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-link"
+                          disabled={!p.has_photo2 || busyPhoto === `${p.id}-2`}
+                          onClick={() => onDownload(p, 2)}
+                        >
+                          Descargar imagen 2
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-link"
+                          onClick={() => onPublish(p)}
+                        >
+                          Generar publicación para ventas
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {pub != null && (
+        <div
+          className="modal-backdrop is-open"
+          role="presentation"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setPub(null);
+          }}
+        >
+          <div
+            className="modal-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="pub-title"
+          >
+            <div className="modal-panel__head">
+              <div>
+                <p className="modal-eyebrow">Ventas</p>
+                <h2 id="pub-title" className="modal-panel__title">
+                  Publicación para ventas
+                </h2>
+              </div>
+              <button
+                type="button"
+                className="modal-close"
+                aria-label="Cerrar"
+                onClick={() => setPub(null)}
+              >
+                ×
+              </button>
+            </div>
+            <pre className="pub-text">{pub}</pre>
+            <div className="stock-actions" style={{ marginTop: "1rem" }}>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={async () => {
+                  const copied = await copyText(pub);
+                  if (copied) toast.success("Publicación copiada");
+                  else toast.error("No se pudo copiar. Selecciona el texto.");
+                }}
+              >
+                Copiar
+              </button>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => setPub(null)}
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

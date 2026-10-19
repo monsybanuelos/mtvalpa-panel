@@ -20,7 +20,7 @@ export async function loginAction(
     return { ok: false, error: "Usuario o contraseña incorrectos." };
   }
   await setSession(user);
-  redirect("/");
+  redirect(user.role === "ventas" ? "/inventario" : "/");
 }
 
 export async function logoutAction() {

@@ -1,4 +1,5 @@
 import { registerSupplierCredit } from "@/lib/actions";
+import { requireAdminPage } from "@/lib/auth";
 import { FlashForm } from "@/components/FlashForm";
 import { CobranzaForm } from "@/components/CobranzaForm";
 import { SupplierPaidToggle } from "@/components/SupplierPaidToggle";
@@ -27,6 +28,7 @@ function statusBadge(v: string) {
 }
 
 export default async function CreditoPage() {
+  await requireAdminPage();
   const accounts = await listCreditAccounts();
   const open = accounts.filter((a) => a.liquidado !== "Si");
   const delayed = accounts.filter((a) => a.liquidado === "Retrasado");

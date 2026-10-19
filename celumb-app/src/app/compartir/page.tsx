@@ -1,10 +1,12 @@
 import { PrintButtonClient } from "@/components/PrintButtonClient";
+import { requireAdminPage } from "@/lib/auth";
 import { listAvailablePhones } from "@/lib/queries";
 import { formatMoney } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
 export default async function CompartirPage() {
+  await requireAdminPage();
   const phones = await listAvailablePhones();
   const generated = new Date().toLocaleString("es-MX", {
     dateStyle: "medium",

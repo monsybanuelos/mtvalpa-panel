@@ -25,6 +25,21 @@ export type ActionResult =
   | { ok: true; stock_no?: string; message?: string }
   | { ok: false; error: string };
 
+async function requireAdminResult(): Promise<ActionResult | null> {
+  try {
+    const session = await requireSession();
+    if (session.role !== "admin") {
+      return { ok: false, error: "Solo Admin puede hacer esta operación." };
+    }
+    return null;
+  } catch (e) {
+    return {
+      ok: false,
+      error: e instanceof Error ? e.message : "Debes iniciar sesión.",
+    };
+  }
+}
+
 const CHARGER_OK = new Set(["Si", "No", "Se incluira en venta"]);
 const CONDITION_OK = new Set([
   "AA Nuevo",
@@ -617,14 +632,8 @@ export async function acquireAccessory(
 }
 
 export async function registerSale(formData: FormData): Promise<ActionResult> {
-  try {
-    await requireSession();
-  } catch (e) {
-    return {
-      ok: false,
-      error: e instanceof Error ? e.message : "Debes iniciar sesión.",
-    };
-  }
+  const denied = await requireAdminResult();
+  if (denied) return denied;
   const phone_id = Number(formData.get("phone_id"));
   const sold_at = String(formData.get("sold_at") ?? "").trim();
   const amount = Number(formData.get("amount"));
@@ -873,14 +882,8 @@ export async function registerSale(formData: FormData): Promise<ActionResult> {
 export async function recordCollection(
   formData: FormData,
 ): Promise<ActionResult> {
-  try {
-    await requireSession();
-  } catch (e) {
-    return {
-      ok: false,
-      error: e instanceof Error ? e.message : "Debes iniciar sesión.",
-    };
-  }
+  const denied = await requireAdminResult();
+  if (denied) return denied;
   const credit_id = Number(formData.get("credit_id"));
   const amount = Number(formData.get("amount"));
   const paid_at =
@@ -1077,14 +1080,8 @@ function matchLedgerCobranza(
 export async function updateCollection(
   formData: FormData,
 ): Promise<ActionResult> {
-  try {
-    await requireSession();
-  } catch (e) {
-    return {
-      ok: false,
-      error: e instanceof Error ? e.message : "Debes iniciar sesión.",
-    };
-  }
+  const denied = await requireAdminResult();
+  if (denied) return denied;
 
   const id = Number(formData.get("id"));
   const amount = Number(formData.get("amount"));
@@ -1189,14 +1186,8 @@ export async function updateCollection(
 export async function deleteCollection(
   formData: FormData,
 ): Promise<ActionResult> {
-  try {
-    await requireSession();
-  } catch (e) {
-    return {
-      ok: false,
-      error: e instanceof Error ? e.message : "Debes iniciar sesión.",
-    };
-  }
+  const denied = await requireAdminResult();
+  if (denied) return denied;
 
   const id = Number(formData.get("id"));
   if (!id || !Number.isFinite(id) || id <= 0) {

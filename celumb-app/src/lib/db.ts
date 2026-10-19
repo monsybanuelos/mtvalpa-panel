@@ -1,6 +1,7 @@
 import Database from "better-sqlite3";
 import fs from "node:fs";
 import path from "node:path";
+import { SALES_STOCK_SELECT, type SalesStockPhone } from "./sales-stock";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const DB_PATH = path.join(DATA_DIR, "celumb.db");
@@ -1002,6 +1003,29 @@ export function getPhone(id: number): Phone | undefined {
 
 export function listAvailablePhones(): Phone[] {
   return listPhones("disponible");
+}
+
+/** Phone stock for Ventas. Selects sale-facing columns only. */
+export function listSalesStock(): SalesStockPhone[] {
+  return getDb()
+    .prepare(
+      `SELECT ${SALES_STOCK_SELECT} FROM phones ORDER BY stock_no COLLATE NOCASE`,
+    )
+    .all() as SalesStockPhone[];
+}
+
+/** One photo path for a download. Does not select cost or credit. */
+export function getSalesPhoto(
+  id: number,
+  slot: 1 | 2,
+): { stock_no: string; photo_path: string } | undefined {
+  const col = slot === 2 ? "photo2_path" : "photo1_path";
+  const row = getDb()
+    .prepare(`SELECT stock_no, ${col} AS photo_path FROM phones WHERE id = ?`)
+    .get(id) as { stock_no: string; photo_path: string | null } | undefined;
+  const photo_path = row?.photo_path?.trim();
+  if (!row || !photo_path) return undefined;
+  return { stock_no: row.stock_no, photo_path };
 }
 
 export function listSales(): (Sale & {

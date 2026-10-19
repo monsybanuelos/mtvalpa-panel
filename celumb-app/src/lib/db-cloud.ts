@@ -9,6 +9,7 @@ import type {
   Sale,
   SupplierCredit,
 } from "./db";
+import { SALES_STOCK_SELECT, type SalesStockPhone } from "./sales-stock";
 
 function daysBetweenLocal(from: string, to: string): number {
   const a = new Date(from.includes("T") ? from : `${from}T12:00:00`);
@@ -117,6 +118,28 @@ export async function getPhone(id: number): Promise<Phone | undefined> {
 
 export async function listAvailablePhones(): Promise<Phone[]> {
   return listPhones("disponible");
+}
+
+/** Phone stock for Ventas. Selects sale-facing columns only. */
+export async function listSalesStock(): Promise<SalesStockPhone[]> {
+  return q<SalesStockPhone>(
+    `SELECT ${SALES_STOCK_SELECT} FROM phones ORDER BY stock_no`,
+  );
+}
+
+/** One photo path for a download. Does not select cost or credit. */
+export async function getSalesPhoto(
+  id: number,
+  slot: 1 | 2,
+): Promise<{ stock_no: string; photo_path: string } | undefined> {
+  const col = slot === 2 ? "photo2_path" : "photo1_path";
+  const row = await q1<{ stock_no: string; photo_path: string | null }>(
+    `SELECT stock_no, ${col} AS photo_path FROM phones WHERE id = $1`,
+    [id],
+  );
+  const photo_path = row?.photo_path?.trim();
+  if (!row || !photo_path) return undefined;
+  return { stock_no: row.stock_no, photo_path };
 }
 
 export async function listSales(): Promise<

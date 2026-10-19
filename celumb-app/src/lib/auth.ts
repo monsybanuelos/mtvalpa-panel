@@ -1,5 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import {
   SESSION_COOKIE,
   type Role,
@@ -111,4 +112,12 @@ export async function requireSession(): Promise<SessionUser> {
   const s = await getSession();
   if (!s) throw new Error("Debes iniciar sesión.");
   return s;
+}
+
+/** Admin pages. Ventas is sent to stock before any finance query runs. */
+export async function requireAdminPage(): Promise<SessionUser> {
+  const session = await getSession();
+  if (!session) redirect("/login");
+  if (session.role !== "admin") redirect("/inventario");
+  return session;
 }
