@@ -5,8 +5,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { updatePhone, type ActionResult } from "@/lib/actions";
 import type { Phone } from "@/lib/db";
+import { GenerarEtiquetaButton } from "@/components/GenerarEtiquetaButton";
 import { PhotoUploadField } from "@/components/PhotoUploadField";
 import { useToast } from "@/components/Toast";
+import type { PhoneLabelInput } from "@/lib/phone-label";
 
 const CONDITIONS = [
   "AA Nuevo",
@@ -40,6 +42,21 @@ export function EditPhonePage({ phone }: { phone: Phone }) {
     null as ActionResult | null,
   );
   const locked = pending || photoBusy > 0;
+  const formRef = useRef<HTMLFormElement>(null);
+
+  function readLabel(): PhoneLabelInput {
+    const fd = new FormData(formRef.current ?? undefined);
+    const battery = String(fd.get("battery_pct") ?? "").trim();
+    return {
+      stock: String(fd.get("stock_no") || phone.stock_no).trim(),
+      model: String(fd.get("model") || phone.model).trim(),
+      brand: String(fd.get("brand") || phone.brand).trim(),
+      price: String(fd.get("suggested_price") ?? phone.suggested_price),
+      battery,
+      storage: String(fd.get("storage") ?? ""),
+      ram: String(fd.get("ram") ?? ""),
+    };
+  }
 
   useEffect(() => {
     const root = document.documentElement;
@@ -76,6 +93,7 @@ export function EditPhonePage({ phone }: { phone: Phone }) {
         Información de este número de stock.
       </p>
       <form
+        ref={formRef}
         className="panel edit-phone-page__form"
         action={formAction}
         noValidate
@@ -257,6 +275,19 @@ export function EditPhonePage({ phone }: { phone: Phone }) {
             </div>
           </div>
           <div className="form-actions">
+            <GenerarEtiquetaButton
+              className="btn btn-ghost-light"
+              phone={{
+                stock: phone.stock_no,
+                model: phone.model,
+                brand: phone.brand,
+                price: phone.suggested_price,
+                battery: phone.battery_pct,
+                storage: phone.storage,
+                ram: phone.ram,
+              }}
+              readPhone={readLabel}
+            />
             <button type="submit" className="btn btn-solid" disabled={locked}>
               {pending ? "Guardando…" : "Guardar cambios"}
             </button>

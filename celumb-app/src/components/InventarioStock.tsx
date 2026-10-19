@@ -6,6 +6,7 @@ import type { Accessory, Phone } from "@/lib/db";
 import { daysBetween, formatDate, formatMoney } from "@/lib/format";
 import { AdquisicionForm } from "@/components/AdquisicionForm";
 import { EditAccessoryModal } from "@/components/EditInventoryForms";
+import { GenerarEtiquetaButton } from "@/components/GenerarEtiquetaButton";
 
 type Props = {
   phones: Phone[];
@@ -302,13 +303,26 @@ export function InventarioStock({
                       <td data-label="Fecha">{formatDate(p.acquired_at)}</td>
                       <td data-label="Días">{daysBetween(p.acquired_at)}</td>
                       <td data-label="">
-                        <Link
-                          className="btn-link"
-                          scroll
-                          href={`/inventario/editar/${encodeURIComponent(p.stock_no)}`}
-                        >
-                          Editar
-                        </Link>
+                        <div className="stock-row-actions">
+                          <Link
+                            className="btn-link"
+                            scroll
+                            href={`/inventario/editar/${encodeURIComponent(p.stock_no)}`}
+                          >
+                            Editar
+                          </Link>
+                          <GenerarEtiquetaButton
+                            phone={{
+                              stock: p.stock_no,
+                              model: p.model,
+                              brand: p.brand,
+                              price: p.suggested_price,
+                              battery: p.battery_pct,
+                              storage: p.storage,
+                              ram: p.ram,
+                            }}
+                          />
+                        </div>
                       </td>
                     </tr>
                   );
