@@ -69,8 +69,8 @@ export default async function InventarioPage() {
               <tbody>
                 {ledger.map((e) => (
                   <tr key={e.id}>
-                    <td>{formatDate(e.at)}</td>
-                    <td>
+                    <td data-label="Fecha">{formatDate(e.at)}</td>
+                    <td data-label="Tipo de ingreso">
                       {e.kind === "adquisicion"
                         ? "Adquisición"
                         : e.kind === "adquisicion_accesorio"
@@ -85,14 +85,17 @@ export default async function InventarioPage() {
                                   ? "Pago acreedor"
                                   : e.kind}
                     </td>
-                    <td>{e.stock_no || "—"}</td>
-                    <td className={e.amount < 0 ? "money-neg" : "money-pos"}>
+                    <td data-label="No. Stock">{e.stock_no || "—"}</td>
+                    <td
+                      data-label="Monto"
+                      className={e.amount < 0 ? "money-neg" : "money-pos"}
+                    >
                       {formatMoney(e.amount)}
                     </td>
-                    <td>
+                    <td data-label="Disponible">
                       {e.available_after == null ? "—" : e.available_after}
                     </td>
-                    <td>{e.note || "—"}</td>
+                    <td data-label="Nota">{e.note || "—"}</td>
                   </tr>
                 ))}
               </tbody>

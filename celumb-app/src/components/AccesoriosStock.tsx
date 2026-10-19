@@ -42,28 +42,28 @@ export function AccesoriosStock({ accessories }: Props) {
                 </td>
               </tr>
             ) : (
-              accessories.map((a) => (
-                <tr key={a.id}>
-                  <td>
-                    <strong>{a.codigo}</strong>
-                  </td>
-                  <td>{a.descripcion}</td>
-                  <td>{a.qty}</td>
-                  <td>
-                    {a.cost_unit != null ? formatMoney(a.cost_unit) : "—"}
-                  </td>
-                  <td>
-                    {a.precio_sugerido != null
-                      ? formatMoney(a.precio_sugerido)
-                      : "—"}
-                  </td>
-                  <td>
-                    {a.precio_maximo != null
-                      ? formatMoney(a.precio_maximo)
-                      : "—"}
-                  </td>
-                </tr>
-              ))
+                accessories.map((a) => (
+                  <tr key={a.id}>
+                    <td data-label="Código">
+                      <strong>{a.codigo}</strong>
+                    </td>
+                    <td data-label="Descripción">{a.descripcion}</td>
+                    <td data-label="Stock">{a.qty}</td>
+                    <td data-label={"Costo u."}>
+                      {a.cost_unit != null ? formatMoney(a.cost_unit) : "—"}
+                    </td>
+                    <td data-label={"$ Sugerido"}>
+                      {a.precio_sugerido != null
+                        ? formatMoney(a.precio_sugerido)
+                        : "—"}
+                    </td>
+                    <td data-label={"$ Máximo"}>
+                      {a.precio_maximo != null
+                        ? formatMoney(a.precio_maximo)
+                        : "—"}
+                    </td>
+                  </tr>
+                ))
             )}
           </tbody>
         </table>

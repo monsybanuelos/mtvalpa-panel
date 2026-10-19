@@ -89,16 +89,16 @@ export default async function VentasPage() {
               <tbody>
                 {sales.map((s) => (
                   <tr key={s.id}>
-                    <td>{formatDate(s.sold_at)}</td>
-                    <td>
+                    <td data-label="Fecha">{formatDate(s.sold_at)}</td>
+                    <td data-label="No. Stock">
                       <strong>{s.stock_no}</strong>
                     </td>
-                    <td>
+                    <td data-label="Equipo">
                       {s.brand} {s.model}
                     </td>
-                    <td>{formatMoney(s.amount)}</td>
-                    <td>{s.customer}</td>
-                    <td>
+                    <td data-label="Monto venta">{formatMoney(s.amount)}</td>
+                    <td data-label="Cliente">{s.customer}</td>
+                    <td data-label="Tipo">
                       <span
                         className={
                           s.channel === "Credito"
@@ -109,15 +109,16 @@ export default async function VentasPage() {
                         {s.channel}
                       </span>
                     </td>
-                    <td>{formatMoney(s.extra_costs || 0)}</td>
+                    <td data-label="Extra">{formatMoney(s.extra_costs || 0)}</td>
                     <td
+                      data-label="Margen"
                       className={
                         s.margen >= 0 ? "money-pos" : "money-neg"
                       }
                     >
                       {formatMoney(s.margen)}
                     </td>
-                    <td>{s.days_in_stock} d</td>
+                    <td data-label="Tiempo stock">{s.days_in_stock} d</td>
                   </tr>
                 ))}
               </tbody>

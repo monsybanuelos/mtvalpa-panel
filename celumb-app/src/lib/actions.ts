@@ -1271,6 +1271,34 @@ export async function deleteCollection(
   }
 }
 
+const INVENTORY_STOCK_RE = /^(MBC\d+|ACC\d+)$/;
+const STOCK_NOT_FOUND =
+  "No. Stock no encontrado. Elige un celular (MBC) o un accesorio (ACC) del inventario.";
+
+function resolveLocalInventoryStock(
+  db: ReturnType<typeof getDb>,
+  raw: string,
+): string | null {
+  const code = raw.trim().toUpperCase();
+  if (!INVENTORY_STOCK_RE.test(code)) return null;
+  const phone = db
+    .prepare(`SELECT stock_no FROM phones WHERE UPPER(stock_no) = ?`)
+    .get(code) as { stock_no: string } | undefined;
+  if (phone?.stock_no) return phone.stock_no;
+  const acc = db
+    .prepare(
+      `SELECT COALESCE(NULLIF(TRIM(stock_no), ''), codigo) AS stock_no
+       FROM accessories
+       WHERE UPPER(COALESCE(NULLIF(TRIM(stock_no), ''), codigo)) = ?
+          OR UPPER(codigo) = ?
+       LIMIT 1`,
+    )
+    .get(code, code) as { stock_no: string } | undefined;
+  const found = acc?.stock_no?.trim().toUpperCase();
+  if (found && INVENTORY_STOCK_RE.test(found)) return found;
+  return null;
+}
+
 export async function registerSupplierCredit(
   formData: FormData,
 ): Promise<ActionResult> {
@@ -1284,9 +1312,10 @@ export async function registerSupplierCredit(
   const at = String(formData.get("at") ?? "").trim();
   const amount = Number(formData.get("amount"));
   const creditor = String(formData.get("creditor") ?? "").trim();
-  const paid = String(formData.get("paid") ?? "No").trim();
+  const paidRaw = String(formData.get("paid") ?? "No").trim();
+  const paid = paidRaw || "No";
   const comments = String(formData.get("comments") ?? "").trim() || null;
-  const stock_no = String(formData.get("stock_no") ?? "").trim() || null;
+  const stockRaw = String(formData.get("stock_no") ?? "").trim();
 
   if (!at || !creditor || !Number.isFinite(amount) || amount <= 0) {
     return {
@@ -1294,8 +1323,11 @@ export async function registerSupplierCredit(
       error: "Fecha, cantidad y acreedor son obligatorios.",
     };
   }
-    if (paid !== "Si" && paid !== "No") {
+  if (paid !== "Si" && paid !== "No") {
     return { ok: false, error: "Pagado: Si o No." };
+  }
+  if (!stockRaw) {
+    return { ok: false, error: "No. Stock es obligatorio." };
   }
 
   if (useCloudDb()) {
@@ -1306,7 +1338,7 @@ export async function registerSupplierCredit(
         creditor,
         paid,
         comments,
-        stock_no,
+        stock_no: stockRaw,
       });
       revalidateAll();
       return { ok: true };
@@ -1316,13 +1348,9 @@ export async function registerSupplierCredit(
   }
 
   const db = getDb();
-  if (stock_no) {
-    const phone = db
-      .prepare(`SELECT id FROM phones WHERE stock_no = ? COLLATE NOCASE`)
-      .get(stock_no);
-    if (!phone) {
-      return { ok: false, error: "No. Stock no encontrado (deja vacío si no aplica)." };
-    }
+  const stock_no = resolveLocalInventoryStock(db, stockRaw);
+  if (!stock_no) {
+    return { ok: false, error: STOCK_NOT_FOUND };
   }
 
   const tx = db.transaction(() => {
@@ -1419,6 +1447,88 @@ export async function markSupplierPaid(
   tx();
   revalidateAll();
   return { ok: true };
+}
+
+export async function setSupplierPaid(
+  formData: FormData,
+): Promise<ActionResult> {
+  const session = await requireSession();
+  if (!canManageSupplierCredit(session.role)) {
+    return { ok: false, error: "Solo Admin puede marcar pagos a acreedores." };
+  }
+  const id = Number(formData.get("id"));
+  const paid = String(formData.get("paid") ?? "").trim();
+  const paid_at =
+    String(formData.get("paid_at") ?? "").trim() ||
+    new Date().toISOString().slice(0, 10);
+
+  if (!id) return { ok: false, error: "Cuenta inválida." };
+  if (paid !== "Si" && paid !== "No") {
+    return { ok: false, error: "Pagado: Si o No." };
+  }
+
+  const message =
+    paid === "Si" ? "Marcado como pagado." : "Marcado como no pagado.";
+
+  if (useCloudDb()) {
+    try {
+      await cloudMut.setSupplierPaidCloud(id, paid, paid_at);
+      revalidateAll();
+      return { ok: true, message };
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "";
+      if (msg === "NOT_FOUND") return { ok: false, error: "No encontrado." };
+      return { ok: false, error: e instanceof Error ? e.message : "Error" };
+    }
+  }
+
+  const db = getDb();
+  const row = db
+    .prepare(`SELECT * FROM supplier_credits WHERE id = ?`)
+    .get(id) as
+    | {
+        id: number;
+        amount: number;
+        creditor: string;
+        paid: string;
+        stock_no: string | null;
+      }
+    | undefined;
+
+  if (!row) return { ok: false, error: "No encontrado." };
+  if (row.paid === paid) {
+    revalidateAll();
+    return { ok: true, message };
+  }
+
+  const note = `Pago a acreedor ${row.creditor}`;
+  const tx = db.transaction(() => {
+    db.prepare(`UPDATE supplier_credits SET paid = ? WHERE id = ?`).run(
+      paid,
+      id,
+    );
+    if (paid === "Si") {
+      db.prepare(
+        `INSERT INTO ledger (at, kind, stock_no, amount, available_after, note)
+         VALUES (?, 'pago_acreedor', ?, ?, NULL, ?)`,
+      ).run(`${paid_at}T12:00:00`, row.stock_no, row.amount, note);
+      return;
+    }
+    db.prepare(
+      `DELETE FROM ledger WHERE id = (
+         SELECT id FROM ledger
+         WHERE kind = 'pago_acreedor'
+           AND amount = ?
+           AND note = ?
+           AND COALESCE(stock_no, '') = COALESCE(?, '')
+         ORDER BY id DESC
+         LIMIT 1
+       )`,
+    ).run(row.amount, note, row.stock_no);
+  });
+  tx();
+  revalidateAll();
+  return { ok: true, message };
 }
 
 export async function updatePhone(

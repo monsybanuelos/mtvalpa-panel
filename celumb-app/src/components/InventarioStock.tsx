@@ -194,10 +194,10 @@ export function InventarioStock({
                   const onCredit = Number(p.compra_credito) === 1;
                   return (
                     <tr key={p.id}>
-                      <td>
+                      <td data-label="No. Stock">
                         <strong>{p.stock_no}</strong>
                       </td>
-                      <td>
+                      <td data-label="Estado">
                         <span
                           className={
                             p.status === "disponible"
@@ -210,23 +210,24 @@ export function InventarioStock({
                             : "VENDIDO"}
                         </span>
                       </td>
-                      <td>
+                      <td data-label="Marca / Modelo">
                         {p.brand} {p.model}
                       </td>
-                      <td>{formatMoney(p.suggested_price)}</td>
-                      <td>{p.carrier}</td>
-                      <td>{p.condition_label}</td>
-                      <td>{p.ram || "—"}</td>
-                      <td>{p.storage || "—"}</td>
-                      <td>
+                      <td data-label="Precio">{formatMoney(p.suggested_price)}</td>
+                      <td data-label="Compañia">{p.carrier}</td>
+                      <td data-label="Condicion estetica">{p.condition_label}</td>
+                      <td data-label="RAM">{p.ram || "—"}</td>
+                      <td data-label={"Almac."}>{p.storage || "—"}</td>
+                      <td data-label={"% bat."}>
                         {p.battery_pct != null &&
                         Number.isFinite(p.battery_pct)
                           ? `${p.battery_pct}%`
                           : "—"}
                       </td>
-                      <td>{p.includes_charger}</td>
-                      <td>{formatMoney(p.cost)}</td>
+                      <td data-label="Incluye cargador">{p.includes_charger}</td>
+                      <td data-label="Costo">{formatMoney(p.cost)}</td>
                       <td
+                        data-label="Margen"
                         className={
                           margenPct == null
                             ? ""
@@ -242,7 +243,7 @@ export function InventarioStock({
                       >
                         {margenPct == null ? "—" : `${margenPct}%`}
                       </td>
-                      <td>
+                      <td data-label="Compra crédito">
                         {onCredit ? (
                           <span
                             className="badge badge-credit"
@@ -264,7 +265,7 @@ export function InventarioStock({
                           "—"
                         )}
                       </td>
-                      <td>
+                      <td data-label="Fotos">
                         <div className="stock-photos">
                           {p.photo1_path ? (
                             // eslint-disable-next-line @next/next/no-img-element
@@ -299,10 +300,10 @@ export function InventarioStock({
                           {!p.photo1_path && !p.photo2_path ? "—" : null}
                         </div>
                       </td>
-                      <td>{p.imei || "—"}</td>
-                      <td>{formatDate(p.acquired_at)}</td>
-                      <td>{daysBetween(p.acquired_at)}</td>
-                      <td>
+                      <td data-label="IMEI">{p.imei || "—"}</td>
+                      <td data-label="Fecha">{formatDate(p.acquired_at)}</td>
+                      <td data-label="Días">{daysBetween(p.acquired_at)}</td>
+                      <td data-label="">
                         <button
                           type="button"
                           className="btn-link"
@@ -344,26 +345,28 @@ export function InventarioStock({
               ) : (
                 accessories.map((a) => (
                   <tr key={a.id}>
-                    <td>
+                    <td data-label="No. Stock">
                       <strong>{a.stock_no || a.codigo}</strong>
                     </td>
-                    <td className="muted">{a.catalog_code || "—"}</td>
-                    <td>{a.descripcion}</td>
-                    <td>{a.qty}</td>
-                    <td>
+                    <td data-label="Catálogo" className="muted">
+                      {a.catalog_code || "—"}
+                    </td>
+                    <td data-label="Descripción">{a.descripcion}</td>
+                    <td data-label="Stock">{a.qty}</td>
+                    <td data-label={"Costo u."}>
                       {a.cost_unit != null ? formatMoney(a.cost_unit) : "—"}
                     </td>
-                    <td>
+                    <td data-label={"$ Sugerido"}>
                       {a.precio_sugerido != null
                         ? formatMoney(a.precio_sugerido)
                         : "—"}
                     </td>
-                    <td>
+                    <td data-label={"$ Máximo"}>
                       {a.precio_maximo != null
                         ? formatMoney(a.precio_maximo)
                         : "—"}
                     </td>
-                    <td>
+                    <td data-label="">
                       <button
                         type="button"
                         className="btn-link"

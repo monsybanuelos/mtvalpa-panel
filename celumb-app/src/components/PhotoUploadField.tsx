@@ -167,8 +167,7 @@ export function PhotoUploadField({
           ref={inputRef}
           id={inputId}
           type="file"
-          accept="image/*,.heic,.heif"
-          capture="environment"
+          accept="image/jpeg,image/png,image/heic,image/heif,.jpg,.jpeg,.png,.heic,.heif,image/*"
           className="photo-upload__input"
           onChange={(e) => void handleFile(e.target.files?.[0] ?? null)}
         />

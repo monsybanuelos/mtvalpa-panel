@@ -222,11 +222,11 @@ export default async function HomePage() {
                 <tbody>
                   {aging.map((p) => (
                     <tr key={p.id}>
-                      <td>{p.stock_no}</td>
-                      <td>
+                      <td data-label="No. Stock">{p.stock_no}</td>
+                      <td data-label="Equipo">
                         {p.brand} {p.model}
                       </td>
-                      <td>
+                      <td data-label="Días">
                         <span
                           className={
                             p.days >= 30 ? "badge badge-warn" : "badge badge-ok"
@@ -235,7 +235,7 @@ export default async function HomePage() {
                           {p.days} d
                         </span>
                       </td>
-                      <td>{formatMoney(p.cost)}</td>
+                      <td data-label="Costo">{formatMoney(p.cost)}</td>
                     </tr>
                   ))}
                 </tbody>

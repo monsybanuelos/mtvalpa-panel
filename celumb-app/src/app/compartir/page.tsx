@@ -48,23 +48,23 @@ export default async function CompartirPage() {
             <tbody>
               {phones.map((p) => (
                 <tr key={p.id}>
-                  <td>
+                  <td data-label="No. Stock">
                     <strong>{p.stock_no}</strong>
                   </td>
-                  <td>
+                  <td data-label="Marca / Modelo">
                     {p.brand} {p.model}
                   </td>
-                  <td>{formatMoney(p.suggested_price)}</td>
-                  <td>{p.condition_label}</td>
-                  <td>{p.ram || "—"}</td>
-                  <td>{p.storage || "—"}</td>
-                  <td>
+                  <td data-label="Precio">{formatMoney(p.suggested_price)}</td>
+                  <td data-label="Condición">{p.condition_label}</td>
+                  <td data-label="RAM">{p.ram || "—"}</td>
+                  <td data-label={"Almac."}>{p.storage || "—"}</td>
+                  <td data-label={"% bat."}>
                     {p.battery_pct != null && Number.isFinite(p.battery_pct)
                       ? `${p.battery_pct}%`
                       : "—"}
                   </td>
-                  <td>{p.carrier}</td>
-                  <td>{p.includes_charger}</td>
+                  <td data-label="Compañía">{p.carrier}</td>
+                  <td data-label="Cargador">{p.includes_charger}</td>
                 </tr>
               ))}
             </tbody>

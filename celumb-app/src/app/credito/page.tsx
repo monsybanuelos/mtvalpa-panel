@@ -1,13 +1,13 @@
-import {
-  markSupplierPaid,
-  registerSupplierCredit,
-} from "@/lib/actions";
+import { registerSupplierCredit } from "@/lib/actions";
 import { FlashForm } from "@/components/FlashForm";
 import { CobranzaForm } from "@/components/CobranzaForm";
+import { SupplierPaidToggle } from "@/components/SupplierPaidToggle";
 import { UltimasCobranzas } from "@/components/UltimasCobranzas";
 import {
+  listAccessories,
   listCollections,
   listCreditAccounts,
+  listPhones,
   listSupplierCredits,
 } from "@/lib/queries";
 import { formatDate, formatMoney, todayISO } from "@/lib/format";
@@ -32,6 +32,12 @@ export default async function CreditoPage() {
   const delayed = accounts.filter((a) => a.liquidado === "Retrasado");
   const collections = await listCollections();
   const suppliers = await listSupplierCredits();
+  const phones = await listPhones("all");
+  const accessories = await listAccessories();
+  const phoneStocks = phones.filter((p) => /^MBC\d+$/i.test(p.stock_no));
+  const accStocks = accessories.filter((a) =>
+    /^ACC\d+$/i.test((a.stock_no || a.codigo || "").trim()),
+  );
   const unpaidSuppliers = suppliers.filter((s) => s.paid === "No");
   const today = todayISO();
 
@@ -133,15 +139,15 @@ export default async function CreditoPage() {
               <tbody>
                 {accounts.map((a) => (
                   <tr key={a.id}>
-                    <td>
+                    <td data-label="Nombre">
                       <strong>{a.debtor_name}</strong>
                     </td>
-                    <td>{a.debtor_phone || "—"}</td>
-                    <td>{a.stock_no}</td>
-                    <td>
+                    <td data-label="Número">{a.debtor_phone || "—"}</td>
+                    <td data-label="No. Stock">{a.stock_no}</td>
+                    <td data-label="Equipo">
                       {a.brand} {a.model}
                     </td>
-                    <td>
+                    <td data-label="Tipo / plazo">
                       <span className="badge badge-credit">
                         {a.payment_freq || a.credit_type}
                       </span>
@@ -149,26 +155,29 @@ export default async function CreditoPage() {
                         <span className="muted"> · {a.plazo_dias}d</span>
                       ) : null}
                     </td>
-                    <td>{formatMoney(a.principal)}</td>
-                    <td>
+                    <td data-label="Principal">{formatMoney(a.principal)}</td>
+                    <td data-label="Pago 1">
                       {a.pago1 != null ? formatMoney(a.pago1) : "—"}
                     </td>
-                    <td>
+                    <td data-label="Pago 2">
                       <span className={statusBadge(a.pago2_status || "No")}>
                         {a.pago2_status || "No"}
                       </span>
                     </td>
-                    <td>
+                    <td data-label="Pago 3">
                       <span className={statusBadge(a.pago3_status || "No")}>
                         {a.pago3_status || "No"}
                       </span>
                     </td>
-                    <td>{formatMoney(a.paid_total)}</td>
-                    <td className={a.balance > 0 ? "money-neg" : "money-pos"}>
+                    <td data-label="Pagado">{formatMoney(a.paid_total)}</td>
+                    <td
+                      data-label="Falta liquidar"
+                      className={a.balance > 0 ? "money-neg" : "money-pos"}
+                    >
                       {formatMoney(a.balance)}
                     </td>
-                    <td>{formatDate(a.due_date)}</td>
-                    <td>
+                    <td data-label="Fecha límite">{formatDate(a.due_date)}</td>
+                    <td data-label="Liquidado">
                       <span className={liquidadoBadge(a.liquidado)}>
                         {a.liquidado}
                       </span>
@@ -224,6 +233,43 @@ export default async function CreditoPage() {
                   <label htmlFor="creditor">Acreedor</label>
                   <input id="creditor" name="creditor" required />
                 </div>
+                <div className="field field-span">
+                  <label htmlFor="sup_stock_no">No. Stock</label>
+                  <select
+                    id="sup_stock_no"
+                    name="stock_no"
+                    required
+                    defaultValue=""
+                  >
+                    <option value="" disabled>
+                      Selecciona un No. Stock…
+                    </option>
+                    {phoneStocks.length > 0 && (
+                      <optgroup label="Celulares">
+                        {phoneStocks.map((p) => (
+                          <option key={`p-${p.id}`} value={p.stock_no}>
+                            {p.stock_no} — {p.brand} {p.model}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+                    {accStocks.length > 0 && (
+                      <optgroup label="Accesorios">
+                        {accStocks.map((a) => {
+                          const code = (a.stock_no || a.codigo).toUpperCase();
+                          return (
+                            <option key={`a-${a.id}`} value={code}>
+                              {code} — {a.descripcion}
+                            </option>
+                          );
+                        })}
+                      </optgroup>
+                    )}
+                  </select>
+                  <p className="field-hint">
+                    Obligatorio. Celular (MBC) o accesorio (ACC) del inventario.
+                  </p>
+                </div>
                 <fieldset className="field">
                   <legend>Pagado</legend>
                   <div className="choice-row">
@@ -267,43 +313,25 @@ export default async function CreditoPage() {
                       <th>Cantidad</th>
                       <th>No. Stock</th>
                       <th>Pagado</th>
-                      <th></th>
                     </tr>
                   </thead>
                   <tbody>
                     {suppliers.map((s) => (
                       <tr key={s.id}>
-                        <td>{formatDate(s.at)}</td>
-                        <td>
+                        <td data-label="Fecha">{formatDate(s.at)}</td>
+                        <td data-label="Acreedor">
                           <strong>{s.creditor}</strong>
                         </td>
-                        <td className="money-neg">{formatMoney(s.amount)}</td>
-                        <td>{s.stock_no || "—"}</td>
-                        <td>
-                          <span
-                            className={
-                              s.paid === "Si"
-                                ? "badge badge-ok"
-                                : "badge badge-warn"
-                            }
-                          >
-                            {s.paid}
-                          </span>
+                        <td data-label="Cantidad" className="money-neg">
+                          {formatMoney(s.amount)}
                         </td>
-                        <td>
-                          {s.paid === "No" && (
-                            <FlashForm action={markSupplierPaid}>
-                              <input type="hidden" name="id" value={s.id} />
-                              <input
-                                type="hidden"
-                                name="paid_at"
-                                value={today}
-                              />
-                              <button type="submit" className="btn btn-solid">
-                                Marcar pagado
-                              </button>
-                            </FlashForm>
-                          )}
+                        <td data-label="No. Stock">{s.stock_no || "—"}</td>
+                        <td data-label="Pagado">
+                          <SupplierPaidToggle
+                            id={s.id}
+                            paid={s.paid === "Si" ? "Si" : "No"}
+                            today={today}
+                          />
                         </td>
                       </tr>
                     ))}

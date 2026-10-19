@@ -2,7 +2,39 @@
  * Postgres write path for CeluMB (Supabase pooler).
  * Used when useCloudDb() is true. Mirrors SQLite transactions in actions.ts.
  */
+import type { PoolClient } from "pg";
 import { q1, withTx } from "./pg";
+
+const INVENTORY_STOCK_RE = /^(MBC\d+|ACC\d+)$/;
+const STOCK_NOT_FOUND =
+  "No. Stock no encontrado. Elige un celular (MBC) o un accesorio (ACC) del inventario.";
+
+/** Canonical MBC## / ACC### that already exists in phones or accessories. */
+async function resolveInventoryStockNo(
+  c: PoolClient,
+  raw: string,
+): Promise<string> {
+  const code = raw.trim().toUpperCase();
+  if (!INVENTORY_STOCK_RE.test(code)) throw new Error(STOCK_NOT_FOUND);
+  const phone = await c.query<{ stock_no: string }>(
+    `SELECT stock_no FROM phones WHERE lower(stock_no) = lower($1) LIMIT 1`,
+    [code],
+  );
+  if (phone.rows[0]?.stock_no) return phone.rows[0].stock_no;
+  const acc = await c.query<{ stock_no: string }>(
+    `SELECT COALESCE(NULLIF(btrim(stock_no), ''), codigo) AS stock_no
+     FROM accessories
+     WHERE lower(COALESCE(NULLIF(btrim(stock_no), ''), codigo)) = lower($1)
+        OR lower(codigo) = lower($1)
+     LIMIT 1`,
+    [code],
+  );
+  const found = String(acc.rows[0]?.stock_no ?? "")
+    .trim()
+    .toUpperCase();
+  if (found && INVENTORY_STOCK_RE.test(found)) return found;
+  throw new Error(STOCK_NOT_FOUND);
+}
 
 export async function acquirePhoneCloud(p: {
   stock_no: string;
@@ -491,23 +523,86 @@ export async function registerSupplierCreditCloud(p: {
   creditor: string;
   paid: string;
   comments: string | null;
-  stock_no: string | null;
+  stock_no: string;
 }) {
+  const raw = String(p.stock_no ?? "").trim();
+  if (!raw) throw new Error("No. Stock es obligatorio.");
   await withTx(async (c) => {
+    const stock_no = await resolveInventoryStockNo(c, raw);
     await c.query(
       `INSERT INTO supplier_credits (at, amount, creditor, paid, comments, stock_no)
        VALUES ($1,$2,$3,$4,$5,$6)`,
-      [p.at, p.amount, p.creditor, p.paid, p.comments, p.stock_no],
+      [p.at, p.amount, p.creditor, p.paid, p.comments, stock_no],
     );
     await c.query(
       `INSERT INTO ledger (at, kind, stock_no, amount, available_after, note)
        VALUES ($1,'credito_adquisicion',$2,$3,NULL,$4)`,
       [
         `${p.at}T12:00:00`,
-        p.stock_no,
+        stock_no,
         -p.amount,
-        `Crédito adquisición — ${p.creditor}`,
+        `Crédito adquisición — ${p.creditor}${p.paid === "Si" ? " (ya pagado)" : ""}`,
       ],
+    );
+    if (p.paid === "Si") {
+      await c.query(
+        `INSERT INTO ledger (at, kind, stock_no, amount, available_after, note)
+         VALUES ($1,'pago_acreedor',$2,$3,NULL,$4)`,
+        [
+          `${p.at}T12:00:00`,
+          stock_no,
+          p.amount,
+          `Pago a acreedor ${p.creditor}`,
+        ],
+      );
+    }
+  });
+}
+
+export async function setSupplierPaidCloud(
+  id: number,
+  paid: "Si" | "No",
+  paid_at: string,
+) {
+  await withTx(async (c) => {
+    const res = await c.query(
+      `SELECT paid, amount, creditor, stock_no FROM supplier_credits WHERE id = $1`,
+      [id],
+    );
+    const row = res.rows[0] as
+      | {
+          paid: string;
+          amount: number;
+          creditor: string;
+          stock_no: string | null;
+        }
+      | undefined;
+    if (!row) throw new Error("NOT_FOUND");
+    if (row.paid === paid) return;
+    await c.query(`UPDATE supplier_credits SET paid = $1 WHERE id = $2`, [
+      paid,
+      id,
+    ]);
+    const note = `Pago a acreedor ${row.creditor}`;
+    if (paid === "Si") {
+      await c.query(
+        `INSERT INTO ledger (at, kind, stock_no, amount, available_after, note)
+         VALUES ($1,'pago_acreedor',$2,$3,NULL,$4)`,
+        [`${paid_at}T12:00:00`, row.stock_no, Number(row.amount), note],
+      );
+      return;
+    }
+    await c.query(
+      `DELETE FROM ledger WHERE id = (
+         SELECT id FROM ledger
+         WHERE kind = 'pago_acreedor'
+           AND amount = $1
+           AND note = $2
+           AND COALESCE(stock_no, '') = COALESCE($3, '')
+         ORDER BY id DESC
+         LIMIT 1
+       )`,
+      [Number(row.amount), note, row.stock_no],
     );
   });
 }

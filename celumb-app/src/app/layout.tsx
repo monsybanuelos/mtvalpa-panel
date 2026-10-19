@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import { Bricolage_Grotesque, Figtree } from "next/font/google";
 import { Nav } from "@/components/Nav";
@@ -19,6 +19,11 @@ const body = Figtree({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
 
 export const metadata: Metadata = {
   title: "CeluMB — MB Celulares",
