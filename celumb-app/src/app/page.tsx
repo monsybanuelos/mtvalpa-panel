@@ -215,19 +215,24 @@ export default async function HomePage() {
               <table className="data">
                 <thead>
                   <tr>
+                    <th>Precio</th>
                     <th>No. Stock</th>
                     <th>Equipo</th>
-                    <th>Días</th>
                     <th>Costo</th>
+                    <th>Días</th>
                   </tr>
                 </thead>
                 <tbody>
                   {aging.map((p) => (
                     <tr key={p.id}>
+                      <td data-label="Precio">
+                        {formatMoney(p.suggested_price)}
+                      </td>
                       <td data-label="No. Stock">{p.stock_no}</td>
                       <td data-label="Equipo">
                         {p.brand} {p.model}
                       </td>
+                      <td data-label="Costo">{formatMoney(p.cost)}</td>
                       <td data-label="Días">
                         <span
                           className={
@@ -237,7 +242,6 @@ export default async function HomePage() {
                           {p.days} d
                         </span>
                       </td>
-                      <td data-label="Costo">{formatMoney(p.cost)}</td>
                     </tr>
                   ))}
                 </tbody>
