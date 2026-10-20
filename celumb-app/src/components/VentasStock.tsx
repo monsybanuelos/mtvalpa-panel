@@ -11,31 +11,24 @@ type Props = {
   phones: SalesStockPhone[];
 };
 
-function extFrom(href: string, blob: Blob): string {
-  const subtype = blob.type.split("/")[1]?.split(";")[0]?.trim();
-  if (subtype && /^[a-z0-9]{2,5}$/i.test(subtype)) {
-    return subtype.toLowerCase() === "jpeg" ? "jpg" : subtype.toLowerCase();
+function PhotoLink({ href, label }: { href: string | null; label: string }) {
+  if (!href) {
+    return (
+      <button type="button" className="btn-link" disabled>
+        {label}
+      </button>
+    );
   }
-  const match = href.match(/\.([a-z0-9]{2,5})(?:\?|$)/i);
-  return match ? match[1].toLowerCase() : "jpg";
-}
-
-async function downloadImage(href: string, fallbackName: string) {
-  const res = await fetch(href);
-  if (!res.ok) throw new Error("No se pudo leer la foto.");
-  const blob = await res.blob();
-  const named = (res.headers.get("Content-Disposition") || "").match(
-    /filename="([^"]+)"/,
-  )?.[1];
-  const filename = named || fallbackName || `foto.${extFrom(href, blob)}`;
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
+  return (
+    <a
+      className="btn-link"
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {label}
+    </a>
+  );
 }
 
 async function copyText(text: string) {
@@ -67,7 +60,6 @@ export function VentasStock({ phones }: Props) {
   const [marca, setMarca] = useState("all");
   const [open, setOpen] = useState(false);
   const [pub, setPub] = useState<string | null>(null);
-  const [busyPhoto, setBusyPhoto] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
 
   const brands = useMemo(() => {
@@ -82,24 +74,6 @@ export function VentasStock({ phones }: Props) {
       return true;
     });
   }, [phones, estado, marca]);
-
-  async function onDownload(phone: SalesStockPhone, slot: 1 | 2) {
-    const key = `${phone.id}-${slot}`;
-    setBusyPhoto(key);
-    try {
-      const direct = slot === 1 ? phone.photo1_url : phone.photo2_url;
-      const stock = phone.stock_no.replace(/[^A-Za-z0-9_-]/g, "") || "foto";
-      await downloadImage(
-        direct || `/api/phone-photos/download?id=${phone.id}&slot=${slot}`,
-        `${stock}-foto${slot}.jpg`,
-      );
-      toast.success(`Imagen ${slot} descargada`);
-    } catch {
-      toast.error(`No se pudo descargar la imagen ${slot}.`);
-    } finally {
-      setBusyPhoto(null);
-    }
-  }
 
   async function onPublish(phone: SalesStockPhone) {
     const text = salesPostText(phone);
@@ -257,26 +231,14 @@ export function VentasStock({ phones }: Props) {
                             </div>
                             <div className="ventas-detail-grid__actions">
                               <div className="ventas-actions">
-                                <button
-                                  type="button"
-                                  className="btn-link"
-                                  disabled={
-                                    !p.has_photo1 || busyPhoto === `${p.id}-1`
-                                  }
-                                  onClick={() => onDownload(p, 1)}
-                                >
-                                  Descargar imagen 1
-                                </button>
-                                <button
-                                  type="button"
-                                  className="btn-link"
-                                  disabled={
-                                    !p.has_photo2 || busyPhoto === `${p.id}-2`
-                                  }
-                                  onClick={() => onDownload(p, 2)}
-                                >
-                                  Descargar imagen 2
-                                </button>
+                                <PhotoLink
+                                  href={p.photo1_url}
+                                  label="Descargar imagen 1"
+                                />
+                                <PhotoLink
+                                  href={p.photo2_url}
+                                  label="Descargar imagen 2"
+                                />
                                 <button
                                   type="button"
                                   className="btn-link"

@@ -170,7 +170,7 @@ export async function updatePhoneCloud(p: {
   includes_charger: string;
   comments: string | null;
   imei: string | null;
-  /** Non-empty values replace the slot. Empty leaves the stored photo alone. */
+  /** http(s) link, or null to clear the slot. */
   photo1_path?: string | null;
   photo2_path?: string | null;
 }) {
@@ -191,8 +191,8 @@ export async function updatePhoneCloud(p: {
          margin_suggested=$6, status=$7, carrier=$8, condition_label=$9,
          ram=$10, storage=$11, battery_pct=$12, includes_charger=$13,
          comments=$14, imei=$15,
-         photo1_path = COALESCE(NULLIF($16, ''), photo1_path),
-         photo2_path = COALESCE(NULLIF($17, ''), photo2_path)
+         photo1_path=$16,
+         photo2_path=$17
        WHERE id=$18`,
       [
         p.stock_no,
@@ -210,8 +210,8 @@ export async function updatePhoneCloud(p: {
         p.includes_charger,
         p.comments,
         p.imei,
-        (p.photo1_path || "").trim(),
-        (p.photo2_path || "").trim(),
+        p.photo1_path?.trim() || null,
+        p.photo2_path?.trim() || null,
         p.id,
       ],
     );

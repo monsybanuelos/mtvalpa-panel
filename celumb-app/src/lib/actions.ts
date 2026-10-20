@@ -8,6 +8,7 @@ import {
 } from "./auth";
 import { getDb, nextAccStockNo, nextStockNo } from "./db";
 import { useCloudDb } from "./cloud-env";
+import { parsePhotoLink } from "./photo-link";
 import * as cloudMut from "./cloud-mutate";
 import {
   nextAccStockNo as nextAccStockNoCloud,
@@ -1591,6 +1592,10 @@ export async function updatePhone(
   }
 
   const margin_suggested = suggested_price - cost;
+  const photo1 = parsePhotoLink(formData.get("photo1_path"));
+  const photo2 = parsePhotoLink(formData.get("photo2_path"));
+  if (!photo1.ok) return { ok: false, error: "Link de Foto 1 no es una URL válida." };
+  if (!photo2.ok) return { ok: false, error: "Link de Foto 2 no es una URL válida." };
 
   if (useCloudDb()) {
     try {
@@ -1611,8 +1616,8 @@ export async function updatePhone(
         includes_charger,
         comments,
         imei,
-        photo1_path: String(formData.get("photo1_path") ?? "").trim() || null,
-        photo2_path: String(formData.get("photo2_path") ?? "").trim() || null,
+        photo1_path: photo1.url,
+        photo2_path: photo2.url,
       });
       revalidateAll();
       return {
@@ -1656,16 +1661,14 @@ export async function updatePhone(
   }
 
   try {
-    const photo1_path = String(formData.get("photo1_path") ?? "").trim();
-    const photo2_path = String(formData.get("photo2_path") ?? "").trim();
     db.prepare(
       `UPDATE phones SET
          stock_no = ?, brand = ?, model = ?, cost = ?, suggested_price = ?,
          margin_suggested = ?, status = ?, carrier = ?, condition_label = ?,
          ram = ?, storage = ?, battery_pct = ?, includes_charger = ?,
          comments = ?, imei = ?,
-         photo1_path = COALESCE(NULLIF(?, ''), photo1_path),
-         photo2_path = COALESCE(NULLIF(?, ''), photo2_path)
+         photo1_path = ?,
+         photo2_path = ?
        WHERE id = ?`,
     ).run(
       stock_no,
@@ -1683,8 +1686,8 @@ export async function updatePhone(
       includes_charger,
       comments,
       imei,
-      photo1_path,
-      photo2_path,
+      photo1.url,
+      photo2.url,
       id,
     );
     revalidateAll();

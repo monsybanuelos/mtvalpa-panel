@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { updatePhone, type ActionResult } from "@/lib/actions";
 import type { Phone } from "@/lib/db";
 import { GenerarEtiquetaButton } from "@/components/GenerarEtiquetaButton";
-import { PhotoUploadField } from "@/components/PhotoUploadField";
 import { useToast } from "@/components/Toast";
 import type { PhoneLabelInput } from "@/lib/phone-label";
 
@@ -24,7 +23,6 @@ export function EditPhonePage({ phone }: { phone: Phone }) {
   const router = useRouter();
   const [photo1, setPhoto1] = useState(phone.photo1_path || "");
   const [photo2, setPhoto2] = useState(phone.photo2_path || "");
-  const [photoBusy, setPhotoBusy] = useState(0);
   const lastHandled = useRef<ActionResult | null>(null);
   const [state, formAction, pending] = useActionState(
     async (_prev: ActionResult | null, formData: FormData) => {
@@ -41,7 +39,7 @@ export function EditPhonePage({ phone }: { phone: Phone }) {
     },
     null as ActionResult | null,
   );
-  const locked = pending || photoBusy > 0;
+  const locked = pending;
   const formRef = useRef<HTMLFormElement>(null);
 
   function readLabel(): PhoneLabelInput {
@@ -77,10 +75,6 @@ export function EditPhonePage({ phone }: { phone: Phone }) {
       toast.error(state.error || "No se pudo guardar.");
     }
   }, [state, toast, router]);
-
-  function onPhotoBusy(busy: boolean) {
-    setPhotoBusy((n) => Math.max(0, n + (busy ? 1 : -1)));
-  }
 
   return (
     <div className="edit-phone-page">
@@ -245,34 +239,30 @@ export function EditPhonePage({ phone }: { phone: Phone }) {
                 defaultValue={phone.comments || ""}
               />
             </div>
-            <div className="field-span photo-upload-grid">
-              <PhotoUploadField
-                slot={1}
-                label="Subir Foto 1"
+            <div className="field field-span">
+              <label htmlFor="edit_photo1">Link de Foto 1</label>
+              <input
+                id="edit_photo1"
+                name="photo1_path"
+                type="text"
+                inputMode="url"
+                placeholder="https://drive.google.com/…"
                 value={photo1}
-                phoneId={phone.id}
-                confirmReplace
-                onBusyChange={onPhotoBusy}
-                onChange={(path) => {
-                  setPhoto1(path);
-                  router.refresh();
-                }}
-                onSuccessMessage={(m) => toast.success(m)}
-                onErrorMessage={(m) => toast.error(m)}
+                onChange={(e) => setPhoto1(e.target.value)}
+                autoComplete="off"
               />
-              <PhotoUploadField
-                slot={2}
-                label="Subir Foto 2"
+            </div>
+            <div className="field field-span">
+              <label htmlFor="edit_photo2">Link de Foto 2</label>
+              <input
+                id="edit_photo2"
+                name="photo2_path"
+                type="text"
+                inputMode="url"
+                placeholder="https://drive.google.com/…"
                 value={photo2}
-                phoneId={phone.id}
-                confirmReplace
-                onBusyChange={onPhotoBusy}
-                onChange={(path) => {
-                  setPhoto2(path);
-                  router.refresh();
-                }}
-                onSuccessMessage={(m) => toast.success(m)}
-                onErrorMessage={(m) => toast.error(m)}
+                onChange={(e) => setPhoto2(e.target.value)}
+                autoComplete="off"
               />
             </div>
           </div>

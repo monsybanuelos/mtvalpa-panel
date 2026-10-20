@@ -1,3 +1,5 @@
+import { parsePhotoLink } from "./photo-link";
+
 /** Fields a Ventas session is allowed to receive. No cost, margin, or credit. */
 
 export type SalesStockPhone = {
@@ -15,7 +17,7 @@ export type SalesStockPhone = {
   includes_charger: string;
   has_photo1: boolean;
   has_photo2: boolean;
-  /** Public object URL. Empty when this slot has no photo. */
+  /** http(s) link for Foto 1. Null when the slot is empty. */
   photo1_url: string | null;
   photo2_url: string | null;
 };
@@ -36,8 +38,18 @@ export const SALES_STOCK_SELECT = `
   includes_charger,
   CASE WHEN photo1_path IS NOT NULL AND length(trim(photo1_path)) > 0 THEN 1 ELSE 0 END AS has_photo1,
   CASE WHEN photo2_path IS NOT NULL AND length(trim(photo2_path)) > 0 THEN 1 ELSE 0 END AS has_photo2,
-  CASE WHEN photo1_path LIKE 'https://%/object/public/phone-photos/%' THEN photo1_path ELSE '' END AS photo1_url,
-  CASE WHEN photo2_path LIKE 'https://%/object/public/phone-photos/%' THEN photo2_path ELSE '' END AS photo2_url
+  CASE
+    WHEN lower(trim(coalesce(photo1_path, ''))) LIKE 'https://%'
+      OR lower(trim(coalesce(photo1_path, ''))) LIKE 'http://%'
+    THEN trim(photo1_path)
+    ELSE ''
+  END AS photo1_url,
+  CASE
+    WHEN lower(trim(coalesce(photo2_path, ''))) LIKE 'https://%'
+      OR lower(trim(coalesce(photo2_path, ''))) LIKE 'http://%'
+    THEN trim(photo2_path)
+    ELSE ''
+  END AS photo2_url
 `;
 
 function asBool(value: unknown): boolean {
@@ -78,19 +90,15 @@ export function toSalesStockPhone(row: object): SalesStockPhone {
     includes_charger: String(src.includes_charger ?? ""),
     has_photo1: asBool(src.has_photo1),
     has_photo2: asBool(src.has_photo2),
-    photo1_url: publicPhotoUrl(src.photo1_url),
-    photo2_url: publicPhotoUrl(src.photo2_url),
+    photo1_url: httpPhotoLink(src.photo1_url),
+    photo2_url: httpPhotoLink(src.photo2_url),
   };
 }
 
-/** Only the public phone-photos object URL is safe to hand to Ventas. */
-function publicPhotoUrl(value: unknown): string | null {
-  if (value == null) return null;
-  const text = String(value).trim();
-  if (!/^https:\/\/[^/\s]+\/storage\/v1\/object\/public\/phone-photos\/[^/?#\s]+$/i.test(text)) {
-    return null;
-  }
-  return text;
+/** http(s) only. Anything else stays off the Ventas page. */
+function httpPhotoLink(value: unknown): string | null {
+  const parsed = parsePhotoLink(value);
+  return parsed.ok ? parsed.url : null;
 }
 
 function gradoFromCondition(condition: string): string {
