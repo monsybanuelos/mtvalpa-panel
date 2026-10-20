@@ -3,9 +3,70 @@ import path from "node:path";
 import { useCloudDb } from "./cloud-env";
 import { updatePhonePhoto } from "./db";
 import { updatePhonePhotoCloud } from "./cloud-mutate";
-import { PHOTO_BUCKET, supabaseAdmin } from "./supabase-admin";
+import { PHOTO_BUCKET, publicPhotoUrl, supabaseAdmin } from "./supabase-admin";
 
 const PHOTO_DIR = path.join(process.cwd(), "data", "phone-photos");
+
+/** Types the phone-photos bucket must accept, including iPhone HEIC. */
+const PHOTO_MIME = [
+  "image/png",
+  "image/jpeg",
+  "image/jpg",
+  "image/webp",
+  "image/gif",
+  "image/heic",
+  "image/heif",
+];
+
+let bucketAcceptsPhoneMime = false;
+
+/** Map a browser file type onto a content type the bucket can store. */
+export function storageContentType(type: string, ext: string): string {
+  const t = (type || "").toLowerCase();
+  const e = (ext || "").toLowerCase();
+  if (t === "image/jpg" || t === "image/pjpeg") return "image/jpeg";
+  if (t === "image/heic" || e === "heic") return "image/heic";
+  if (t === "image/heif" || e === "heif") return "image/heif";
+  if (t === "image/png" || e === "png") return "image/png";
+  if (t === "image/webp" || e === "webp") return "image/webp";
+  if (t === "image/gif" || e === "gif") return "image/gif";
+  return "image/jpeg";
+}
+
+async function allowPhoneMimeTypes(): Promise<void> {
+  if (bucketAcceptsPhoneMime) return;
+  const { error } = await supabaseAdmin().storage.updateBucket(PHOTO_BUCKET, {
+    public: true,
+    fileSizeLimit: 8 * 1024 * 1024,
+    allowedMimeTypes: PHOTO_MIME,
+  });
+  if (error && !/already|duplicate|same/i.test(error.message)) {
+    throw new Error(error.message);
+  }
+  bucketAcceptsPhoneMime = true;
+}
+
+/** Upload one photo. If the bucket rejects HEIC, allow it and retry once. */
+export async function uploadPhonePhotoObject(
+  filename: string,
+  buf: Buffer,
+  contentType: string,
+): Promise<string> {
+  const sb = supabaseAdmin();
+  const send = () =>
+    sb.storage.from(PHOTO_BUCKET).upload(filename, buf, {
+      contentType,
+      upsert: false,
+    });
+  let { error } = await send();
+  if (error && /mime type/i.test(error.message)) {
+    await allowPhoneMimeTypes();
+    ({ error } = await send());
+  }
+  if (error) throw new Error(error.message);
+  const pub = sb.storage.from(PHOTO_BUCKET).getPublicUrl(filename);
+  return pub.data.publicUrl || publicPhotoUrl(filename);
+}
 
 /** Object key inside the phone-photos bucket, or the local file name. */
 export function storageObjectName(

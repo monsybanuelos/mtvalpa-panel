@@ -8,12 +8,13 @@ import { useCloudDb } from "@/lib/cloud-env";
 import {
   deleteStoredPhoto,
   saveReplacedPhonePhoto,
+  storageContentType,
+  uploadPhonePhotoObject,
 } from "@/lib/phone-photo-storage";
-import { PHOTO_BUCKET, publicPhotoUrl, supabaseAdmin } from "@/lib/supabase-admin";
 
 export const runtime = "nodejs";
 
-const MAX_BYTES = 3 * 1024 * 1024;
+const MAX_BYTES = 8 * 1024 * 1024;
 const PHOTO_DIR = path.join(process.cwd(), "data", "phone-photos");
 
 const ALLOWED = new Set([
@@ -76,7 +77,7 @@ export async function POST(request: Request) {
         {
           ok: false,
           error:
-            "La foto es demasiado grande (máx. 3 MB). Prueba otra o comprímela.",
+            "La foto es demasiado grande (máx. 8 MB). Prueba otra o comprímela.",
         },
         { status: 400 },
       );
@@ -99,19 +100,16 @@ export async function POST(request: Request) {
     let publicUrl: string;
 
     if (useCloudDb()) {
-      const sb = supabaseAdmin();
-      const { error } = await sb.storage.from(PHOTO_BUCKET).upload(filename, buf, {
-        contentType: ALLOWED.has(type) ? type : "image/jpeg",
-        upsert: false,
-      });
-      if (error) {
-        return NextResponse.json(
-          { ok: false, error: error.message },
-          { status: 500 },
+      try {
+        storedPath = await uploadPhonePhotoObject(
+          filename,
+          buf,
+          storageContentType(type, ext),
         );
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "No se pudo subir la foto.";
+        return NextResponse.json({ ok: false, error: message }, { status: 500 });
       }
-      const pub = sb.storage.from(PHOTO_BUCKET).getPublicUrl(filename);
-      storedPath = pub.data.publicUrl || publicPhotoUrl(filename);
       publicUrl = storedPath;
     } else {
       fs.mkdirSync(PHOTO_DIR, { recursive: true });

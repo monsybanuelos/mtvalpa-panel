@@ -170,6 +170,9 @@ export async function updatePhoneCloud(p: {
   includes_charger: string;
   comments: string | null;
   imei: string | null;
+  /** Non-empty values replace the slot. Empty leaves the stored photo alone. */
+  photo1_path?: string | null;
+  photo2_path?: string | null;
 }) {
   const existing = await q1<{ id: number }>(
     `SELECT id FROM phones WHERE id = $1`,
@@ -187,8 +190,10 @@ export async function updatePhoneCloud(p: {
          stock_no=$1, brand=$2, model=$3, cost=$4, suggested_price=$5,
          margin_suggested=$6, status=$7, carrier=$8, condition_label=$9,
          ram=$10, storage=$11, battery_pct=$12, includes_charger=$13,
-         comments=$14, imei=$15
-       WHERE id=$16`,
+         comments=$14, imei=$15,
+         photo1_path = COALESCE(NULLIF($16, ''), photo1_path),
+         photo2_path = COALESCE(NULLIF($17, ''), photo2_path)
+       WHERE id=$18`,
       [
         p.stock_no,
         p.brand,
@@ -205,6 +210,8 @@ export async function updatePhoneCloud(p: {
         p.includes_charger,
         p.comments,
         p.imei,
+        (p.photo1_path || "").trim(),
+        (p.photo2_path || "").trim(),
         p.id,
       ],
     );

@@ -102,6 +102,8 @@ export function EditPhonePage({ phone }: { phone: Phone }) {
         }}
       >
         <input type="hidden" name="id" value={phone.id} />
+        <input type="hidden" name="photo1_path" value={photo1} />
+        <input type="hidden" name="photo2_path" value={photo2} />
         <fieldset disabled={pending} className="flash-fieldset">
           <div className="form-grid">
             <div className="field">

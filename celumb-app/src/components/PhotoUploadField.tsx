@@ -7,7 +7,7 @@ type Props = {
   label: string;
   value: string;
   /** When set, a successful upload replaces this phone's slot and drops the previous file. */
-  phoneId?: number;
+  phoneId?: number | string;
   /** Ask before replacing a photo that is already in this slot. */
   confirmReplace?: boolean;
   onBusyChange?: (busy: boolean) => void;
@@ -33,22 +33,15 @@ function isAllowedPhoto(file: File): boolean {
 const MAX_EDGE = 1600;
 const JPEG_QUALITY = 0.72;
 const TARGET_MAX_BYTES = 1.2 * 1024 * 1024;
+const MAX_UPLOAD_BYTES = 8 * 1024 * 1024;
 
 async function compressImage(file: File): Promise<Blob> {
-  // HEIC/HEIF: muchos navegadores no dibujan en canvas — subir original si falla
-  const tryCanvas = !/heic|heif/i.test(file.type) && !/\.heic$/i.test(file.name);
-
-  if (!tryCanvas) {
-    if (file.size > 3 * 1024 * 1024) {
-      throw new Error("Foto HEIC demasiado grande. Elige otra o convierte a JPEG.");
-    }
-    return file;
-  }
-
+  // iPhone photos are often HEIC. Draw them when the browser can, so the
+  // upload is a JPEG the bucket already accepts. If it cannot, send the file.
   const bitmap = await createImageBitmap(file).catch(() => null);
   if (!bitmap) {
-    if (file.size > 3 * 1024 * 1024) {
-      throw new Error("No se pudo procesar la foto. Prueba otra imagen.");
+    if (file.size > MAX_UPLOAD_BYTES) {
+      throw new Error("La foto es demasiado grande (máx. 8 MB). Prueba otra o comprímela.");
     }
     return file;
   }
@@ -86,7 +79,7 @@ function uploadWithProgress(
   filename: string,
   slot: number,
   onProgress: (pct: number) => void,
-  phoneId?: number,
+  phoneId?: number | string,
 ): Promise<{ path: string; message?: string }> {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
@@ -97,12 +90,20 @@ function uploadWithProgress(
       onProgress(Math.min(99, Math.round((ev.loaded / ev.total) * 100)));
     };
     xhr.onload = () => {
-      const data = xhr.response as {
+      let data = xhr.response as {
         ok?: boolean;
         path?: string;
         error?: string;
         message?: string;
       } | null;
+      if (!data) {
+        try {
+          const text = xhr.responseText;
+          if (text) data = JSON.parse(text) as typeof data;
+        } catch {
+          data = null;
+        }
+      }
       if (xhr.status >= 200 && xhr.status < 300 && data?.ok && data.path) {
         onProgress(100);
         resolve({ path: data.path, message: data.message });
@@ -114,7 +115,8 @@ function uploadWithProgress(
     const fd = new FormData();
     fd.append("file", blob, filename);
     fd.append("slot", String(slot));
-    if (phoneId) fd.append("phoneId", String(phoneId));
+    const id = Number(phoneId);
+    if (Number.isInteger(id) && id > 0) fd.append("phoneId", String(id));
     xhr.send(fd);
   });
 }
@@ -161,6 +163,7 @@ export function PhotoUploadField({
       setUploaded(true);
       onSuccessMessage(message || "Foto subida con éxito");
     } catch (e) {
+      setPreview(null);
       setProgress(null);
       onErrorMessage(e instanceof Error ? e.message : "No se pudo subir la foto.");
     } finally {

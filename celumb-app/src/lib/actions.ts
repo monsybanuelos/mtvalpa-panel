@@ -1611,6 +1611,8 @@ export async function updatePhone(
         includes_charger,
         comments,
         imei,
+        photo1_path: String(formData.get("photo1_path") ?? "").trim() || null,
+        photo2_path: String(formData.get("photo2_path") ?? "").trim() || null,
       });
       revalidateAll();
       return {
@@ -1654,12 +1656,16 @@ export async function updatePhone(
   }
 
   try {
+    const photo1_path = String(formData.get("photo1_path") ?? "").trim();
+    const photo2_path = String(formData.get("photo2_path") ?? "").trim();
     db.prepare(
       `UPDATE phones SET
          stock_no = ?, brand = ?, model = ?, cost = ?, suggested_price = ?,
          margin_suggested = ?, status = ?, carrier = ?, condition_label = ?,
          ram = ?, storage = ?, battery_pct = ?, includes_charger = ?,
-         comments = ?, imei = ?
+         comments = ?, imei = ?,
+         photo1_path = COALESCE(NULLIF(?, ''), photo1_path),
+         photo2_path = COALESCE(NULLIF(?, ''), photo2_path)
        WHERE id = ?`,
     ).run(
       stock_no,
@@ -1677,6 +1683,8 @@ export async function updatePhone(
       includes_charger,
       comments,
       imei,
+      photo1_path,
+      photo2_path,
       id,
     );
     revalidateAll();
