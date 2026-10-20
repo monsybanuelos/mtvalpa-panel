@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useRef, useState } from "react";
+import { uploadPhonePhotoAction } from "@/lib/photo-upload-action";
 
 type Props = {
   slot: 1 | 2;
@@ -74,51 +75,25 @@ async function compressImage(file: File): Promise<Blob> {
   return blob;
 }
 
-function uploadWithProgress(
+async function uploadWithProgress(
   blob: Blob,
   filename: string,
   slot: number,
   onProgress: (pct: number) => void,
   phoneId?: number | string,
 ): Promise<{ path: string; message?: string }> {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", "/api/phone-photos/upload");
-    xhr.responseType = "json";
-    xhr.upload.onprogress = (ev) => {
-      if (!ev.lengthComputable) return;
-      onProgress(Math.min(99, Math.round((ev.loaded / ev.total) * 100)));
-    };
-    xhr.onload = () => {
-      let data = xhr.response as {
-        ok?: boolean;
-        path?: string;
-        error?: string;
-        message?: string;
-      } | null;
-      if (!data) {
-        try {
-          const text = xhr.responseText;
-          if (text) data = JSON.parse(text) as typeof data;
-        } catch {
-          data = null;
-        }
-      }
-      if (xhr.status >= 200 && xhr.status < 300 && data?.ok && data.path) {
-        onProgress(100);
-        resolve({ path: data.path, message: data.message });
-      } else {
-        reject(new Error(data?.error || `Error al subir (${xhr.status})`));
-      }
-    };
-    xhr.onerror = () => reject(new Error("Error de red al subir la foto."));
-    const fd = new FormData();
-    fd.append("file", blob, filename);
-    fd.append("slot", String(slot));
-    const id = Number(phoneId);
-    if (Number.isInteger(id) && id > 0) fd.append("phoneId", String(id));
-    xhr.send(fd);
-  });
+  // Posted with the page. The /api upload route is answered 429 by the CDN
+  // before the app can store the file.
+  onProgress(20);
+  const fd = new FormData();
+  fd.append("file", blob, filename);
+  fd.append("slot", String(slot));
+  const id = Number(phoneId);
+  if (Number.isInteger(id) && id > 0) fd.append("phoneId", String(id));
+  const data = await uploadPhonePhotoAction(fd);
+  if (!data.ok) throw new Error(data.error || "No se pudo subir la foto.");
+  onProgress(100);
+  return { path: data.path, message: data.message };
 }
 
 export function PhotoUploadField({
