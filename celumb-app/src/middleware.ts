@@ -51,6 +51,8 @@ function ventasPathAllowed(pathname: string): boolean {
   if (pathname.startsWith("/inventario/editar")) return false;
   if (pathname.startsWith("/inventario/")) return true;
   if (pathname.startsWith("/api/phone-photos/upload")) return false;
+  if (pathname.startsWith("/api/phone-photos/sign")) return false;
+  if (pathname.startsWith("/api/phone-photos/commit")) return false;
   if (pathname.startsWith("/api/phone-photos")) return true;
   return false;
 }

@@ -1,11 +1,7 @@
 "use client";
 
 import { useId, useRef, useState } from "react";
-import {
-  commitPhonePhotoPath,
-  preparePhonePhotoUpload,
-  uploadPhonePhotoAction,
-} from "@/lib/photo-upload-action";
+import { uploadPhonePhotoAction } from "@/lib/photo-upload-action";
 
 type Props = {
   slot: 1 | 2;
@@ -123,17 +119,22 @@ async function uploadWithProgress(
   onProgress: (pct: number) => void,
   phoneId?: number | string,
 ): Promise<{ path: string; message?: string }> {
-  // The file goes to Storage from this browser. Hostinger only sees two
-  // small actions (a signed URL, then the object path). Posting the photo
-  // to the page or /api/phone-photos/upload is answered 429 by hcdn.
+  // The file is PUT to Storage from this browser. Hostinger only answers two
+  // small GETs: a signed URL, then the object path. POSTing the photo to the
+  // edit page or /api/phone-photos/upload is answered 429 by hcdn.
   onProgress(15);
-  const prepared = await preparePhonePhotoUpload({
-    slot,
-    ext: extForBlob(blob, filename),
-  });
-  if (!prepared.ok) {
-    if (prepared.fallback) return uploadThroughApp(blob, filename, slot, phoneId);
-    throw new Error(prepared.error || "No se pudo preparar la subida.");
+  const ext = extForBlob(blob, filename);
+  const signRes = await fetch(`/api/phone-photos/sign?slot=${slot}&ext=${ext}`);
+  const prepared = (await signRes.json().catch(() => null)) as {
+    ok?: boolean;
+    fallback?: boolean;
+    error?: string;
+    signedUrl?: string;
+    objectName?: string;
+  } | null;
+  if (!prepared?.ok || !prepared.signedUrl || !prepared.objectName) {
+    if (prepared?.fallback) return uploadThroughApp(blob, filename, slot, phoneId);
+    throw new Error(prepared?.error || "No se pudo preparar la subida.");
   }
   if (!signedUploadUrl(prepared.signedUrl)) {
     throw new Error("No se pudo preparar la subida.");
@@ -150,12 +151,21 @@ async function uploadWithProgress(
   if (!put.ok) throw new Error("No se pudo subir la foto.");
   onProgress(75);
   const id = Number(phoneId);
-  const saved = await commitPhonePhotoPath({
-    slot,
-    objectName: prepared.objectName,
-    phoneId: Number.isInteger(id) && id > 0 ? id : undefined,
+  const params = new URLSearchParams({
+    slot: String(slot),
+    object: prepared.objectName,
   });
-  if (!saved.ok) throw new Error(saved.error || "No se pudo guardar la foto.");
+  if (Number.isInteger(id) && id > 0) params.set("phoneId", String(id));
+  const commitRes = await fetch(`/api/phone-photos/commit?${params}`);
+  const saved = (await commitRes.json().catch(() => null)) as {
+    ok?: boolean;
+    error?: string;
+    path?: string;
+    message?: string;
+  } | null;
+  if (!saved?.ok || !saved.path) {
+    throw new Error(saved?.error || "No se pudo guardar la foto.");
+  }
   onProgress(100);
   return { path: saved.path, message: saved.message };
 }
