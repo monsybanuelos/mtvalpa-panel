@@ -31,7 +31,10 @@ export default async function InventarioEditPage({ params }: Props) {
 
   return (
     <section className="section" style={{ marginTop: 0 }}>
-      <EditPhonePage phone={phone} />
+      <EditPhonePage
+        phone={phone}
+        googleClientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim() || ""}
+      />
     </section>
   );
 }

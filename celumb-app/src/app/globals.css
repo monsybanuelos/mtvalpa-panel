@@ -1318,9 +1318,23 @@ table.data tr:hover td {
   border-radius: inherit;
   transition: width 0.15s ease;
 }
-.photo-upload .ok {
+.photo-upload .ok,
+.field-hint.ok {
   color: var(--ok, #0b7a45);
   font-weight: 600;
+}
+
+.photo-link-row {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.field .photo-link-row input {
+  width: auto;
+  flex: 1 1 14rem;
 }
 
 .photo-replace-warn {

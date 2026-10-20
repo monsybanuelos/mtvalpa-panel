@@ -38,6 +38,7 @@ Pégalas en hPanel → Web App → Environment variables. **No** subas el archiv
 
 ### Opcionales
 
+- `NEXT_PUBLIC_GOOGLE_CLIENT_ID` — Client ID público de Google (Web). Sin client secret. Sirve para **Subir a Drive** en Editar celular. Si falta, el botón dice que Drive no está configurado.
 - `SUPABASE_PROJECT_REF`
 - `SUPABASE_PASSWORD`
 - `SUPABASE_DB_HOST` / `SUPABASE_DB_PORT` (si arman `DATABASE_URL` a mano)
@@ -54,6 +55,32 @@ Si `DATABASE_URL` o la service role están presentes, lecturas/escrituras van a 
 2. Abrir la URL de la Web App → login Admin → Inventario.
 3. Probar un guardado: **Registrar adquisición** de un celular de prueba y recargar (debe seguir ahí).
 4. Si Hostinger da una URL distinta de `mtvalpa.com/celumb`, apunta el dominio/proxy en hPanel o actualiza `CELUMB_PUBLIC_URL`.
+
+## Subir fotos a Google Drive
+
+El archivo sale del iPhone directo a Drive. No pasa por Hostinger (el CDN responde 429 si el POST de la foto entra al servidor).
+
+En [Google Cloud Console](https://console.cloud.google.com/):
+
+1. Crea o elige un proyecto.
+2. **APIs y servicios → Biblioteca** → habilita **Google Drive API**.
+3. **APIs y servicios → Pantalla de consentimiento de OAuth**.
+   - Tipo de usuario: Externo (o Interno si es Google Workspace).
+   - Nombre de la app y correo de asistencia.
+   - Alcance: solo `https://www.googleapis.com/auth/drive.file` (ver, editar, crear y borrar únicamente los archivos que esta app abre en Drive).
+   - Mientras la app esté en **Prueba**, agrega el Gmail de la tienda en **Usuarios de prueba**. Si no, Google no deja entrar.
+4. **APIs y servicios → Credenciales → Crear credenciales → ID de cliente de OAuth → Aplicación web**.
+   - Orígenes de JavaScript autorizados: `https://celumb.mtvalpa.com`
+   - URI de redireccionamiento autorizados: `https://celumb.mtvalpa.com`
+5. Copia solo el **ID de cliente** (termina en `.apps.googleusercontent.com`). No copies ni pegues el client secret en el repo, en el navegador ni en este archivo.
+
+En hPanel → Web App → Environment variables:
+
+| Nombre | Valor |
+|--------|--------|
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | el ID de cliente del paso 5 |
+
+Reinicia el Web App después de pegarla. El botón **Subir a Drive** está en Inventario → Editar, junto a Link de Foto 1 y Link de Foto 2. La primera vez abre el inicio de sesión de Google en la misma pestaña (Safari del iPhone). Luego guarda el link de compartir con el mismo guardado que **Guardar cambios**.
 
 ## Qué pedir a Jonax si algo falta
 

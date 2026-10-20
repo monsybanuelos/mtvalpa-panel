@@ -5,8 +5,18 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { updatePhone, type ActionResult } from "@/lib/actions";
 import type { Phone } from "@/lib/db";
+import { DrivePhotoSlot } from "@/components/DrivePhotoSlot";
 import { GenerarEtiquetaButton } from "@/components/GenerarEtiquetaButton";
 import { useToast } from "@/components/Toast";
+import {
+  beginDriveSignIn,
+  claimPendingDriveUpload,
+  driveFileName,
+  drivePhotoMime,
+  readDriveToken,
+  uploadPhotoToDrive,
+  type DriveSlot,
+} from "@/lib/drive-browser";
 import type { PhoneLabelInput } from "@/lib/phone-label";
 
 const CONDITIONS = [
@@ -18,11 +28,21 @@ const CONDITIONS = [
 
 const CHARGERS = ["Si", "No", "Se incluira en venta"] as const;
 
-export function EditPhonePage({ phone }: { phone: Phone }) {
+export function EditPhonePage({
+  phone,
+  googleClientId,
+}: {
+  phone: Phone;
+  googleClientId: string;
+}) {
   const toast = useToast();
   const router = useRouter();
   const [photo1, setPhoto1] = useState(phone.photo1_path || "");
   const [photo2, setPhoto2] = useState(phone.photo2_path || "");
+  const photoRef = useRef({ photo1: phone.photo1_path || "", photo2: phone.photo2_path || "" });
+  const [driveSlot, setDriveSlot] = useState<DriveSlot | null>(null);
+  const [drivePct, setDrivePct] = useState<number | null>(null);
+  const [uploadedSlot, setUploadedSlot] = useState<DriveSlot | null>(null);
   const lastHandled = useRef<ActionResult | null>(null);
   const [state, formAction, pending] = useActionState(
     async (_prev: ActionResult | null, formData: FormData) => {
@@ -39,8 +59,120 @@ export function EditPhonePage({ phone }: { phone: Phone }) {
     },
     null as ActionResult | null,
   );
-  const locked = pending;
+  const locked = pending || driveSlot != null;
   const formRef = useRef<HTMLFormElement>(null);
+  photoRef.current = { photo1, photo2 };
+
+  async function savePhotoLink(slot: DriveSlot, url: string) {
+    const next1 = slot === 1 ? url : photoRef.current.photo1;
+    const next2 = slot === 2 ? url : photoRef.current.photo2;
+    photoRef.current = { photo1: next1, photo2: next2 };
+    setPhoto1(next1);
+    setPhoto2(next2);
+    const fd = new FormData();
+    const form = formRef.current;
+    if (form) {
+      for (const el of form.querySelectorAll("input, select, textarea")) {
+        if (
+          !(
+            el instanceof HTMLInputElement ||
+            el instanceof HTMLSelectElement ||
+            el instanceof HTMLTextAreaElement
+          )
+        ) {
+          continue;
+        }
+        if (!el.name || el.type === "file") continue;
+        fd.append(el.name, el.value);
+      }
+    }
+    fd.set("id", String(phone.id));
+    fd.set("photo1_path", next1);
+    fd.set("photo2_path", next2);
+    const result = await updatePhone(fd);
+    if (!result.ok) throw new Error(result.error || "No se pudo guardar el link.");
+  }
+
+  async function uploadDriveFile(slot: DriveSlot, file: File) {
+    const clientId = googleClientId.trim();
+    if (!clientId) {
+      toast.error("La conexión con Drive no está configurada.");
+      return;
+    }
+    if (file.size <= 0 || file.size > 25 * 1024 * 1024) {
+      toast.error("La foto es demasiado grande (máx. 25 MB).");
+      return;
+    }
+    const mime = drivePhotoMime(file);
+    const fileName = driveFileName(phone.stock_no, slot, mime);
+    if (!readDriveToken()) {
+      try {
+        await beginDriveSignIn({
+          clientId,
+          stockNo: phone.stock_no,
+          slot,
+          file,
+        });
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "No se pudo abrir Google.");
+      }
+      return;
+    }
+    setUploadedSlot(null);
+    setDriveSlot(slot);
+    setDrivePct(0);
+    try {
+      const url = await uploadPhotoToDrive({
+        token: readDriveToken() || "",
+        file,
+        fileName,
+        mime,
+        onProgress: setDrivePct,
+      });
+      await savePhotoLink(slot, url);
+      setUploadedSlot(slot);
+      toast.success("Foto subida con éxito");
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "No se pudo subir la foto.";
+      if (message === "AUTH") {
+        try {
+          await beginDriveSignIn({
+            clientId,
+            stockNo: phone.stock_no,
+            slot,
+            file,
+          });
+          return;
+        } catch (signInError) {
+          toast.error(
+            signInError instanceof Error
+              ? signInError.message
+              : "La sesión de Google expiró.",
+          );
+        }
+      } else {
+        toast.error(message);
+      }
+    } finally {
+      setDrivePct(null);
+      setDriveSlot(null);
+    }
+  }
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!googleClientId.trim() || !readDriveToken()) return;
+    void claimPendingDriveUpload(phone.stock_no).then((pending) => {
+      if (cancelled || !pending) return;
+      const file = new File([pending.file], pending.fileName, { type: pending.mime });
+      void uploadDriveFile(pending.slot, file);
+    });
+    return () => {
+      cancelled = true;
+    };
+    // Resume once when this stock's edit page opens after Google redirects back.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phone.stock_no]);
 
   function readLabel(): PhoneLabelInput {
     const fd = new FormData(formRef.current ?? undefined);
@@ -239,32 +371,38 @@ export function EditPhonePage({ phone }: { phone: Phone }) {
                 defaultValue={phone.comments || ""}
               />
             </div>
-            <div className="field field-span">
-              <label htmlFor="edit_photo1">Link de Foto 1</label>
-              <input
-                id="edit_photo1"
-                name="photo1_path"
-                type="text"
-                inputMode="url"
-                placeholder="https://drive.google.com/…"
-                value={photo1}
-                onChange={(e) => setPhoto1(e.target.value)}
-                autoComplete="off"
-              />
-            </div>
-            <div className="field field-span">
-              <label htmlFor="edit_photo2">Link de Foto 2</label>
-              <input
-                id="edit_photo2"
-                name="photo2_path"
-                type="text"
-                inputMode="url"
-                placeholder="https://drive.google.com/…"
-                value={photo2}
-                onChange={(e) => setPhoto2(e.target.value)}
-                autoComplete="off"
-              />
-            </div>
+            <DrivePhotoSlot
+              slot={1}
+              label="Link de Foto 1"
+              inputId="edit_photo1"
+              value={photo1}
+              onChange={setPhoto1}
+              clientId={googleClientId}
+              disabled={locked}
+              progress={driveSlot === 1 ? drivePct : null}
+              uploaded={uploadedSlot === 1}
+              onFile={(file) => void uploadDriveFile(1, file)}
+              onNeedConfig={() =>
+                toast.error("La conexión con Drive no está configurada.")
+              }
+              onRejectFile={(message) => toast.error(message)}
+            />
+            <DrivePhotoSlot
+              slot={2}
+              label="Link de Foto 2"
+              inputId="edit_photo2"
+              value={photo2}
+              onChange={setPhoto2}
+              clientId={googleClientId}
+              disabled={locked}
+              progress={driveSlot === 2 ? drivePct : null}
+              uploaded={uploadedSlot === 2}
+              onFile={(file) => void uploadDriveFile(2, file)}
+              onNeedConfig={() =>
+                toast.error("La conexión con Drive no está configurada.")
+              }
+              onRejectFile={(message) => toast.error(message)}
+            />
           </div>
           <div className="form-actions">
             <GenerarEtiquetaButton

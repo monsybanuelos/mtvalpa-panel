@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import { Bricolage_Grotesque, Figtree } from "next/font/google";
+import { GoogleDriveAuthReturn } from "@/components/GoogleDriveAuthReturn";
 import { Nav } from "@/components/Nav";
 import { ToastProvider } from "@/components/Toast";
 import { getSession } from "@/lib/auth";
@@ -53,6 +54,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <ToastProvider>
+          <GoogleDriveAuthReturn />
           {showAppChrome && session && (
             <Nav
               suggestedStockNo={suggestedStockNo}
