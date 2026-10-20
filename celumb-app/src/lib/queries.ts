@@ -20,6 +20,8 @@ const SALES_STOCK_KEYS = new Set([
   "includes_charger",
   "has_photo1",
   "has_photo2",
+  "photo1_url",
+  "photo2_url",
 ]);
 
 export async function getDashboardStats() {

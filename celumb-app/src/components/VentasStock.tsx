@@ -20,14 +20,14 @@ function extFrom(href: string, blob: Blob): string {
   return match ? match[1].toLowerCase() : "jpg";
 }
 
-async function downloadImage(href: string) {
+async function downloadImage(href: string, fallbackName: string) {
   const res = await fetch(href);
   if (!res.ok) throw new Error("No se pudo leer la foto.");
   const blob = await res.blob();
   const named = (res.headers.get("Content-Disposition") || "").match(
     /filename="([^"]+)"/,
   )?.[1];
-  const filename = named || `foto.${extFrom(href, blob)}`;
+  const filename = named || fallbackName || `foto.${extFrom(href, blob)}`;
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
@@ -87,8 +87,11 @@ export function VentasStock({ phones }: Props) {
     const key = `${phone.id}-${slot}`;
     setBusyPhoto(key);
     try {
+      const direct = slot === 1 ? phone.photo1_url : phone.photo2_url;
+      const stock = phone.stock_no.replace(/[^A-Za-z0-9_-]/g, "") || "foto";
       await downloadImage(
-        `/api/phone-photos/download?id=${phone.id}&slot=${slot}`,
+        direct || `/api/phone-photos/download?id=${phone.id}&slot=${slot}`,
+        `${stock}-foto${slot}.jpg`,
       );
       toast.success(`Imagen ${slot} descargada`);
     } catch {

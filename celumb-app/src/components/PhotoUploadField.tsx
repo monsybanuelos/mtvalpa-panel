@@ -1,7 +1,11 @@
 "use client";
 
 import { useId, useRef, useState } from "react";
-import { uploadPhonePhotoAction } from "@/lib/photo-upload-action";
+import {
+  commitPhonePhotoPath,
+  preparePhonePhotoUpload,
+  uploadPhonePhotoAction,
+} from "@/lib/photo-upload-action";
 
 type Props = {
   slot: 1 | 2;
@@ -75,16 +79,33 @@ async function compressImage(file: File): Promise<Blob> {
   return blob;
 }
 
-async function uploadWithProgress(
+function extForBlob(blob: Blob, filename: string): "jpg" | "png" | "heic" | "heif" {
+  const type = (blob.type || "").toLowerCase();
+  if (type.includes("png") || /\.png$/i.test(filename)) return "png";
+  if (type.includes("heic") || /\.heic$/i.test(filename)) return "heic";
+  if (type.includes("heif") || /\.heif$/i.test(filename)) return "heif";
+  return "jpg";
+}
+
+function signedUploadUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return (
+      url.protocol === "https:" &&
+      url.hostname.endsWith(".supabase.co") &&
+      url.pathname.includes("/storage/v1/object/upload/sign/")
+    );
+  } catch {
+    return false;
+  }
+}
+
+async function uploadThroughApp(
   blob: Blob,
   filename: string,
   slot: number,
-  onProgress: (pct: number) => void,
   phoneId?: number | string,
 ): Promise<{ path: string; message?: string }> {
-  // Posted with the page. The /api upload route is answered 429 by the CDN
-  // before the app can store the file.
-  onProgress(20);
   const fd = new FormData();
   fd.append("file", blob, filename);
   fd.append("slot", String(slot));
@@ -92,8 +113,51 @@ async function uploadWithProgress(
   if (Number.isInteger(id) && id > 0) fd.append("phoneId", String(id));
   const data = await uploadPhonePhotoAction(fd);
   if (!data.ok) throw new Error(data.error || "No se pudo subir la foto.");
-  onProgress(100);
   return { path: data.path, message: data.message };
+}
+
+async function uploadWithProgress(
+  blob: Blob,
+  filename: string,
+  slot: number,
+  onProgress: (pct: number) => void,
+  phoneId?: number | string,
+): Promise<{ path: string; message?: string }> {
+  // The file goes to Storage from this browser. Hostinger only sees two
+  // small actions (a signed URL, then the object path). Posting the photo
+  // to the page or /api/phone-photos/upload is answered 429 by hcdn.
+  onProgress(15);
+  const prepared = await preparePhonePhotoUpload({
+    slot,
+    ext: extForBlob(blob, filename),
+  });
+  if (!prepared.ok) {
+    if (prepared.fallback) return uploadThroughApp(blob, filename, slot, phoneId);
+    throw new Error(prepared.error || "No se pudo preparar la subida.");
+  }
+  if (!signedUploadUrl(prepared.signedUrl)) {
+    throw new Error("No se pudo preparar la subida.");
+  }
+  onProgress(35);
+  const body = new FormData();
+  body.append("cacheControl", "3600");
+  body.append("file", blob, filename);
+  const put = await fetch(prepared.signedUrl, {
+    method: "PUT",
+    headers: { "x-upsert": "false" },
+    body,
+  });
+  if (!put.ok) throw new Error("No se pudo subir la foto.");
+  onProgress(75);
+  const id = Number(phoneId);
+  const saved = await commitPhonePhotoPath({
+    slot,
+    objectName: prepared.objectName,
+    phoneId: Number.isInteger(id) && id > 0 ? id : undefined,
+  });
+  if (!saved.ok) throw new Error(saved.error || "No se pudo guardar la foto.");
+  onProgress(100);
+  return { path: saved.path, message: saved.message };
 }
 
 export function PhotoUploadField({
