@@ -34,6 +34,11 @@ export async function getDashboardStats() {
       `SELECT COALESCE(SUM(cost), 0)::text AS t FROM phones WHERE status = 'disponible'`,
     ))?.t || 0,
   );
+  const stockValue = Number(
+    (await q1<{ t: string }>(
+      `SELECT COALESCE(SUM(suggested_price), 0)::text AS t FROM phones WHERE status = 'disponible'`,
+    ))?.t || 0,
+  );
   const salesTotal = Number(
     (await q1<{ t: string }>(
       `SELECT COALESCE(SUM(amount), 0)::text AS t FROM sales`,
@@ -87,6 +92,7 @@ export async function getDashboardStats() {
     available,
     sold,
     stockCost,
+    stockValue,
     salesTotal,
     salesMonth,
     utilidad,

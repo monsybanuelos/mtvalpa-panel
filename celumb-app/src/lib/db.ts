@@ -916,6 +916,13 @@ export function getDashboardStats() {
       )
       .get() as { t: number }
   ).t;
+  const stockValue = (
+    db
+      .prepare(
+        `SELECT COALESCE(SUM(suggested_price), 0) AS t FROM phones WHERE status = 'disponible'`,
+      )
+      .get() as { t: number }
+  ).t;
   const salesTotal = (
     db.prepare(`SELECT COALESCE(SUM(amount), 0) AS t FROM sales`).get() as {
       t: number;
@@ -970,6 +977,7 @@ export function getDashboardStats() {
     available,
     sold,
     stockCost,
+    stockValue,
     salesTotal,
     salesMonth,
     utilidad,

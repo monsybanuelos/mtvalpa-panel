@@ -137,6 +137,12 @@ export default async function HomePage() {
             </span>
           </div>
           <div className="stat stat--muted">
+            <span className="stat__label">Valor de stock</span>
+            <span className="stat__value stat__value--sm">
+              {formatMoney(stats.stockValue)}
+            </span>
+          </div>
+          <div className="stat stat--muted">
             <span className="stat__label">Por cobrar</span>
             <span className="stat__value stat__value--sm">
               {formatMoney(stats.receivable)}
